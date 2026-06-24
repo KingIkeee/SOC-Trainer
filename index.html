@@ -1650,6 +1650,7 @@ function missedDayPending(){
 ==================================================================== */
 const stage=document.getElementById('stage');
 let mode="today";
+let viewIdx=null; // null = live current day; a number = read-only review of that completed/past day
 
 function renderPace(){
   document.querySelectorAll('.pace-opt').forEach(b=>{
@@ -1666,13 +1667,64 @@ function renderStatus(){
     <div class="stat"><div class="v">${o.acc}%</div><div class="l">Accuracy</div></div>
     <div class="stat tier"><div class="v">${S.mistakes?S.mistakes.length:0}</div><div class="l">To review</div></div>`;
 }
-document.querySelectorAll('.mode-btn').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;document.querySelectorAll('.mode-btn').forEach(x=>x.classList.toggle('active',x.dataset.mode===mode));render();});
+document.querySelectorAll('.mode-btn').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;viewIdx=null;document.querySelectorAll('.mode-btn').forEach(x=>x.classList.toggle('active',x.dataset.mode===mode));render();});
 
 function render(){renderPace();renderStatus();
   if(mode==="today")renderToday();else if(mode==="review")renderReview();else if(mode==="week")renderWeek();else if(mode==="vm")renderVM();else renderExport();}
 
+/* -------- READ-ONLY PAST-DAY VIEW (no progress mutation) -------- */
+function renderDayView(idx){
+  const L=CURRICULUM[idx],wkey=L.cert+"|"+L.week;
+  const c=S.completed[idx];
+  const tier2on=S.tier2Unlocked[wkey];
+  const req=reqCounts(L);
+  let terms=L.terms.slice(0,req.terms);
+  if(tier2on)terms=[...terms,...(TIER2[wkey]||[])];
+  const quizSet=L.quiz.slice(0,req.quiz);
+  const stage=document.getElementById('stage');
+  stage.innerHTML=`
+    <button class="btn ghost" id="backToCurrent" style="margin-bottom:14px">← back to current day (Day ${CURRICULUM[Math.min(S.cursor,CURRICULUM.length-1)].day})</button>
+    <div class="banner info"><span class="ic">👁</span><div><b>Reviewing Day ${L.day}.</b> ${c?`You completed this — scored <b>${Math.round(c.ok/c.total*100)}%</b>${c.doneISO?` on ${c.doneISO}`:''}.`:'Read-only view.'} Nothing here changes your progress or streak.</div></div>
+    <div class="lesson-head">
+      <span class="pill cert">${L.cert}</span>
+      <span class="pill wk">W${L.week} · D${L.day}</span>
+      <span class="pill obj">${L.obj}</span>
+      ${tier2on?'<span class="pill tierp">TIER 2</span>':''}
+    </div>
+    <div class="lesson-title">${L.title}</div>
+    <div class="lesson-focus">${L.focus}</div>
+
+    <div class="sec-label">VOCABULARY &amp; TERMS <span class="sec-count">${terms.length} terms</span></div>
+    <div id="terms">${terms.map(tm=>{
+      const conn=tm.t.includes("◆CONNECTOR");
+      const nm=tm.t.replace("◆CONNECTOR","").trim();
+      return `<div class="term">
+        <div class="t">${nm} ${conn?'<span class="new" style="background:#0d1f15;color:var(--green);border-color:#1d4427">◆ CONNECTOR</span>':''} ${tm.t2?'<span class="new">NEW TIER</span>':''}</div>
+        <div class="d">${tm.d}</div>
+        <div class="eli5"><b>LIKE YOU'RE NEW ▸</b> ${tm.e}</div>
+        ${tm.exam?`<div class="exam">▸ EXAM: ${tm.exam}</div>`:''}
+      </div>`;}).join('')}
+    </div>
+
+    <div class="sec-label">PRACTICE TASKS <span class="sec-count">${L.tasks.length} tasks</span></div>
+    <div id="tasks">${L.tasks.map(tk=>`<div class="task"><div class="cb"></div><div class="tx">${tk}</div></div>`).join('')}</div>
+
+    <div class="sec-label">KNOWLEDGE CHECK — answers shown <span class="sec-count">${quizSet.length} questions</span></div>
+    <div id="quizreview">${quizSet.map((it,qi)=>`
+      <div class="explain show" style="border-left-color:var(--blue);margin-bottom:6px">
+        <div class="q-obj">▸ ${it.obj}</div>
+        <div class="quiz-stem" style="margin:6px 0">Q${qi+1}. ${it.s}</div>
+        ${it.o.map((o,i)=>`<div style="padding:3px 0;color:${i===it.a?'var(--green)':'var(--muted)'}">${String.fromCharCode(65+i)}. ${o} ${i===it.a?'✓':''}</div>`).join('')}
+        <div style="margin-top:6px;border-left:2px solid var(--green);padding-left:8px"><b style="color:var(--green)">Why ${String.fromCharCode(65+it.a)} is correct:</b> ${it.e}</div>
+      </div>`).join('')}
+    </div>
+    <button class="btn primary" id="backToCurrent2" style="margin-top:16px">← back to current day</button>`;
+  document.getElementById('backToCurrent').onclick=document.getElementById('backToCurrent2').onclick=()=>{viewIdx=null;render();};
+}
+
 /* -------- TODAY -------- */
 function renderToday(){
+  if(viewIdx!==null&&viewIdx!==S.cursor){renderDayView(viewIdx);return;}
   if(S.cursor>=CURRICULUM.length){
     stage.innerHTML=`<div class="done-screen"><div class="big">★ SLICE COMPLETE</div>
       <p>You finished the loaded curriculum. The engine's ready for the next batch of weeks to be added.</p></div>`;return;
@@ -1731,15 +1783,28 @@ function renderToday(){
     enableFinish();
   });
 
+  const PASS_PCT=85;
   function renderQuizArea(){
     const area=document.getElementById('quizarea');
     const qp=S.quizProg[idx]||{i:0,ok:0};
     if(qp.i>=quizSet.length){
       const pct=Math.round(qp.ok/Math.max(quizSet.length,1)*100);
-      area.innerHTML=`<div class="scorebar"><span>Quiz complete:</span><span class="ok">✓ ${qp.ok}</span><span class="no">✗ ${quizSet.length-qp.ok}</span><span>· ${pct}%</span></div>
-        <div class="mini">Finish your practice tasks above, then complete the day.</div>
-        <button class="btn primary" id="finishBtn" disabled>Finish tasks + quiz to advance</button>`;
-      wireFinish();enableFinish();return;
+      const passed=pct>=PASS_PCT;
+      if(passed){
+        area.innerHTML=`<div class="scorebar"><span>Quiz complete:</span><span class="ok">✓ ${qp.ok}</span><span class="no">✗ ${quizSet.length-qp.ok}</span><span>· ${pct}%</span></div>
+          <div class="banner ok"><span class="ic">✓</span><div><b>Passed at ${pct}%.</b> You cleared the 85% bar for Day ${L.day}. Finish your practice tasks above, then complete the day.</div></div>
+          <button class="btn primary" id="finishBtn" disabled>Finish tasks + quiz to advance</button>`;
+        wireFinish();enableFinish();
+      }else{
+        area.innerHTML=`<div class="scorebar"><span>Quiz score:</span><span class="ok">✓ ${qp.ok}</span><span class="no">✗ ${quizSet.length-qp.ok}</span><span>· ${pct}%</span></div>
+          <div class="banner warn"><span class="ic">◆</span><div><b>${pct}% — not quite there.</b> You need <b>85%+</b> to lock in Day ${L.day} with confidence. Your missed questions are saved to Review. Re-read the explanations above, then take another run.</div></div>
+          <button class="btn primary" id="retryBtn">↻ Try the quiz again</button>
+          <div class="mini" style="margin-top:8px">Tip: jump to <b>Review</b> mode first to drill exactly what you missed, then come back and retake.</div>`;
+        document.getElementById('retryBtn').onclick=()=>{
+          S.quizProg[idx]={i:0,ok:0};saveState();renderQuizArea();
+        };
+      }
+      return;
     }
     const it=quizSet[qp.i];
     area.innerHTML=`
@@ -1835,7 +1900,7 @@ function renderWeek(){
         <div class="t">Day ${x.l.day}: ${x.l.title} ${tag}</div>
         <div class="d">${x.l.focus}</div><div class="exam" style="margin-top:5px;color:#c9a55a;font-family:var(--mono);font-size:11px">${x.l.obj}</div></div>`;
     }).join('')}`;
-  stage.querySelectorAll('[data-jump]').forEach(el=>el.onclick=()=>{const j=+el.dataset.jump;if(j<=S.cursor){S.cursor=j;delete S.quizProg[j];if(S.completed[j])delete S.completed[j];saveState();mode="today";document.querySelectorAll('.mode-btn').forEach(x=>x.classList.toggle('active',x.dataset.mode==='today'));render();}});
+  stage.querySelectorAll('[data-jump]').forEach(el=>el.onclick=()=>{const j=+el.dataset.jump;if(j<=S.cursor){viewIdx=(j===S.cursor)?null:j;mode="today";document.querySelectorAll('.mode-btn').forEach(x=>x.classList.toggle('active',x.dataset.mode==='today'));render();}});
 }
 
 /* -------- VM -------- */

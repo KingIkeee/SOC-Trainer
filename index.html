@@ -1,0 +1,2089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOC Path — Exam-Grade Daily Trainer</title>
+<style>
+  :root{
+    --bg:#0a0e14;--panel:#111722;--panel-2:#0d131d;--line:#1e2a3a;
+    --ink:#e6edf3;--muted:#7d8da3;--amber:#ffb000;--amber-dim:#7a5500;
+    --green:#3fb950;--red:#f85149;--blue:#388bfd;--purple:#a371f7;
+    --mono:'SF Mono',ui-monospace,'Cascadia Code','JetBrains Mono',Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.5;min-height:100vh;-webkit-font-smoothing:antialiased}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;background:repeating-linear-gradient(0deg,rgba(255,255,255,0.012) 0 1px,transparent 1px 3px)}
+  .wrap{max-width:880px;margin:0 auto;padding:18px 14px 90px;position:relative;z-index:2}
+
+  header{border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:14px}
+  .brand{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .blink{width:8px;height:13px;background:var(--amber);animation:blink 1.1s steps(1) infinite;display:inline-block}
+  @keyframes blink{50%{opacity:0}}
+  h1{font-family:var(--mono);font-size:23px;font-weight:600;letter-spacing:-.5px;margin:7px 0 2px}
+  h1 .arrow{color:var(--amber)}
+  .sub{color:var(--muted);font-size:12px;font-family:var(--mono)}
+
+  /* pace toggle */
+  .pacebar{display:flex;align-items:center;gap:8px;margin:12px 0 4px;flex-wrap:wrap}
+  .pacebar .lbl{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:1px}
+  .pace-opts{display:flex;gap:4px;border:1px solid var(--line);border-radius:7px;padding:3px;background:var(--panel-2)}
+  .pace-opt{font-family:var(--mono);font-size:10px;padding:5px 10px;border:none;background:transparent;color:var(--muted);border-radius:4px;cursor:pointer;transition:.15s}
+  .pace-opt.active{background:var(--amber);color:#0a0e14;font-weight:700}
+  .pace-meta{font-family:var(--mono);font-size:10px;color:var(--muted);margin-left:auto}
+
+  .status{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0 16px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:11px 10px;text-align:center}
+  .stat .v{font-family:var(--mono);font-size:19px;font-weight:700;color:var(--amber)}
+  .stat .l{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.5px;margin-top:2px;text-transform:uppercase}
+  .stat.streak .v{color:var(--green)}.stat.tier .v{color:var(--purple)}
+
+  .modes{display:flex;gap:5px;margin-bottom:16px;border:1px solid var(--line);border-radius:8px;padding:4px;background:var(--panel-2)}
+  .mode-btn{flex:1;background:transparent;border:none;color:var(--muted);font-family:var(--mono);font-size:11px;padding:8px 4px;border-radius:5px;cursor:pointer;transition:.15s;letter-spacing:.5px}
+  .mode-btn:hover{color:var(--ink)}
+  .mode-btn.active{background:var(--amber);color:#0a0e14;font-weight:700}
+
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px}
+
+  .banner{border-radius:9px;padding:13px 15px;margin-bottom:14px;font-size:13px;line-height:1.5;display:flex;gap:10px;align-items:flex-start}
+  .banner .ic{font-size:16px;flex-shrink:0}
+  .banner.warn{background:#1f1405;border:1px solid var(--amber-dim);color:#ffd27a}.banner.warn b{color:var(--amber)}
+  .banner.catch{background:#1f0f0f;border:1px solid #4a1d1d;color:#ff9d96}.banner.catch b{color:var(--red)}
+  .banner.up{background:#160f24;border:1px solid #3d2a6b;color:#c9b3ff}.banner.up b{color:var(--purple)}
+  .banner.ok{background:#0f1f14;border:1px solid #1d4427;color:#8ce29a}.banner.ok b{color:var(--green)}
+  .banner.info{background:#0c1420;border:1px solid #1d3a5c;color:#9fc7ff}.banner.info b{color:var(--blue)}
+
+  .weekrail{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:14px;-webkit-overflow-scrolling:touch}
+  .daychip{flex:0 0 auto;min-width:62px;border:1px solid var(--line);border-radius:8px;padding:8px 6px;text-align:center;cursor:pointer;background:var(--panel-2);transition:.15s;position:relative}
+  .daychip:hover{border-color:var(--amber-dim)}
+  .daychip.active{border-color:var(--amber);background:var(--panel)}
+  .daychip.done{border-color:#1d4427}
+  .daychip.done::after{content:"✓";position:absolute;top:3px;right:5px;color:var(--green);font-size:10px}
+  .daychip.missed{border-color:#4a1d1d}
+  .daychip.missed::after{content:"!";position:absolute;top:3px;right:6px;color:var(--red);font-size:11px;font-weight:700}
+  .daychip.rest{opacity:.55}
+  .daychip .dow{font-family:var(--mono);font-size:9px;color:var(--muted)}
+  .daychip .dn{font-family:var(--mono);font-size:15px;font-weight:700;margin-top:1px}
+  .daychip.rest .dn{color:var(--muted)}
+  .daychip .wl{font-family:var(--mono);font-size:8px;color:var(--amber);margin-top:1px}
+
+  .lesson-head{display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap}
+  .pill{font-family:var(--mono);font-size:10px;padding:3px 9px;border-radius:99px;letter-spacing:.5px}
+  .pill.cert{background:var(--amber-dim);color:var(--amber)}
+  .pill.wk{background:#102036;color:var(--blue)}
+  .pill.tierp{background:#1a1033;color:var(--purple)}
+  .pill.obj{background:#0d1f15;color:var(--green)}
+  .lesson-title{font-size:19px;font-weight:700;margin:6px 0 2px}
+  .lesson-focus{color:var(--muted);font-size:13px;margin-bottom:6px}
+  .est{font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:14px}
+
+  .sec-label{font-family:var(--mono);font-size:11px;color:var(--amber);letter-spacing:1.5px;margin:18px 0 10px;display:flex;align-items:center;gap:8px}
+  .sec-label::after{content:"";flex:1;height:1px;background:var(--line)}
+  .sec-count{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:0}
+
+  .term{border:1px solid var(--line);border-radius:8px;padding:13px 15px;margin-bottom:9px;background:var(--panel-2)}
+  .term .t{font-weight:700;font-size:14px;color:var(--ink);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .term .t .new{font-family:var(--mono);font-size:8px;background:#160f24;color:var(--purple);border:1px solid #3d2a6b;padding:1px 5px;border-radius:4px;letter-spacing:.5px}
+  .term .d{font-size:13px;color:var(--muted);line-height:1.6;margin-top:5px}
+  .term .eli5{font-size:12.5px;color:#9fb4cc;line-height:1.55;margin-top:7px;border-left:2px solid var(--blue);padding-left:10px}
+  .term .eli5 b{color:var(--blue);font-family:var(--mono);font-size:10px;letter-spacing:.5px}
+  .term .exam{font-size:11.5px;color:#c9a55a;margin-top:6px;font-family:var(--mono)}
+
+  .task{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}
+  .task:last-child{border-bottom:none}
+  .task .cb{flex-shrink:0;width:20px;height:20px;border:1px solid var(--line);border-radius:5px;cursor:pointer;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:.15s}
+  .task .cb.checked{background:var(--green);border-color:var(--green)}
+  .task .cb.checked::after{content:"✓";color:#0a0e14;font-size:13px;font-weight:700}
+  .task .tx{font-size:13.5px;line-height:1.5}
+  .task .tx .htag{font-family:var(--mono);font-size:9px;color:var(--blue);border:1px solid #1d3a5c;border-radius:4px;padding:1px 5px;margin-right:6px;letter-spacing:.5px}
+  .task.checked .tx{color:var(--muted);text-decoration:line-through}
+
+  .scorebar{display:flex;gap:14px;font-family:var(--mono);font-size:12px;color:var(--muted);margin-bottom:12px;flex-wrap:wrap}
+  .scorebar .ok{color:var(--green)}.scorebar .no{color:var(--red)}
+  .quiz-stem{font-size:15px;font-weight:600;margin:4px 0 6px;line-height:1.5}
+  .q-obj{font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:10px;letter-spacing:.5px}
+  .opt{display:block;width:100%;text-align:left;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:11px 14px;margin-bottom:8px;color:var(--ink);cursor:pointer;font-family:var(--sans);font-size:13.5px;transition:.12s}
+  .opt:hover{border-color:var(--amber-dim)}
+  .opt .ltr{font-family:var(--mono);color:var(--amber);margin-right:9px;font-weight:700}
+  .opt.correct{border-color:var(--green);background:#0f1f14}.opt.correct .ltr{color:var(--green)}
+  .opt.wrong{border-color:var(--red);background:#1f0f0f}.opt.wrong .ltr{color:var(--red)}
+  .opt:disabled{cursor:default}
+  .explain{border-left:3px solid var(--amber);background:var(--panel-2);padding:11px 14px;border-radius:0 8px 8px 0;margin-top:12px;font-size:12.5px;line-height:1.6;display:none}
+  .explain.show{display:block}.explain b{color:var(--amber)}
+
+  .btn{font-family:var(--mono);font-size:12px;padding:10px 18px;border-radius:7px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);cursor:pointer;transition:.15s;letter-spacing:.5px}
+  .btn:hover{border-color:var(--amber-dim)}
+  .btn.primary{background:var(--amber);color:#0a0e14;border-color:var(--amber);font-weight:700;width:100%;margin-top:18px;padding:13px}
+  .btn.primary:hover{opacity:.9}
+  .btn.primary:disabled{background:var(--line);color:var(--muted);border-color:var(--line);cursor:not-allowed;opacity:1}
+  .btn.ghost{width:100%;margin-top:10px}
+
+  .vm-lock{text-align:center;padding:30px 16px;color:var(--muted)}
+  .vm-lock .lk{font-size:30px;margin-bottom:10px}.vm-lock .mono{font-family:var(--mono);font-size:12px}
+  .guide{border:1px solid var(--line);border-radius:9px;margin-bottom:11px;overflow:hidden;background:var(--panel-2)}
+  .guide summary{cursor:pointer;padding:14px 15px;font-weight:600;font-size:14px;display:flex;align-items:center;gap:10px;list-style:none}
+  .guide summary::-webkit-details-marker{display:none}
+  .guide summary .num{font-family:var(--mono);font-size:11px;color:var(--blue);border:1px solid #1d3a5c;border-radius:5px;padding:2px 7px}
+  .guide summary .lv{font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:4px;margin-left:auto;letter-spacing:.5px}
+  .lv.beg{background:#0f1f14;color:var(--green)}.lv.int{background:#1a1605;color:var(--amber)}.lv.adv{background:#1f0f0f;color:var(--red)}
+  .guide summary .chev{color:var(--muted);transition:.2s;margin-left:8px}
+  .guide[open] summary .chev{transform:rotate(90deg)}
+  .gbody{padding:0 16px 16px;font-size:13px;line-height:1.7}
+  .gbody .why{color:var(--muted);font-style:italic;margin-bottom:10px}
+  .gbody ol{margin:0 0 6px 18px}.gbody ol li{padding:4px 0;color:var(--ink)}
+  .gbody code{font-family:var(--mono);font-size:12px;background:#0a0e14;border:1px solid var(--line);border-radius:4px;padding:1px 6px;color:var(--amber)}
+  .gbody .tip{border-left:3px solid var(--green);background:#0c1810;padding:9px 12px;border-radius:0 6px 6px 0;margin-top:10px;color:#a7d9b3;font-size:12.5px}
+  .gbody .tip b{color:var(--green);font-family:var(--mono);font-size:10px}
+  .gbody .warn2{border-left:3px solid var(--amber);background:#1a1405;padding:9px 12px;border-radius:0 6px 6px 0;margin-top:8px;color:#ffd27a;font-size:12.5px}
+
+  .reset{font-family:var(--mono);font-size:11px;color:var(--muted);background:none;border:none;cursor:pointer;text-decoration:underline;margin-top:22px}
+  .reset:hover{color:var(--red)}
+  .backup-row{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+  .backup-btn{flex:1;min-width:140px;font-family:var(--mono);font-size:12.5px;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:11px 12px;cursor:pointer;transition:.15s}
+  .backup-btn:hover{border-color:var(--amber);color:var(--amber)}
+  .backup-btn:active{transform:scale(.98)}
+  .backup-hint{font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.45}
+  .done-screen{text-align:center;padding:26px 10px}
+  .done-screen .big{font-size:30px;font-family:var(--mono);color:var(--amber);font-weight:700}
+  .done-screen p{color:var(--muted);margin-top:6px;font-size:13px}
+  .mini{font-family:var(--mono);font-size:11px;color:var(--muted);text-align:center;margin-top:14px}
+  @media(max-width:560px){.status{grid-template-columns:repeat(2,1fr)}.modes{flex-wrap:wrap}.mode-btn{min-width:30%}.pace-meta{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><span class="blink"></span> soc_path // exam_grade.v3</div>
+    <h1>Daily <span class="arrow">→</span> Trainer</h1>
+    <div class="sub">A+ → Network+ → Security+ · exam-mapped · beginner-built</div>
+    <div class="pacebar">
+      <span class="lbl">PACE</span>
+      <div class="pace-opts" id="paceOpts">
+        <button class="pace-opt" data-pace="faster">FASTER</button>
+        <button class="pace-opt" data-pace="balanced">BALANCED</button>
+        <button class="pace-opt active" data-pace="thorough">THOROUGH</button>
+      </div>
+      <span class="pace-meta" id="paceMeta"></span>
+    </div>
+  </header>
+
+  <div class="status" id="status"></div>
+
+  <div class="modes">
+    <button class="mode-btn active" data-mode="today">TODAY</button>
+    <button class="mode-btn" data-mode="review">REVIEW</button>
+    <button class="mode-btn" data-mode="week">WEEK</button>
+    <button class="mode-btn" data-mode="vm">LABS</button>
+    <button class="mode-btn" data-mode="export">EXPORT</button>
+  </div>
+
+  <div class="panel" id="stage"></div>
+  <div class="backup-row">
+    <button class="backup-btn" id="exportBackupBtn">⬇ back up progress</button>
+    <button class="backup-btn" id="importBackupBtn">⬆ restore progress</button>
+    <input type="file" id="importFile" accept="application/json,.json" style="display:none">
+  </div>
+  <div class="backup-hint" id="backupHint">Saves a small file you can move to another device, then restore there. Your progress lives only in this browser otherwise.</div>
+  <button class="reset" id="resetBtn">⟲ reset all progress</button>
+</div>
+
+<script>
+/* ====================================================================
+   EXAM-GRADE CURRICULUM
+   term: T(term, technical_def, beginner_eli5, exam_note, tier{1|2})
+   quiz: Q(stem, [opts], answerIdx, explain, objective)
+   Each day targets ~10 terms + ~9 questions at THOROUGH pace.
+   Pace scales how many terms/questions are required (see PACE config).
+==================================================================== */
+const DOW=["SUN","MON","TUE","WED","THU","FRI","SAT"];
+function T(t,d,e,exam,tier){return{t,d,e,exam,t2:tier===2};}
+function Q(s,o,a,e,w,obj){return{s,o,a,e,w:w||{},obj};}
+
+const PACE={
+  faster:{terms:6,quiz:6,label:"~5-6 mo · heavier compression",estLo:25,estHi:40},
+  balanced:{terms:8,quiz:8,label:"~6-7 mo · steady build",estLo:40,estHi:55},
+  thorough:{terms:99,quiz:99,label:"~8-9 mo · full depth",estLo:50,estHi:75},
+};
+
+const CURRICULUM=[
+/* =================================================================
+   WEEK 1 — Hardware foundations (220-1201 Domain 3)
+   (rebuilt with wrongWhy on every question)
+================================================================= */
+{cert:"A+",week:1,day:1,title:"The core components",focus:"What every computer is made of and how the pieces cooperate.",obj:"1201 · 3.4–3.5 System components",
+ terms:[
+  T("CPU (Central Processing Unit)","The processor chip that fetches, decodes, and executes instructions. Measured in GHz and cores/threads.","The brain doing the actual thinking. More cores = it can think about more things at once.","GHz = speed, cores = parallelism. Intel/AMD make them.",1),
+  T("RAM (Random Access Memory)","Volatile high-speed memory holding data the CPU is actively using. Cleared on power loss.","Your desk surface — whatever you're working on sits there. Power off and the desk is wiped.","Volatile = loses data without power. Not the same as storage.",1),
+  T("Storage (HDD vs SSD)","Non-volatile storage that survives power-off. HDD = spinning platters (cheap, slower). SSD = flash (fast, durable).","The filing cabinet — files stay even after you leave. SSD fast, HDD slow.","HDD has moving parts; SSD is faster and shock-resistant.",1),
+  T("Motherboard","The main board connecting CPU, RAM, storage, and expansion cards via buses and slots.","The city road network linking every building so they can talk.","Form factors: ATX > microATX > Mini-ITX by size.",1),
+  T("Power Supply Unit (PSU)","Converts wall AC into regulated DC voltages (+3.3V/+5V/+12V). Rated in watts.","The translator between the wall socket's electricity and the language your parts speak.","Wattage must exceed total draw. 80+ = efficiency rating.",1),
+  T("GPU (Graphics Processing Unit)","Processor specialized for rendering graphics. Integrated (shares RAM) or dedicated (own VRAM).","A second brain just for drawing the screen, so the main brain isn't overloaded.","Integrated shares system RAM; dedicated has its own VRAM.",1),
+  T("PCIe slot","Expansion sockets on the motherboard. x16 = GPUs, x1 = smaller cards.","Empty sockets inside the PC where you bolt on extra abilities.","x16 = GPU slot, x1 = smaller cards.",1),
+  T("Cooling (heatsink + fan + thermal paste)","Moves heat off the CPU/GPU. Thermal paste bridges chip to heatsink; without it heat can't transfer.","The AC for hot chips. Paste is the required contact layer — skip it and the chip cooks.","Thermal paste is mandatory between CPU and heatsink.",1),
+  T("BIOS/UEFI firmware","Low-level firmware that initializes hardware at boot, then hands to the OS. UEFI is modern.","The opening manager who flips the lights on before staff (the OS) arrive.","UEFI = GPT/large disks/Secure Boot. Legacy BIOS = MBR.",1),
+  T("Data path: Storage → RAM → CPU ◆CONNECTOR","Opening a program: it's read from STORAGE, loaded into RAM, then processed by the CPU from RAM. Saving writes RAM back to storage.","Files live in the cabinet (storage), laid on your desk (RAM), worked on by your brain (CPU). Save = file it back.","Connects the parts. Load-order and 'where did unsaved work go' come from here.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> Name every component and one sentence on each, no peeking.",
+  "<span class='htag'>VISUAL</span> Search 'labeled ATX motherboard' and point to CPU socket, RAM slots, PCIe x16, 24-pin power.",
+  "<span class='htag'>WRITE</span> Explain the Storage→RAM→CPU data path in your own words.",
+  "<span class='htag'>CONNECT</span> Which 3 upgrades make an old PC feel fastest, and why?",
+ ],
+ quiz:[
+  Q("You open a large file: it loads from the drive into memory, then the processor edits it. Correct data-flow order?",
+   ["CPU → RAM → Storage","Storage → RAM → CPU","RAM → Storage → CPU","CPU → Storage → RAM"],1,
+   "The data path connector: data lives in storage, loads into RAM, and the CPU works on it from RAM.",
+   {0:"This reverses the flow. The CPU is the last stage, not the first — it can't process data that hasn't been loaded into RAM yet.",
+    2:"RAM doesn't pull from storage on its own; storage is the starting point. RAM is the middle stage, not the source.",
+    3:"The CPU never reads bulk data straight from storage in normal operation — data must pass through RAM first for speed."},
+   "3.4 components"),
+  Q("A technician installs a CPU but skips thermal paste. Most likely result?",
+   ["The PC won't power on at all","The CPU overheats and throttles or shuts down","RAM is not detected","The GPU fails"],1,
+   "Thermal paste is the required heat bridge to the heatsink. Without it heat can't transfer, so the chip overheats.",
+   {0:"It will power on fine — the problem appears under load as heat builds, not at the power stage.",
+    2:"Thermal paste has nothing to do with RAM detection; that's a memory seating or slot issue.",
+    3:"The GPU is a separate component with its own cooling; missing CPU paste doesn't affect it."},
+   "3.4 cooling"),
+  Q("Which component converts wall AC into the DC voltages the system uses?",
+   ["Chipset","PSU","CPU","GPU"],1,
+   "The PSU converts AC to the +3.3V/+5V/+12V DC rails components require.",
+   {0:"The chipset routes data between components; it doesn't handle power conversion.",
+    2:"The CPU consumes power and processes instructions — it doesn't convert AC to DC.",
+    3:"The GPU renders graphics and draws power; it doesn't supply or convert it."},
+   "3.5 power"),
+  Q("What distinguishes a dedicated GPU from an integrated GPU?",
+   ["Dedicated uses system RAM","Integrated has its own VRAM","Dedicated has its own dedicated video memory (VRAM)","They are identical"],2,
+   "A dedicated GPU ships with its own VRAM; an integrated GPU shares the system's main RAM.",
+   {0:"That's backwards — sharing system RAM is the integrated GPU's trait, not the dedicated one's.",
+    1:"Also reversed: integrated GPUs borrow system RAM precisely because they lack their own VRAM.",
+    3:"They differ significantly in performance and memory; integrated trades power for lower cost/heat."},
+   "3.4 GPU"),
+  Q("Unsaved work is lost during a power outage. Which property of RAM explains this?",
+   ["It's encrypted","It's volatile","It's magnetic","It's read-only"],1,
+   "RAM is volatile — it needs power to retain data, so a power loss wipes anything not saved to storage.",
+   {0:"Encryption protects data confidentiality; it has nothing to do with data vanishing on power loss.",
+    2:"RAM is not magnetic (that describes HDD platters). Magnetic storage actually retains data without power.",
+    3:"RAM is read AND write; 'read-only' would describe certain firmware, and wouldn't explain data loss."},
+   "3.4 memory"),
+  Q("Which slot type installs a high-end graphics card?",
+   ["PCIe x1","PCIe x16","SATA","RAM DIMM"],1,
+   "PCIe x16 provides the bandwidth a GPU needs. x1 is for smaller expansion cards.",
+   {0:"x1 has far too little bandwidth for a GPU; it's for small cards like a NIC or sound card.",
+    2:"SATA is a storage interface for drives, not an expansion slot for graphics cards.",
+    3:"A DIMM slot is for RAM modules only — a GPU physically won't fit and wouldn't function there."},
+   "3.4 expansion"),
+ ],
+ notes:[
+  "Motherboard form factors by size: ATX (largest) > microATX > Mini-ITX (smallest).",
+  "PSU wattage must exceed total component draw combined; 80+ ratings indicate efficiency tiers.",
+  "UEFI supports GPT, large disks, and Secure Boot; legacy BIOS is limited to MBR partitioning.",
+ ]},
+
+{cert:"A+",week:1,day:2,title:"CPU & memory deep dive",focus:"How processors and RAM actually work.",obj:"1201 · 3.4 CPU, 3.2 memory",
+ terms:[
+  T("Core","A complete physical processing unit inside the CPU. Quad-core = 4 in parallel.","Each core is a worker. Four cores = four workers side by side.","More cores help multitasking and multithreaded apps.",1),
+  T("Thread","A single instruction stream. SMT/Hyper-Threading lets one core run two threads.","A thread is one task line a worker handles.","'4 cores / 8 threads' = SMT doubling logical processors.",1),
+  T("Hyper-Threading / SMT ◆CONNECTOR","Makes one physical core present as two logical threads — why a chip reads '4 cores / 8 threads'.","The trick letting each worker juggle two task lines.","Directly answers the '4 cores / 8 threads' question.",1),
+  T("Clock speed (GHz)","Cycles per second in billions. 3.5 GHz ≈ 3.5 billion cycles/sec.","How fast each worker moves.","Don't blindly compare GHz across architectures.",1),
+  T("Cache (L1/L2/L3)","Tiny ultra-fast memory in the CPU. L1 smallest/fastest, L3 largest/slower. Cuts RAM trips.","A sticky note on the worker's hand vs walking to the desk (RAM).","L1<L2<L3 in speed; L3 largest.",1),
+  T("32-bit (x86) vs 64-bit (x64) ◆CONNECTOR","x86 addresses ~4GB RAM max; x64 addresses far more. A 32-bit OS on 8GB only 'sees' ~4GB — fix is a 64-bit OS.","x86 is a small mailbox; x64 is huge. Small mailbox = wasted RAM.","Answers the '8GB but only 4GB usable' question.",1),
+  T("DDR4 / DDR5","RAM generations. Different notch/voltage — not interchangeable.","Fuel grades that don't fit the same nozzle.","Match RAM gen to motherboard support.",1),
+  T("DIMM vs SO-DIMM","DIMM = desktop stick; SO-DIMM = compact laptop stick.","Travel-size RAM for tight laptop space.","Not interchangeable; identify by size.",1),
+  T("Dual-channel memory","Matched RAM pairs in matching slots widen the path and boost bandwidth.","Two checkout lanes open instead of one.","Populate matching-colored slots in pairs.",1),
+  T("ECC RAM","Error-Correcting Code memory; detects/fixes bit errors. Servers.","RAM with a built-in proofreader.","Servers use ECC; many consumer boards don't.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> Explain core vs thread and what '6 cores / 12 threads' means.",
+  "<span class='htag'>VISUAL</span> Search 'DDR4 vs DDR5 SO-DIMM'; note the notch difference.",
+  "<span class='htag'>APPLY</span> Friend has 32-bit OS + 8GB but ~4GB usable. Write the fix and why.",
+  "<span class='htag'>LAB-PREP</span> Task Manager → Performance → CPU. Note cores, logical processors, speed.",
+ ],
+ quiz:[
+  Q("A CPU is listed '4 cores, 8 threads'. What produces the 8 threads?",
+   ["Overclocking","Hyper-Threading / SMT","Dual-channel RAM","More cache"],1,
+   "SMT/Hyper-Threading doubles 4 physical cores into 8 logical threads.",
+   {0:"Overclocking raises clock speed, not thread count. It makes existing cores faster, not more numerous.",
+    2:"Dual-channel is a RAM bandwidth feature; it has nothing to do with how many CPU threads exist.",
+    3:"Cache speeds up data access but doesn't create additional logical threads."},
+   "3.4 CPU"),
+  Q("A laptop needs more RAM. Which form factor?",
+   ["Full-size DIMM","SO-DIMM","ECC DIMM","PCIe"],1,
+   "Laptops use the compact SO-DIMM; full-size DIMMs won't fit.",
+   {0:"A full-size DIMM is physically too large for a laptop's memory slots.",
+    2:"ECC is a server feature and still in full-DIMM form; a standard laptop won't take it.",
+    3:"PCIe is an expansion-card interface, not a RAM form factor at all."},
+   "3.2 memory"),
+  Q("8GB installed but only ~4GB usable. Most likely cause?",
+   ["Faulty PSU","A 32-bit (x86) OS","DDR5 in a DDR4 slot","Single-channel mode"],1,
+   "A 32-bit OS caps addressable memory near 4GB regardless of installed amount. Install a 64-bit OS.",
+   {0:"A failing PSU causes shutdowns or no-boot, not a clean 4GB memory ceiling.",
+    2:"Incompatible DDR generations physically won't seat, so the system wouldn't post — not run at half RAM.",
+    3:"Single-channel reduces bandwidth, not the total amount of addressable RAM."},
+   "3.2 memory limits"),
+  Q("Why install RAM in matched pairs in the correctly colored slots?",
+   ["To enable ECC","To enable dual-channel bandwidth","To allow 32-bit addressing","To cool the CPU"],1,
+   "Matched pairs in the right slots enable dual-channel, widening the memory path.",
+   {0:"ECC is a property of the RAM modules themselves, not of how you pair them in slots.",
+    2:"Addressing width is set by the CPU/OS architecture, not by slot pairing.",
+    3:"RAM placement doesn't cool the CPU; that's the heatsink/fan's job."},
+   "3.2 channels"),
+  Q("Which memory type detects and corrects errors and is common in servers?",
+   ["DDR4","SO-DIMM","ECC RAM","Cache"],2,
+   "ECC RAM catches and fixes bit errors, valued in servers for reliability.",
+   {0:"DDR4 is a generation/speed spec, not an error-correction feature — DDR4 can be non-ECC.",
+    1:"SO-DIMM describes physical size (laptops), not error correction.",
+    3:"Cache is fast CPU memory; it isn't the server error-correcting memory being described."},
+   "3.2 ECC"),
+  Q("Which CPU cache level is the fastest and smallest?",
+   ["L3","L2","L1","DDR5"],2,
+   "L1 is the smallest and fastest, sitting closest to the core.",
+   {0:"L3 is the largest and slowest of the cache levels, the opposite of what's asked.",
+    1:"L2 sits between L1 and L3 — neither the fastest nor the smallest.",
+    3:"DDR5 is main system RAM, far slower than any on-die CPU cache."},
+   "3.4 cache"),
+ ],
+ notes:[
+  "32-bit apps run on a 64-bit OS, but 64-bit apps will NOT run on a 32-bit OS.",
+  "DDR generations are notched differently on purpose to prevent incompatible installs.",
+  "Modern CPUs put the memory controller on-die, lowering latency vs the old northbridge design.",
+ ]},
+
+{cert:"A+",week:1,day:3,title:"Storage technologies & RAID",focus:"Drive types, interfaces, and redundancy.",obj:"1201 · 3.3 storage & RAID",
+ terms:[
+  T("HDD (Hard Disk Drive)","Magnetic spinning platters + head. Cheap, mechanical, slower. 5400/7200 RPM.","A record player for data.","RPM affects speed; mechanical = drop-sensitive.",1),
+  T("SSD (Solid State Drive)","Flash storage, no moving parts. Faster, durable, pricier per GB.","A cabinet where data is just instantly there.","No moving parts = shock-resistant, silent.",1),
+  T("SATA","Drive interface. SATA III ~6 Gbps (~600 MB/s) — fine for HDD, a bottleneck for fast SSDs.","A standard road; jams the fastest cars.","SATA III ≈ 600 MB/s ceiling.",1),
+  T("NVMe / M.2 ◆CONNECTOR","NVMe = protocol over PCIe lanes; M.2 = slot shape. Far faster than SATA. But some M.2 are SATA-speed, so M.2 isn't automatically fast.","A teleporter — but some teleporter-shaped drives are secretly roads.","M.2 = shape; NVMe = speed. Not all M.2 are NVMe.",1),
+  T("RAID 0 (striping)","Splits data across 2+ drives for speed. No redundancy. Min 2.","Two movers carry half each — fast, but drop one and it's ruined.","Min 2. Performance only.",1),
+  T("RAID 1 (mirroring)","Identical copies on 2 drives. Survives one failure. 50% capacity. Min 2.","A live photocopy.","Min 2. Redundancy, 50% capacity cost.",1),
+  T("RAID 5 (striping + parity)","Stripes data + parity across 3+ drives. One drive can fail and rebuild. Min 3.","Everyone remembers a bit about everyone — lose one, rebuild it.","Min 3. Survives 1 failure, efficient.",1),
+  T("RAID 10 (1+0)","Mirrored pairs, then striped. Speed AND redundancy. Min 4.","Photocopy each load AND split among fast movers.","Min 4. Best of both, higher cost.",1),
+  T("Parity ◆CONNECTOR","Calculated redundancy that rebuilds a failed drive. RAID 5/6 use it; RAID 0/1 do not.","A checksum that reverse-engineers the dead drive.","RAID 5/6 use parity; 0/1 don't.",1),
+  T("RAID is not a backup ◆CONNECTOR","RAID survives hardware failure, but deletions/ransomware replicate across the array. Backups still required.","Shred a file and the photocopier shreds the copy too.","Common exam 'gotcha' — RAID ≠ backup.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> Table from memory: RAID 0/1/5/10 → min drives, redundancy, capacity.",
+  "<span class='htag'>APPLY</span> 4 drives, want speed AND survive a failure. Which RAID and why?",
+  "<span class='htag'>VISUAL</span> Search 'M.2 NVMe vs SATA SSD'; note some M.2 are SATA-speed.",
+  "<span class='htag'>WRITE</span> Explain why RAID is not a backup to a beginner.",
+ ],
+ quiz:[
+  Q("Maximum drive speed, NO redundancy needed. Which RAID?",
+   ["RAID 1","RAID 0","RAID 5","RAID 10"],1,
+   "RAID 0 stripes for pure speed with no redundancy — exactly when fault tolerance isn't needed.",
+   {0:"RAID 1 mirrors for redundancy at the cost of half your capacity — not a pure-speed play.",
+    2:"RAID 5 adds parity overhead for redundancy; that's not the fastest option.",
+    3:"RAID 10 delivers redundancy plus speed but needs 4 drives — overkill when redundancy isn't wanted."},
+   "3.3 RAID"),
+  Q("3 drives, must survive one failure with good capacity. Best choice?",
+   ["RAID 0","RAID 1","RAID 5","RAID 10"],2,
+   "RAID 5 needs minimum 3 drives, survives one failure via parity, and uses capacity efficiently.",
+   {0:"RAID 0 has zero redundancy — one drive failure loses everything.",
+    1:"RAID 1 works but only uses 2 drives and wastes 50% capacity; RAID 5 uses all 3 more efficiently.",
+    3:"RAID 10 needs a minimum of 4 drives, so it can't run on 3."},
+   "3.3 RAID"),
+  Q("Which is true of RAID 1?",
+   ["It needs 3 drives","50% usable capacity, survives one failure","It has no redundancy","Big write-speed boost"],1,
+   "RAID 1 mirrors across 2 drives — half usable, survives one failure.",
+   {0:"RAID 1 needs only 2 drives; 3 is the minimum for RAID 5.",
+    2:"Mirroring IS redundancy — that's the whole point of RAID 1.",
+    3:"RAID 1 doesn't boost write speed; it writes the same data twice."},
+   "3.3 RAID"),
+  Q("A fast NVMe SSD performs no better than a SATA SSD. Most likely reason?",
+   ["The M.2 slot is wired for SATA, not PCIe/NVMe","The CPU is too slow","RAID 0 is enabled","The PSU is underpowered"],0,
+   "Some M.2 slots/drives run only at SATA speed. If the slot or drive is SATA-keyed, you won't get NVMe speeds.",
+   {1:"A modern CPU isn't the bottleneck for drive throughput; the interface is.",
+    2:"RAID 0 would increase speed, not cap it at SATA levels.",
+    3:"An underpowered PSU causes instability/shutdowns, not a precise SATA-speed ceiling."},
+   "3.3 interfaces"),
+  Q("RAID 10 requires a minimum of how many drives?",
+   ["2","3","4","6"],2,
+   "RAID 10 (mirrored pairs, then striped) needs at least 4 drives.",
+   {0:"2 drives is the minimum for RAID 0 or RAID 1, not RAID 10.",
+    1:"3 drives is RAID 5's minimum; RAID 10 needs an even number of at least 4.",
+    3:"6 works but isn't the minimum — 4 is."},
+   "3.3 RAID"),
+  Q("Why is RAID NOT a substitute for backups?",
+   ["RAID is too slow","Deletions, corruption, and ransomware replicate across the array","RAID can't survive failures","RAID encrypts data"],1,
+   "RAID protects against hardware failure, but a deletion or ransomware encryption is mirrored instantly.",
+   {0:"Speed isn't the issue; many RAID levels are fast. The issue is logical data loss.",
+    2:"RAID specifically DOES survive hardware failures — that's its purpose; it just doesn't replace backups.",
+    3:"RAID doesn't encrypt data; encryption is a separate control."},
+   "3.3 concepts"),
+ ],
+ notes:[
+  "SATA III's ~600 MB/s ceiling is why NVMe over PCIe exists — NVMe can be several times faster.",
+  "Hot-swappable drives can be replaced while powered on, common in RAID servers for zero downtime.",
+  "Memorize RAID minimums: 0→2, 1→2, 5→3, 10→4.",
+ ]},
+
+{cert:"A+",week:1,day:4,title:"Boot process & POST troubleshooting",focus:"Power button to OS, and diagnosing failures.",obj:"1201 · 3.4 boot + 5.x troubleshooting",
+ terms:[
+  T("POST (Power-On Self-Test)","Firmware check of CPU/RAM/GPU at startup before the bootloader. Failures = beeps/LEDs.","A roll-call before the workday.","Runs before video; beep/LED codes report pre-video faults.",1),
+  T("Beep codes","Beep patterns emitted when POST fails before video works. Each maps to a fault.","Morse code from a PC that can't show a screen yet.","Look up by motherboard/BIOS vendor.",1),
+  T("Diagnostic LEDs / POST card","Onboard LEDs (CPU/DRAM/VGA/BOOT) or a card showing where POST stalls.","A dashboard light naming the failed part.","Useful when there's no speaker for beeps.",1),
+  T("Bootloader","Loads the OS into RAM after POST passes. Corruption = 'no bootable device'.","The usher walking the OS to the desk.","Corrupt bootloader → boot errors.",1),
+  T("Boot order","Firmware setting for which device to boot first. Wrong order = 'no OS found'.","The list of which drawer to open first.","Misconfig → no-OS or unexpected USB boot.",1),
+  T("CMOS battery ◆CONNECTOR","Coin battery for the chip storing firmware settings + real-time clock. Dead = clock + BIOS settings reset every boot.","A notepad with its own battery; dies and forgets time/settings each shutdown.","That exact symptom = dead CMOS battery.",1),
+  T("Secure Boot","UEFI feature allowing only signed bootloaders, blocking boot-level malware.","A bouncer only admitting verified OS loaders.","May need disabling for some Linux/older media.",1),
+  T("No POST vs No Boot ◆CONNECTOR","No POST = fails before firmware finishes → core hardware. No boot = POST passes, OS won't load → drive/bootloader/boot order.","Two failure neighborhoods: before the OS vs starting the OS.","Tells you where to look first.",1),
+  T("Thermal shutdown ◆CONNECTOR","Fine at idle, dies under load = overheating (failing fan, dust, dried paste) since heat spikes under load.","Runs walking, collapses sprinting.","Load-triggered shutdown = thermal.",1),
+  T("CompTIA 6-step troubleshooting ◆CONNECTOR","1 Identify · 2 Theory · 3 Test theory · 4 Plan · 5 Implement & verify · 6 Document. Documentation is ALWAYS last.","A recipe so you fix the real cause, then write it down.","Memorize the order verbatim.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> Write the 6-step methodology in order from memory.",
+  "<span class='htag'>APPLY</span> No display, repeating beeps — walk steps 1–3 aloud.",
+  "<span class='htag'>SCENARIO</span> Clock resets + BIOS settings vanish each boot — name the part.",
+  "<span class='htag'>LAB-PREP</span> Enter firmware setup, find the Boot Order screen (don't change it).",
+ ],
+ quiz:[
+  Q("PC powers on, fans spin, no display, repeating beeps. Best first action?",
+   ["Reinstall the OS","Match the beep pattern to the motherboard/BIOS manual","Replace the hard drive","Replace the PSU immediately"],1,
+   "Beep codes are POST reporting a fault before video works. Map the pattern first — usually RAM or GPU.",
+   {0:"No display means you can't even reach the OS — reinstalling it is impossible and irrelevant here.",
+    2:"A drive fault wouldn't stop POST or cause beep codes; the system would post then fail to find an OS.",
+    3:"Swapping the PSU is an expensive guess; the beep code points to the actual fault first."},
+   "5.2 troubleshooting"),
+  Q("What is the LAST step of the troubleshooting methodology?",
+   ["Test the theory","Verify full functionality","Document findings, actions, and outcomes","Establish a plan"],2,
+   "Documentation is always the final step so the fix is repeatable and traceable.",
+   {0:"Testing the theory is step 3, in the middle of the process.",
+    1:"Verifying functionality is second-to-last — important, but documentation comes after it.",
+    3:"Establishing a plan is step 4, well before the end."},
+   "5.1 methodology"),
+  Q("Clock resets and BIOS settings vanish every boot. Most likely cause?",
+   ["Failed SSD","Dead CMOS battery","Corrupt OS","Bad RAM"],1,
+   "The CMOS battery maintains firmware settings and the real-time clock; when it dies both reset each boot.",
+   {0:"A failed SSD causes boot/data problems, not a resetting clock and lost BIOS settings.",
+    2:"A corrupt OS produces boot errors after POST, not firmware-level clock/setting loss.",
+    3:"Bad RAM causes crashes or no-POST, not specifically a resetting CMOS clock."},
+   "5.2 symptoms"),
+  Q("'No bootable device' but POST completes normally. Points to a problem with…?",
+   ["The CPU","The RAM","The drive/bootloader or boot order","The GPU"],2,
+   "POST passing rules out core hardware; a no-boot afterward points to drive, bootloader, or boot order.",
+   {0:"If the CPU were the issue, POST itself would fail — but it completed.",
+    1:"Bad RAM typically blocks POST; here POST passed, so RAM isn't the suspect.",
+    3:"A GPU fault shows as no display, not a 'no bootable device' message after a clean POST."},
+   "5.2 boot issues"),
+  Q("Which step comes immediately AFTER 'Establish a theory of probable cause'?",
+   ["Document","Identify the problem","Test the theory to determine cause","Implement the solution"],2,
+   "Order: Identify → Theory → Test the theory → Plan → Implement/verify → Document.",
+   {0:"Documenting is the final step, not right after forming a theory.",
+    1:"Identifying the problem is step 1, before you form any theory.",
+    3:"You implement only after testing the theory and forming a plan — not immediately after theorizing."},
+   "5.1 methodology"),
+  Q("PC runs fine at idle but shuts down under heavy gaming. Most likely cause?",
+   ["Dead CMOS battery","Overheating / inadequate cooling","Wrong boot order","Secure Boot enabled"],1,
+   "Load-triggered shutdowns indicate overheating — failing fan, dust, or dried thermal paste.",
+   {0:"A dead CMOS battery resets settings/clock; it doesn't cause load-dependent shutdowns.",
+    2:"Boot order only affects startup device selection, not mid-game stability.",
+    3:"Secure Boot governs which OS loaders are allowed; it has no effect on thermal behavior."},
+   "5.2 thermal"),
+ ],
+ notes:[
+  "Secure Boot sometimes must be disabled to boot certain Linux distros or older install media.",
+  "Diagnostic LEDs are essential on boards lacking an internal speaker for beep codes.",
+  "The 6-step methodology is one of the most reliably tested items on the A+ exam — know it cold.",
+ ]},
+
+{cert:"A+",week:1,day:5,title:"Week 1 checkpoint & integration",focus:"Prove the week stuck. 85%+ unlocks Tier-2 hardware vocab.",obj:"1201 · Domain 3 cumulative",
+ terms:[
+  T("Thermal throttling","A chip cuts clock speed near its thermal limit to avoid damage.","Sprinting then easing off because you're overheating.","Explains 'slows under load'.",1),
+  T("TDP (Thermal Design Power)","Heat output (watts) a cooler must dissipate for a CPU. Guides cooler/PSU sizing.","How much heat the part throws off.","Higher TDP needs beefier cooling.",1),
+  T("Field-Replaceable Unit (FRU)","A part swapped on-site (RAM, drive, PSU, fan) vs sending the whole unit out.","Parts you fix in the field.","Speeds real-world repair decisions.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> From memory: data flow, RAID 0/1/5/10 specs, 6-step methodology.",
+  "<span class='htag'>INTEGRATE</span> Diagnose: slows then shuts off during gaming — name subsystem + concept.",
+  "<span class='htag'>SELF-TEST</span> Re-explain core vs thread and why RAID isn't a backup.",
+ ],
+ quiz:[
+  Q("Data flow when opening a file is…",["CPU→RAM→Storage","Storage→RAM→CPU","RAM→CPU→Storage","Storage→CPU→RAM"],1,
+   "Storage → RAM → CPU.",{0:"Reversed — CPU is last.",2:"RAM isn't the source; storage is.",3:"CPU doesn't read bulk data straight from storage."},"3.4"),
+  Q("Survives one failure with exactly 2 drives is…",["RAID 0","RAID 1","RAID 5","RAID 10"],1,
+   "RAID 1 mirrors across 2 drives.",{0:"RAID 0 has no redundancy.",2:"RAID 5 needs 3 drives.",3:"RAID 10 needs 4 drives."},"3.3"),
+  Q("The final troubleshooting step is…",["Test theory","Verify","Document","Plan"],2,
+   "Document is always last.",{0:"Testing is step 3.",1:"Verify is second-to-last.",3:"Plan is step 4."},"5.1"),
+  Q("Clock resets every boot →",["Bad RAM","Dead CMOS battery","Bad PSU","Corrupt OS"],1,
+   "CMOS battery.",{0:"Bad RAM = crashes/no-POST.",2:"Bad PSU = shutdowns.",3:"Corrupt OS = post-POST boot errors."},"5.2"),
+  Q("A 32-bit OS caps RAM near…",["1GB","4GB","16GB","64GB"],1,
+   "~4GB for x86.",{0:"Too low; the cap is ~4GB.",2:"That requires 64-bit.",3:"That requires 64-bit."},"3.2"),
+  Q("Repeating beeps, no video → first step:",["Reinstall OS","Check beep codes vs manual","Swap PSU","Replace drive"],1,
+   "Map beep codes first.",{0:"Can't reach the OS with no display.",2:"Expensive guess before diagnosis.",3:"A drive fault wouldn't beep at POST."},"5.2"),
+  Q("RAID 5 minimum drives:",["2","3","4","5"],1,
+   "Minimum 3.",{0:"That's RAID 0/1.",2:"That's RAID 10.",3:"More than the minimum."},"3.3"),
+  Q("A chip slowing under heat is…",["Overclocking","Thermal throttling","Parity","POST"],1,
+   "Thermal throttling.",{0:"Overclocking speeds up, not down.",2:"Parity is a RAID concept.",3:"POST is a boot check."},"3.4"),
+  Q("Fastest SSD protocol over PCIe lanes:",["SATA","NVMe","HDD","ECC"],1,
+   "NVMe.",{0:"SATA is the slower interface.",2:"HDD is a mechanical drive type.",3:"ECC is error-correcting RAM."},"3.3"),
+  Q("Laptop RAM form factor:",["DIMM","SO-DIMM","NVMe","ATX"],1,
+   "SO-DIMM.",{0:"DIMM is desktop-size.",2:"NVMe is storage.",3:"ATX is a motherboard form factor."},"3.2"),
+ ],
+ notes:[
+  "This checkpoint mixes every connector concept — data path, RAID logic, troubleshooting order, symptom-to-cause.",
+  "85%+ unlocks Tier-2 hardware vocabulary (overclocking/XMP, PCIe gens, liquid cooling, bifurcation).",
+ ]},
+/* ===== WEEK 2 — Operating Systems ===== */
+{cert:"A+",week:2,day:1,title:"What an OS does",focus:"The layer between you and the hardware.",obj:"1202 · 1.1 OS basics",
+ terms:[
+  T("Operating System","Software managing hardware and running programs (Windows, macOS, Linux).","The manager taking your requests and telling the hardware what to do.","Know Windows/macOS/Linux/ChromeOS.",1),
+  T("Kernel","The OS core directly controlling CPU, memory, and devices.","The manager's inner circle that touches the machinery.","Everything routes through the kernel.",1),
+  T("x86 vs x64 (OS) ◆CONNECTOR","32-bit OS caps ~4GB RAM; 64-bit addresses far more. 64-bit runs 32-bit apps, not vice versa.","Small mailbox vs giant mailbox for RAM.","Explains RAM caps and app compatibility.",1),
+  T("File system (NTFS/FAT32/exFAT) ◆CONNECTOR","NTFS = Windows default w/ permissions + large files. FAT32 = old, 4GB file limit. exFAT = flash drives, no 4GB limit.","The cabinet's filing rulebook; NTFS is the modern Windows one.","NTFS=permissions; FAT32=4GB cap; exFAT=big files on USB.",1),
+  T("GUI vs CLI","Graphical (clicking) vs command-line (typing) interfaces.","Pointing at buttons vs typing orders.","CLI is faster/scriptable for techs.",1),
+  T("Windows editions","Home, Pro, Enterprise. Pro adds BitLocker, domain join, Group Policy, RDP host.","Trim levels of Windows; Pro has the work features.","Pro vs Home is tested.",1),
+  T("Driver","Software letting the OS talk to specific hardware.","A translator hired for one device.","Wrong/missing driver = device won't work.",1),
+  T("Workgroup vs Domain","Workgroup = peer-to-peer, local accounts. Domain = centralized, server-managed.","A potluck vs a company with central HR.","Domain join is a Pro feature.",1),
+  T("System requirements","Minimum CPU/RAM/storage/TPM an OS needs (Win11 = TPM 2.0 + 64-bit).","The bouncer's checklist to install.","Win11: TPM 2.0, Secure Boot, 64-bit.",1),
+  T("32/64-bit app compatibility ◆CONNECTOR","64-bit OS runs both 32- and 64-bit apps; 32-bit OS runs only 32-bit apps.","A big garage fits big and small cars; a small one only small.","Pairs with x86/x64 connector.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> Define kernel; what sits between you and hardware?",
+  "<span class='htag'>APPLY</span> Why can't a 32-bit OS use 16GB RAM? Write the fix.",
+  "<span class='htag'>COMPARE</span> NTFS vs FAT32 vs exFAT — when to use each.",
+  "<span class='htag'>LAB-PREP</span> Settings → System → About: note your edition (Home/Pro).",
+ ],
+ quiz:[
+  Q("A PC has 16GB RAM but only 'sees' ~4GB. Likely cause?",["Bad SSD","A 32-bit (x86) OS","Wrong file system","RAID 0"],1,
+   "A 32-bit OS caps addressable RAM near 4GB. Install a 64-bit OS to use 16GB.",
+   {0:"A bad SSD affects storage/boot, not RAM addressing.",2:"The file system organizes files; it doesn't limit RAM.",3:"RAID is storage config, unrelated to usable RAM."},"1.1 OS"),
+  Q("Modern Windows default file system with permissions?",["FAT32","exFAT","NTFS","ext4"],2,
+   "NTFS is the Windows default, supporting permissions and large volumes.",
+   {0:"FAT32 is old, no permissions, 4GB file cap.",1:"exFAT is for flash drives; lacks NTFS's permission model.",3:"ext4 is Linux, not the Windows default."},"1.3 file systems"),
+  Q("Copy a single 8GB file to USB without size errors. Which file system?",["FAT32","exFAT","Either","Neither"],1,
+   "exFAT (or NTFS) handles files over 4GB; FAT32 caps per-file at 4GB.",
+   {0:"FAT32's 4GB per-file limit blocks an 8GB file.",2:"FAT32 specifically fails, so 'either' is wrong.",3:"exFAT works, so 'neither' is wrong."},"1.3 file systems"),
+  Q("Which edition supports BitLocker, domain join, and Group Policy?",["Home","Pro","Starter","Basic"],1,
+   "Windows Pro adds BitLocker, domain join, Group Policy, and RDP hosting.",
+   {0:"Home lacks all three.",2:"Starter is a legacy stripped edition.",3:"'Basic' isn't a current edition with these features."},"1.1 editions"),
+  Q("A 64-bit app won't install on a 32-bit OS because…",["Low storage","A 32-bit OS can't run 64-bit apps","Missing driver","NTFS required"],1,
+   "32-bit operating systems cannot run 64-bit applications; the reverse works.",
+   {0:"Storage isn't the barrier — it's architecture.",2:"A driver issue affects hardware, not app bitness.",3:"File system doesn't determine 32/64-bit compatibility."},"1.1 architecture"),
+  Q("Win11 install fails on capable hardware. Commonly missing requirement?",["A GPU","TPM 2.0 / Secure Boot","An SSD","ECC RAM"],1,
+   "Windows 11 requires TPM 2.0 and Secure Boot — the usual blockers.",
+   {0:"Integrated graphics satisfy Win11.",2:"Win11 runs on HDDs too.",3:"ECC RAM is a server feature, not required."},"1.1 requirements"),
+ ],
+ notes:[
+  "macOS uses APFS; Linux commonly uses ext4 — know these alongside Windows file systems.",
+  "A Domain centralizes authentication (Active Directory); a Workgroup uses local accounts only.",
+  "Windows Home can't join a traditional on-prem domain — that's a Pro feature.",
+ ]},
+
+{cert:"A+",week:2,day:2,title:"Partitions, MBR vs GPT, install types",focus:"Dividing drives and installing Windows.",obj:"1202 · 1.9 OS install",
+ terms:[
+  T("Partition","A logical division of a drive treated as a separate volume.","Walling one big room into sections.","Primary/extended/logical on MBR.",1),
+  T("MBR (Master Boot Record)","Old scheme. Max 2TB, 4 primary partitions, legacy BIOS.","An old ledger with limited lines.","2TB + 4-partition limits.",1),
+  T("GPT (GUID Partition Table) ◆CONNECTOR","Modern scheme. Huge capacity, up to 128 partitions, REQUIRED for UEFI boot.","A modern database; what new systems boot from.","UEFI boot needs GPT.",1),
+  T("Volume","A formatted usable area the OS mounts (e.g., C:).","The finished labeled drawer.","Volume vs partition distinction.",1),
+  T("Clean install vs upgrade ◆CONNECTOR","Clean wipes and installs fresh (best for malware/corruption); upgrade keeps files/apps.","Demolish-and-rebuild vs renovate.","Clean install removes persistent malware.",1),
+  T("Repair/recovery install","Reinstalls Windows attempting to keep data, fixing system files.","A targeted fix vs full demolition.","'Reset this PC' keep-files option.",1),
+  T("Boot methods","Install sources: USB, network (PXE), optical, internet recovery.","Different doors to start an install.","USB and PXE common.",1),
+  T("Unattended install","Automated install via answer file — no prompts.","A script that fills the installer.","Mass deployment.",1),
+  T("Format (quick vs full)","Writes a fresh file system. Quick skips the bad-sector scan; full checks sectors.","Wiping and re-lining the drawer.","Quick=fast; full=checks sectors.",1),
+  T("Partition style choice ◆CONNECTOR","UEFI needs GPT; legacy BIOS-only uses MBR. Wrong pick = unbootable.","Match the partition map to the firmware.","Pairs firmware to scheme.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> MBR's two limits + which scheme UEFI requires.",
+  "<span class='htag'>COMPARE</span> Clean install vs upgrade vs repair.",
+  "<span class='htag'>SCENARIO</span> 3TB bootable drive on UEFI laptop — scheme?",
+  "<span class='htag'>WRITE</span> Partition vs volume in one line.",
+ ],
+ quiz:[
+  Q("3TB single bootable partition on a UEFI laptop. Which scheme?",["MBR","GPT","FAT32","exFAT"],1,
+   "MBR caps at 2TB and needs legacy BIOS; UEFI boot requires GPT, which handles 3TB.",
+   {0:"MBR can't address beyond 2TB or boot under pure UEFI.",2:"FAT32 is a file system, not a partition scheme.",3:"exFAT is a file system, not a partition scheme."},"1.9 partitions"),
+  Q("MBR is limited to how many primary partitions?",["1","4","128","Unlimited"],1,
+   "MBR allows only 4 primary partitions; GPT allows up to 128.",
+   {0:"MBR supports more than one — the limit is 4.",2:"128 is the GPT limit.",3:"MBR is definitely limited."},"1.9 partitions"),
+  Q("A PC is badly infected. Which install type most reliably removes malware?",["In-place upgrade","Clean install","Driver update","Defrag"],1,
+   "A clean install wipes the drive and installs fresh, removing persistent malware.",
+   {0:"An upgrade preserves files/apps — and can preserve the malware.",2:"Updating drivers doesn't remove malware.",3:"Defrag reorganizes files; it doesn't remove infections."},"1.9 install types"),
+  Q("Which boot method installs an OS across the network with no local media?",["USB","PXE (network boot)","Optical","Internet recovery"],1,
+   "PXE boots and installs over the network — ideal for mass deployment.",
+   {0:"USB requires local media in each machine.",2:"Optical also requires local media.",3:"Internet recovery (macOS) pulls from Apple, not a PXE server."},"1.9 boot methods"),
+  Q("Choosing MBR on a UEFI-only system results in…",["Faster boot","An unbootable installation","More partitions","Better security"],1,
+   "UEFI requires GPT; selecting MBR on UEFI-only firmware produces an unbootable install.",
+   {0:"It won't boot at all.",2:"MBR allows fewer partitions than GPT.",3:"MBR doesn't add security; GPT+UEFI enables Secure Boot."},"1.9 partition style"),
+  Q("A quick format differs from a full format because it…",["Encrypts the drive","Skips the bad-sector scan","Creates partitions","Installs the OS"],1,
+   "A quick format writes a new file system without scanning for bad sectors; full checks them.",
+   {0:"Formatting isn't encryption.",2:"Partition creation is a separate step.",3:"Formatting prepares a volume; it doesn't install the OS."},"1.9 format"),
+ ],
+ notes:[
+  "GPT stores backup partition tables, more resilient to corruption than MBR.",
+  "'Reset this PC' offers keep-files or remove-everything paths — know both.",
+  "Always back up before a clean install; it erases the target volume.",
+ ]},
+
+{cert:"A+",week:2,day:3,title:"Windows command line",focus:"Core commands every tech and SOC analyst uses.",obj:"1202 · 1.2 CLI tools",
+ terms:[
+  T("Command line / CLI","Text interface for typed commands. Faster, scriptable.","Typing orders instead of clicking.","CompTIA tests specific commands.",1),
+  T("ipconfig ◆CONNECTOR","Shows network config (IP/gateway/DNS). /release /renew for DHCP, /flushdns for DNS cache.","Asks 'what's my network address?'","Network-troubleshooting staple.",1),
+  T("ping","Tests reachability to a host via ICMP echo.","Knocking to see if someone's home.","First connectivity test.",1),
+  T("chkdsk ◆CONNECTOR","Checks a disk for errors. /f fixes errors, /r ALSO finds bad sectors.","A mechanic for your drive.","/f vs /r difference is tested.",1),
+  T("sfc /scannow","Scans and repairs corrupted Windows system files.","A self-healing OS scan.","System-file repair.",1),
+  T("gpupdate / gpresult","gpupdate refreshes Group Policy; gpresult shows applied policy.","Force-pull the rulebook / see what applied.","Domain environments.",1),
+  T("tasklist / taskkill","List processes / kill one by name or PID.","See who's working / send one home.","Process management.",1),
+  T("diskpart","CLI disk-partitioning tool.","Text-based drive surgeon.","Powerful — used carefully.",1),
+  T("Run as administrator ◆CONNECTOR","Some commands (sfc, chkdsk /f) need an elevated prompt or they're denied.","Some orders only work with the master key.","Elevation commonly required.",1),
+  T("ipconfig /flushdns","Clears the local DNS cache (fixes stale name resolution).","Wiping the phone book's scribbled notes.","DNS-cache fix.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> Match each command to its job.",
+  "<span class='htag'>APPLY</span> Corrupted system files — which command + elevation?",
+  "<span class='htag'>LAB-PREP</span> Run ipconfig and ping 8.8.8.8; read the output.",
+  "<span class='htag'>WRITE</span> What does chkdsk /r add over /f?",
+ ],
+ quiz:[
+  Q("Corrupted Windows files. Which command scans and repairs OS system files?",["ipconfig","sfc /scannow","ping","dir"],1,
+   "sfc /scannow checks and repairs corrupted Windows system files specifically.",
+   {0:"ipconfig shows network config, not system-file integrity.",2:"ping tests reachability.",3:"dir lists directory contents."},"1.2 CLI"),
+  Q("Shows your IP and default gateway on Windows?",["chkdsk","sfc","ipconfig","tasklist"],2,
+   "ipconfig displays IP, gateway, and DNS.",
+   {0:"chkdsk checks disks.",1:"sfc repairs system files.",3:"tasklist lists processes."},"1.2 CLI"),
+  Q("Repair file-system errors AND locate bad sectors. Which command?",["chkdsk /f","chkdsk /r","sfc /scannow","ipconfig /flushdns"],1,
+   "chkdsk /r locates bad sectors and recovers readable info (and includes /f's repairs).",
+   {0:"/f fixes errors but does NOT scan for bad sectors.",2:"sfc repairs system files, not disk sectors.",3:"/flushdns clears DNS cache, unrelated to sectors."},"1.2 CLI"),
+  Q("sfc returns 'access denied'. Most likely fix?",["Reboot first","Run the prompt as administrator","Use FAT32","Disable the GPU"],1,
+   "sfc requires an elevated (administrator) prompt; otherwise it's denied.",
+   {0:"Rebooting won't grant elevation.",2:"File system is irrelevant to elevation.",3:"The GPU has nothing to do with command privileges."},"1.2 elevation"),
+  Q("Clears the local DNS resolver cache?",["ipconfig /renew","ipconfig /flushdns","ping","diskpart"],1,
+   "ipconfig /flushdns empties the DNS cache (fixes stale resolution).",
+   {0:"/renew requests a new DHCP lease.",2:"ping tests reachability.",3:"diskpart manages partitions."},"1.2 CLI"),
+  Q("Forcibly end a frozen process from the CLI?",["tasklist","taskkill","diskpart","gpupdate"],1,
+   "taskkill ends a process by name or PID; tasklist only lists them.",
+   {0:"tasklist shows but can't terminate.",2:"diskpart manages partitions.",3:"gpupdate refreshes Group Policy."},"1.2 CLI"),
+ ],
+ notes:[
+  "ipconfig /release then /renew forces a fresh DHCP lease — a common connectivity fix.",
+  "Many repair commands need elevation or schedule on reboot (chkdsk /f on the system drive).",
+  "PowerShell supersets cmd; these commands still work but PowerShell adds far more.",
+ ]},
+
+{cert:"A+",week:2,day:4,title:"Users, permissions, UAC & security basics",focus:"Your first OS-security concepts.",obj:"1202 · 2.x security",
+ terms:[
+  T("User account","An identity the OS uses for access/settings. Standard or admin.","Your personal badge.","Standard vs admin.",1),
+  T("Administrator","Full control: install software, change system settings.","The master-key holder.","Don't use admin daily.",1),
+  T("Permissions (NTFS)","Rules for who can read/write/execute files/folders.","The guest list for each file.","NTFS vs share permissions.",1),
+  T("Principle of least privilege ◆CONNECTOR","Give each account only the access it needs. Standard daily use means malware inherits limited rights.","Only the keys you actually need.","Why standard accounts are safer.",1),
+  T("UAC (User Account Control)","Prompts for approval before admin-level changes.","A bouncer asking 'this app wants admin — sure?'","Blocks silent changes.",1),
+  T("Authentication vs Authorization ◆CONNECTOR","AuthN = proving who you are (password). AuthZ = what you may do. AuthN before AuthZ.","Showing ID vs which doors open.","Foundational pairing.",1),
+  T("MFA (Multi-Factor Authentication)","Two+ factors: know + have + are.","More than one proof to get in.","Defeats password-only attacks.",1),
+  T("BitLocker ◆CONNECTOR","Windows full-disk encryption (ideally TPM-backed) — protects data AT REST on a lost/stolen drive.","Locking the whole drive in a safe.","Pro feature; data at rest.",1),
+  T("Local vs Microsoft account","Local = on-device only. MS = cloud-synced.","A house key vs a key that syncs everywhere.","Know the tradeoffs.",1),
+  T("Group / role","A set of permissions assigned to many users at once.","One guest list reused for a team.","Eases management.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> Define least privilege; why not run as admin daily?",
+  "<span class='htag'>APPLY</span> Helpdesk should ONLY reset passwords — which principle?",
+  "<span class='htag'>COMPARE</span> Authentication vs authorization.",
+  "<span class='htag'>LAB-PREP</span> Open User Accounts; note your account type.",
+ ],
+ quiz:[
+  Q("Why is running as a standard user day-to-day safer?",["It's faster","Malware that runs inherits fewer privileges","It uses less RAM","It disables the CPU"],1,
+   "Least privilege: under a limited account, malware inherits limited rights.",
+   {0:"Account type doesn't change speed.",2:"It doesn't reduce RAM.",3:"Standard accounts limit privileges, not hardware."},"2.x least privilege"),
+  Q("What does UAC do?",["Encrypts the disk","Prompts before admin-level changes","Speeds up boot","Manages RAID"],1,
+   "UAC asks consent before admin-level changes, blocking silent modification.",
+   {0:"Disk encryption is BitLocker.",2:"No role in boot speed.",3:"RAID is storage config."},"2.x UAC"),
+  Q("Helpdesk granted ONLY password resets. Which principle?",["Separation of duties","Least privilege","Implicit deny","Defense in depth"],1,
+   "Granting only minimum rights for the role is least privilege.",
+   {0:"Separation of duties splits a task across people.",2:"Implicit deny blocks the unlisted — related but not named here.",3:"Defense in depth is layering controls."},"2.x least privilege"),
+  Q("Login asks for a password, then a phone code. This is…",["Single sign-on","Multi-factor authentication","Authorization","Encryption"],1,
+   "Password (know) + phone code (have) = MFA.",
+   {0:"SSO is one login for many apps.",2:"Authorization is what you can do after proving identity.",3:"Encryption protects data, not identity-proof."},"2.x MFA"),
+  Q("Proving WHO you are is authentication. Deciding WHAT you access is…",["Authentication again","Authorization","Encryption","Hashing"],1,
+   "Authorization governs what an authenticated identity may do.",
+   {0:"That repeats the same step.",2:"Encryption protects confidentiality.",3:"Hashing verifies integrity."},"2.x AAA"),
+  Q("Protects a stolen laptop's drive from being read?",["UAC","BitLocker full-disk encryption","A Wi-Fi password","Defrag"],1,
+   "BitLocker encrypts the whole drive, so a thief can't read it without the key.",
+   {0:"UAC only prompts during use, not on a removed drive.",2:"Wi-Fi passwords secure the network, not stored data.",3:"Defrag offers no protection."},"2.x encryption"),
+ ],
+ notes:[
+  "NTFS permissions apply locally and over the network; share permissions only over the network — most restrictive wins.",
+  "BitLocker is strongest when a TPM seals the key to the hardware.",
+  "Least privilege and 'standard user by default' are the same idea for everyday accounts.",
+ ]},
+
+{cert:"A+",week:2,day:5,title:"Week 2 checkpoint",focus:"Lock in OS fundamentals. 85%+ unlocks Tier-2.",obj:"1202 · Domain 1 cumulative",
+ terms:[
+  T("Safe Mode","Diagnostic boot loading only essential drivers.","A stripped-down limp mode to fix things.","Startup troubleshooting.",1),
+  T("System Restore","A saved system state you can roll back to (doesn't touch personal files).","A save-game checkpoint for Windows.","Undo bad changes/updates.",1),
+  T("Task Manager","View/end processes and check resource use.","The dashboard of what's running.","Performance + Processes tabs.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> NTFS vs FAT32 vs exFAT; which scheme UEFI needs.",
+  "<span class='htag'>INTEGRATE</span> Match ipconfig/chkdsk/sfc to jobs + elevation.",
+  "<span class='htag'>SELF-TEST</span> Re-explain least privilege and MBR vs GPT.",
+ ],
+ quiz:[
+  Q("UEFI boot requires which scheme?",["MBR","GPT","FAT32","exFAT"],1,"GPT.",{0:"Legacy BIOS.",2:"File system.",3:"File system."},"1.9"),
+  Q("Repairs corrupted Windows system files?",["ipconfig","sfc /scannow","ping","dir"],1,"sfc /scannow.",{0:"Network config.",2:"Reachability.",3:"Lists files."},"1.2"),
+  Q("A 32-bit OS caps usable RAM near…",["1GB","4GB","16GB","64GB"],1,"~4GB.",{0:"Too low.",2:"Needs 64-bit.",3:"Needs 64-bit."},"1.1"),
+  Q("UAC prompts before what change?",["Network","Admin-level","Theme","Volume"],1,"Admin-level.",{0:"Not network-specific.",2:"Cosmetic.",3:"No prompt."},"2.x"),
+  Q("Standard-user daily use limits malware via…",["Faster CPU","Least privilege","More RAM","RAID"],1,"Least privilege.",{0:"Unrelated.",2:"Unrelated.",3:"Storage config."},"2.x"),
+  Q("8GB file to USB needs which file system?",["FAT32","exFAT","Neither","Both equally"],1,"exFAT (FAT32 caps 4GB).",{0:"4GB limit.",2:"exFAT works.",3:"FAT32 fails."},"1.3"),
+  Q("Clean install beats upgrade when…",["Saving time","Removing malware","Keeping apps","Low storage"],1,"Removing malware.",{0:"Upgrade is faster.",2:"Upgrade keeps apps.",3:"Not the reason."},"1.9"),
+  Q("BitLocker protects data…",["In transit","At rest on the drive","On Wi-Fi","In RAM"],1,"At rest.",{0:"That's TLS/VPN.",2:"Wi-Fi security.",3:"Not BitLocker's scope."},"2.x"),
+  Q("Domain join + Group Policy require…",["Home","Pro","Starter","Basic"],1,"Pro.",{0:"Home lacks them.",2:"Legacy edition.",3:"Not current."},"1.1"),
+  Q("Boots with only essential drivers for diagnosis?",["Normal","Safe Mode","Recovery format","PXE"],1,"Safe Mode.",{0:"Loads everything.",2:"A format.",3:"Network install."},"1.x"),
+ ],
+ notes:[
+  "System Restore rolls back system files/registry/drivers, not personal files.",
+  "Safe Mode with Networking adds network drivers when you need internet to fix something.",
+  "85%+ unlocks Tier-2 OS vocab (Registry, Group Policy depth, PowerShell).",
+ ]},
+
+/* ===== WEEK 3 — Networking ===== */
+{cert:"A+",week:3,day:1,title:"IP addressing & the basics",focus:"How devices are addressed and found.",obj:"1201 · 2.5 IP addressing",
+ terms:[
+  T("IP address","Numeric label identifying a device (e.g., 192.168.1.10).","A device's street address.","IPv4 dotted-decimal.",1),
+  T("MAC address","Hardware ID burned into a NIC, unique per device.","The device's permanent fingerprint.","Layer 2; IP changes, MAC doesn't.",1),
+  T("Subnet mask ◆CONNECTOR","Marks which part of an IP is network vs host (255.255.255.0 = /24).","A stencil showing neighborhood vs house digits.","/24 = 254 usable hosts.",1),
+  T("Default gateway ◆CONNECTOR","The router a device uses to reach destinations outside its subnet.","The neighborhood's exit door.","No gateway = no internet beyond LAN.",1),
+  T("DHCP","Auto-assigns IP/mask/gateway/DNS.","The front desk handing out addresses.","Failure → APIPA.",1),
+  T("DNS ◆CONNECTOR","Translates names (google.com) to IPs. Names fail but IPs work = DNS issue.","The internet's phone book.","Classic DNS symptom.",1),
+  T("APIPA ◆CONNECTOR","169.254.x.x self-assigned when DHCP is unreachable.","A 'couldn't get an address' fallback.","169.254 = DHCP failure.",1),
+  T("Private vs public IP","Private (10/172.16-31/192.168) internal; public internet-routable.","Inside extensions vs the public number.","NAT bridges them.",1),
+  T("IPv4 vs IPv6","IPv4 = 32-bit (scarce); IPv6 = 128-bit (vast).","Short numbers vs long ones.","IPv6 solves exhaustion.",1),
+  T("Static vs dynamic IP","Static = fixed manually; dynamic = DHCP-assigned.","Reserved seat vs first-come.","Servers often static.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> IP vs MAC, one line each.",
+  "<span class='htag'>APPLY</span> A PC shows 169.254.10.5 — what failed?",
+  "<span class='htag'>COMPUTE</span> Usable hosts in a /24?",
+  "<span class='htag'>LAB-PREP</span> ipconfig: identify IP, mask, gateway, DNS.",
+ ],
+ quiz:[
+  Q("A workstation has IP 169.254.10.5. Most likely cause?",["Static misconfiguration","The DHCP server is unreachable","DNS failure","Duplicate IP"],1,
+   "169.254.x.x is APIPA — self-assigned only when no DHCP server responds.",
+   {0:"A static address wouldn't fall in the APIPA range.",2:"DNS failure breaks names but leaves a valid DHCP IP.",3:"A duplicate IP triggers a conflict warning, not APIPA."},"2.5 IP"),
+  Q("Users reach sites by IP but not by name. Which service failed?",["DHCP","DNS","NTP","SNMP"],1,
+   "Names failing while raw IP works is the classic DNS symptom.",
+   {0:"DHCP failure breaks IP assignment entirely.",2:"NTP is time sync.",3:"SNMP is monitoring."},"2.5 DNS"),
+  Q("Which identifier is permanently tied to the NIC hardware?",["IP address","MAC address","Subnet mask","Gateway"],1,
+   "The MAC is burned into hardware; the IP is assigned and can change.",
+   {0:"IPs change (DHCP).",2:"The mask defines network/host split.",3:"The gateway is a router address."},"2.5 addressing"),
+  Q("What does the default gateway do?",["Assigns IPs","Routes traffic outside the local subnet","Resolves names","Encrypts traffic"],1,
+   "The gateway is the router used to reach destinations beyond the local subnet.",
+   {0:"Assigning IPs is DHCP.",2:"Resolving names is DNS.",3:"Encryption is TLS, not the gateway role."},"2.5 gateway"),
+  Q("A /24 subnet provides how many usable host addresses?",["254","256","126","510"],0,
+   "/24 = 8 host bits → 256 minus 2 (network + broadcast) = 254 usable.",
+   {1:"256 is total; subtract network and broadcast.",2:"126 is a /25.",3:"510 is a /23."},"2.5 subnetting"),
+  Q("Which address range is private?",["8.8.8.8","192.168.1.1","203.0.113.5","1.1.1.1"],1,
+   "192.168.0.0/16 is private (with 10.x and 172.16–31.x).",
+   {0:"8.8.8.8 is public DNS.",2:"203.0.113.x is public.",3:"1.1.1.1 is public DNS."},"2.5 private IP"),
+ ],
+ notes:[
+  "Private ranges: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16.",
+  "APIPA allows local same-segment talk with no DHCP, but no internet.",
+  "NAT lets many private IPs share one public IP.",
+ ]},
+
+{cert:"A+",week:3,day:2,title:"Ports, protocols & the OSI idea",focus:"The greatest-hits ports.",obj:"1201 · 2.1 ports & protocols",
+ terms:[
+  T("Port ◆CONNECTOR","A numbered channel directing traffic to the right service (apartment numbers at one address).","One building (IP), many mailboxes (ports).","Memorize common ports.",1),
+  T("HTTP 80 / HTTPS 443 ◆CONNECTOR","Web traffic. 80 unencrypted, 443 encrypted.","443 is the locked web.","443 = secure web.",1),
+  T("DNS 53","Name-to-IP resolution.","The phone book port.","UDP 53 queries.",1),
+  T("SSH 22 ◆CONNECTOR","Secure (encrypted) remote CLI access — replaces Telnet.","A locked tunnel to control a machine.","Secure remote shell.",1),
+  T("RDP 3389","Remote Desktop Protocol — remote GUI to Windows.","Borrowing a screen remotely.","Windows remote desktop.",1),
+  T("SMTP 25 / IMAP 143 / POP3 110","Email: SMTP sends; IMAP/POP3 receive.","Outgoing vs incoming mail doors.","Send vs receive.",1),
+  T("FTP 20/21","File Transfer Protocol (unencrypted).","An old file-moving door.","SFTP (22) is secure.",1),
+  T("TCP vs UDP ◆CONNECTOR","TCP = reliable, ordered, 3-way handshake. UDP = fast, connectionless (streaming/VoIP/DNS).","Certified mail vs a quick postcard.","Reliable vs fast.",1),
+  T("Telnet 23","Unencrypted remote CLI — insecure, avoid.","An open, eavesdroppable tunnel.","Replaced by SSH.",1),
+  T("DHCP 67/68","Ports DHCP uses to assign addresses.","The address desk's lines.","67 server/68 client.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> HTTP 80, HTTPS 443, DNS 53, SSH 22, RDP 3389.",
+  "<span class='htag'>APPLY</span> Which web port is encrypted? Which secures remote CLI?",
+  "<span class='htag'>COMPARE</span> TCP vs UDP — match to a real use.",
+  "<span class='htag'>WRITE</span> Why is Telnet discouraged vs SSH?",
+ ],
+ quiz:[
+  Q("Reach sites by IP but names fail. Which port/service is involved?",["HTTP 80","DNS 53","SSH 22","RDP 3389"],1,
+   "DNS (53) translates names to IPs; names failing but IPs working = DNS.",
+   {0:"HTTP 80 serves pages once you have an IP.",2:"SSH 22 is remote CLI.",3:"RDP 3389 is remote desktop."},"2.1 ports"),
+  Q("Which port carries ENCRYPTED web traffic?",["80","53","443","21"],2,
+   "HTTPS uses 443 and is encrypted; 80 is not.",
+   {0:"80 is plain HTTP.",1:"53 is DNS.",3:"21 is FTP control."},"2.1 ports"),
+  Q("A live video call keeps going after dropping a frame. Which protocol?",["TCP","UDP","FTP","RDP"],1,
+   "UDP is fast and connectionless — it won't pause to resend, suiting live video.",
+   {0:"TCP retransmits, adding delay unsuitable for real-time.",2:"FTP is file transfer.",3:"RDP is remote desktop."},"2.1 TCP/UDP"),
+  Q("Which provides SECURE remote command-line access?",["Telnet (23)","SSH (22)","FTP (21)","HTTP (80)"],1,
+   "SSH (22) encrypts remote CLI; Telnet is clear text.",
+   {0:"Telnet is unencrypted — insecure.",2:"FTP transfers files unencrypted.",3:"HTTP serves web pages."},"2.1 protocols"),
+  Q("Which port does RDP use?",["22","443","3389","25"],2,
+   "RDP uses TCP 3389 for remote GUI access.",
+   {0:"22 is SSH.",1:"443 is HTTPS.",3:"25 is SMTP."},"2.1 ports"),
+  Q("Which describes TCP (not UDP)?",["Connectionless and fast","Reliable with a 3-way handshake","Used for live streaming","No delivery guarantee"],1,
+   "TCP is connection-oriented and reliable, using a 3-way handshake.",
+   {0:"That's UDP.",2:"Streaming uses UDP.",3:"'No guarantee' is UDP."},"2.1 TCP/UDP"),
+ ],
+ notes:[
+  "SFTP runs over SSH (22); plain FTP (20/21) is unencrypted — prefer SFTP.",
+  "Email: SMTP sends (25/587); IMAP (143/993) and POP3 (110/995) receive; secure variants 993/995/587.",
+  "Switch = Layer 2 (MAC); router = Layer 3 (IP) — deeper in Network+.",
+ ]},
+
+{cert:"A+",week:3,day:3,title:"Network hardware & Wi-Fi",focus:"Devices and wireless that move traffic.",obj:"1201 · 2.2–2.3 hardware & wireless",
+ terms:[
+  T("Switch ◆CONNECTOR","Layer 2 device forwarding frames by MAC within a LAN.","A smart mailroom delivering by name tag.","L2, MAC-based.",1),
+  T("Router ◆CONNECTOR","Layer 3 device routing packets between networks by IP.","The postal service between buildings.","L3, IP-based; provides the gateway.",1),
+  T("Access Point (AP)","Bridges wireless clients to the wired network.","The Wi-Fi doorway into the wired world.","Extends the LAN wirelessly.",1),
+  T("Hub","Dumb Layer 1 device repeating to all ports. Obsolete.","A bullhorn repeating to everyone.","Inefficient vs a switch.",1),
+  T("Firewall","Filters traffic by rules to allow/block.","A gate guard with a rulebook.","Hardware or software.",1),
+  T("Modem","Converts ISP signal to/from Ethernet.","The translator to your ISP's line.","Modem ≠ router.",1),
+  T("Wi-Fi standards (802.11)","a/b/g/n/ac/ax(Wi-Fi 6). Newer = faster/better.","Generations of wireless.","Relative speed/recency.",1),
+  T("2.4GHz vs 5GHz ◆CONNECTOR","2.4 = longer range, slower, more interference. 5 = faster, shorter range.","Far-but-slow vs fast-but-close.","Band tradeoffs.",1),
+  T("WPA2 / WPA3 ◆CONNECTOR","Wireless encryption; WPA3 newest/strongest. WEP is broken — never use.","Locks for Wi-Fi; WPA3 best, WEP broken.","Never use WEP.",1),
+  T("PoE (Power over Ethernet)","Delivers power + data over one Ethernet cable.","One cable for juice and data.","Powers APs, cameras, phones.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> Switch vs router vs AP — layer and job.",
+  "<span class='htag'>APPLY</span> Range through walls vs max speed — which band?",
+  "<span class='htag'>COMPARE</span> WEP vs WPA2 vs WPA3.",
+  "<span class='htag'>WRITE</span> What does PoE power, and why convenient?",
+ ],
+ quiz:[
+  Q("Which device forwards data using MAC addresses within a LAN?",["Router","Switch","Modem","Firewall"],1,
+   "A switch operates at Layer 2, forwarding frames by MAC inside the LAN.",
+   {0:"A router uses IP at Layer 3 between networks.",2:"A modem converts ISP signals.",3:"A firewall filters by rules."},"2.2 hardware"),
+  Q("Which routes traffic BETWEEN networks using IP?",["Switch","Hub","Router","Access point"],2,
+   "A router works at Layer 3, routing by IP and providing the gateway.",
+   {0:"A switch stays within one LAN.",1:"A hub is a Layer 1 repeater.",3:"An AP bridges wireless to wired."},"2.2 hardware"),
+  Q("Strongest Wi-Fi range through several walls. Which band?",["5GHz","2.4GHz","Neither","Both identical"],1,
+   "2.4GHz penetrates walls better and reaches farther, trading speed.",
+   {0:"5GHz is faster but shorter range/weaker penetration.",2:"2.4GHz helps here.",3:"The bands differ."},"2.3 wireless"),
+  Q("Which wireless security should NEVER be used today?",["WPA2","WPA3","WEP","WPA2-Enterprise"],2,
+   "WEP is cryptographically broken; use WPA2/WPA3.",
+   {0:"WPA2 is still acceptable.",1:"WPA3 is newest/strongest.",3:"WPA2-Enterprise is strong."},"2.3 security"),
+  Q("IP camera needs power + data but no outlet nearby. What helps?",["A longer power cord","PoE (Power over Ethernet)","A second modem","WEP"],1,
+   "PoE delivers power and data over one Ethernet cable.",
+   {0:"A cord still needs an outlet.",2:"A modem doesn't supply device power.",3:"WEP is broken encryption."},"2.2 PoE"),
+  Q("Which converts the ISP signal to Ethernet?",["Switch","Router","Modem","Access point"],2,
+   "A modem translates the ISP signal to/from Ethernet.",
+   {0:"A switch expands wired ports.",1:"A router directs traffic but relies on the modem.",3:"An AP provides Wi-Fi."},"2.2 hardware"),
+ ],
+ notes:[
+  "Many home 'routers' are really router + switch + AP (+ sometimes modem) in one box.",
+  "Wi-Fi 6 (802.11ax) improves efficiency in crowded areas, not just raw speed.",
+  "A firewall can be a dedicated appliance or host software; both filter by rules.",
+ ]},
+
+{cert:"A+",week:3,day:4,title:"Network troubleshooting tools",focus:"CLI tools to diagnose connectivity.",obj:"1201 · 5.7 tools",
+ terms:[
+  T("ping ◆CONNECTOR","Tests reachability/latency via ICMP. Success = path works; timeout = blocked/down.","Knocking to see if someone answers.","First connectivity test.",1),
+  T("ipconfig /all","Full network config incl. MAC, DHCP, DNS.","The complete network ID card.","Detailed view.",1),
+  T("tracert (traceroute) ◆CONNECTOR","Shows each Layer 3 hop + latency to a destination.","Mapping every stop on the route.","Finds where delay/break is.",1),
+  T("nslookup","Queries DNS to resolve names / troubleshoot.","Asking the phone book directly.","DNS diagnosis.",1),
+  T("netstat","Shows active connections and listening ports.","Who's connected right now.","Spot unexpected connections.",1),
+  T("Loopback 127.0.0.1 ◆CONNECTOR","Pinging 127.0.0.1 tests the local TCP/IP stack; success = local stack fine, fault is external.","Checking your own phone works before blaming the network.","Isolates local vs external.",1),
+  T("Continuous ping","ping -t runs until stopped, catching intermittent drops.","Watching the door over time.","Diagnoses intermittent loss.",1),
+  T("getmac / arp","getmac shows MAC; arp maps IP↔MAC locally.","Looking up fingerprints / the local rolodex.","Layer 2 diagnostics.",1),
+  T("Speed/duplex mismatch","Mismatched NIC/switch settings cause slow/erratic links.","Two people talking over each other.","Auto-negotiate usually fixes.",1),
+  T("Latency vs packet loss ◆CONNECTOR","Latency = delay (ms); loss = packets that never arrive. Different symptoms/causes.","Slow mail vs lost mail.","Read ping/tracert for both.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> Match ping/tracert/nslookup/netstat to jobs.",
+  "<span class='htag'>APPLY</span> Slow + intermittent — which tool finds the bad hop?",
+  "<span class='htag'>SCENARIO</span> Loopback succeeds, external fails — what's isolated?",
+  "<span class='htag'>LAB-PREP</span> Run tracert to a website; read hops and latency.",
+ ],
+ quiz:[
+  Q("Slow and intermittent connection. You want the hop adding latency. Which tool?",["ping","ipconfig","tracert (traceroute)","nslookup"],2,
+   "tracert maps every Layer 3 hop with per-hop latency, isolating the delay.",
+   {0:"ping tests one endpoint, not the path.",1:"ipconfig shows local config.",3:"nslookup diagnoses DNS."},"5.7 tools"),
+  Q("Ping 127.0.0.1 succeeds but external sites fail. This isolates…",["The local TCP/IP stack works; the issue is beyond the NIC","The NIC stack is broken","DNS only","The CPU"],0,
+   "A successful loopback shows the local stack works, so the fault is external.",
+   {1:"If broken, loopback would fail — it succeeded.",2:"Loopback success doesn't pinpoint DNS alone.",3:"Loopback doesn't isolate the CPU."},"5.7 isolation"),
+  Q("Which tool resolves a hostname to verify DNS?",["ping -t","nslookup","netstat","arp"],1,
+   "nslookup queries DNS directly to confirm resolution.",
+   {0:"ping -t is continuous reachability, not DNS.",2:"netstat lists connections.",3:"arp maps IP↔MAC."},"5.7 DNS"),
+  Q("Suspect intermittent packet drops. Best approach?",["A single ping","Continuous ping (ping -t)","ipconfig","getmac"],1,
+   "A continuous ping runs over time and catches intermittent drops.",
+   {0:"One ping is a snapshot.",2:"ipconfig shows config.",3:"getmac shows hardware addresses."},"5.7 intermittent"),
+  Q("netstat is used to…",["Resolve names","Show active connections and listening ports","Map hops","Assign IPs"],1,
+   "netstat lists active connections and listening ports.",
+   {0:"Names are nslookup.",2:"Hops are tracert.",3:"IPs are DHCP."},"5.7 netstat"),
+  Q("High latency but zero packet loss means…",["Packets are lost","Packets arrive but slowly","DNS is down","The NIC is dead"],1,
+   "Latency is delay; zero loss means packets arrive, just slowly.",
+   {0:"Zero loss means not lost.",2:"DNS down blocks name resolution.",3:"A dead NIC means no connectivity."},"5.7 latency"),
+ ],
+ notes:[
+  "Loopback testing separates 'my machine' problems from 'the network' problems fast.",
+  "tracert timeouts mid-route can be normal (some routers de-prioritize ICMP).",
+  "Speed/duplex mismatch shows as working-but-slow; set both ends to auto.",
+ ]},
+
+{cert:"A+",week:3,day:5,title:"Week 3 checkpoint",focus:"Lock in networking. 85%+ unlocks Tier-2.",obj:"1201 · Domain 2 cumulative",
+ terms:[
+  T("CIDR notation","Slash notation for subnet size (/24 = 255.255.255.0).","Shorthand for neighborhood size.","Maps mask to host count.",1),
+  T("NAT","Maps many private IPs to one public IP.","Many extensions, one public number.","Enables internet sharing.",1),
+  T("VPN","Encrypted tunnel over the internet to a private network.","A private hallway through a public building.","Secure remote access.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> Common ports cold (80/443/53/22/3389).",
+  "<span class='htag'>INTEGRATE</span> Names fail, IPs work — service + port?",
+  "<span class='htag'>SELF-TEST</span> Switch vs router (layer/address); APIPA.",
+ ],
+ quiz:[
+  Q("Switch operates at which layer/address?",["L3/IP","L2/MAC","L4/port","L1/signal"],1,"Layer 2, MAC.",{0:"Router.",2:"Transport.",3:"Hub."},"2.2"),
+  Q("Encrypted web port?",["80","443","53","21"],1,"443.",{0:"Plain HTTP.",2:"DNS.",3:"FTP."},"2.1"),
+  Q("Names fail, IPs work →",["DHCP","DNS","NTP","SNMP"],1,"DNS.",{0:"Breaks IPs too.",2:"Time sync.",3:"Monitoring."},"2.5"),
+  Q("169.254.x.x means…",["Static IP","DHCP unreachable (APIPA)","DNS down","Duplicate IP"],1,"APIPA.",{0:"Not static range.",2:"DNS leaves valid IP.",3:"Conflict warns differently."},"2.5"),
+  Q("Reliable, ordered, 3-way handshake =",["UDP","TCP","ICMP","ARP"],1,"TCP.",{0:"Connectionless.",2:"Ping.",3:"IP↔MAC."},"2.1"),
+  Q("Default gateway routes traffic that is…",["Local","Outside the subnet","Encrypted","Wireless"],1,"Outside the subnet.",{0:"Local stays on LAN.",2:"Not encryption.",3:"Not band-specific."},"2.5"),
+  Q("Strongest current Wi-Fi encryption:",["WEP","WPA","WPA2","WPA3"],3,"WPA3.",{0:"Broken.",1:"Outdated.",2:"Good, not newest."},"2.3"),
+  Q("Tool mapping every hop's latency:",["ping","tracert","nslookup","netstat"],1,"tracert.",{0:"One endpoint.",2:"DNS.",3:"Connections."},"5.7"),
+  Q("Private IP range:",["8.8.8.8","192.168.1.1","1.1.1.1","203.0.113.5"],1,"192.168.x.",{0:"Public DNS.",2:"Public DNS.",3:"Public."},"2.5"),
+  Q("RDP port:",["22","443","3389","25"],2,"3389.",{0:"SSH.",1:"HTTPS.",3:"SMTP."},"2.1"),
+ ],
+ notes:[
+  "CIDR quick math: /24=254, /25=126, /26=62, /27=30 usable.",
+  "NAT + private addressing is why your 192.168 device reaches the internet.",
+  "85%+ unlocks Tier-2 networking vocab (VLAN basics, port forwarding, QoS).",
+ ]},
+/* ===== WEEK 4 — Mobile, laptops & hardware troubleshooting ===== */
+{cert:"A+",week:4,day:1,title:"Laptop hardware & components",focus:"What's different inside portable machines.",obj:"1201 · 1.1 laptop hardware",
+ terms:[
+  T("SO-DIMM","Compact laptop RAM module.","Travel-size RAM.","Laptops only.",1),
+  T("M.2 / NVMe (laptop)","Compact fast SSD form/protocol common in laptops.","The slim fast drive in thin laptops.","M.2 shape, NVMe speed.",1),
+  T("Integrated battery","Li-ion pack; capacity degrades with cycles. Swelling = replace.","The fuel tank that wears out.","Swelling is a safety issue.",1),
+  T("Display assembly","Screen + backlight + webcam + antennas in the lid.","The whole lid as one unit.","Wi-Fi antennas often run through it.",1),
+  T("Keyboard/trackpad (FRU)","Field-replaceable input components.","Swappable typing/pointing parts.","Common laptop repairs.",1),
+  T("Function (Fn) keys ◆CONNECTOR","Combos toggling brightness, wireless, external display. A 'no Wi-Fi' or blank-screen issue is often just an Fn toggle.","Shortcut switches for hardware.","Check before deeper diagnosis.",1),
+  T("Docking station","Adds ports/power via one connection.","One plug that expands a laptop.","Desk expansion.",1),
+  T("Digitizer","Touch layer translating touch/pen to input.","The screen's touch sensor.","Touchscreen laptops.",1),
+  T("Battery swelling ◆CONNECTOR","A puffing Li-ion battery (trackpad rises, case bulges) is a fire risk — stop use, replace immediately. Never puncture.","A swollen tank — replace now.","Safety-critical symptom.",1),
+  T("Wireless toggle ◆CONNECTOR","A physical switch or Fn key can disable Wi-Fi; 'no wireless' is often just this off.","The mute button for Wi-Fi.","Check first.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> Name 5 laptop-specific components.",
+  "<span class='htag'>SAFETY</span> Battery swelling — meaning and action?",
+  "<span class='htag'>SCENARIO</span> Laptop has no Wi-Fi — cheap first check?",
+  "<span class='htag'>WRITE</span> Why are Wi-Fi antennas in the lid?",
+ ],
+ quiz:[
+  Q("Trackpad rising and case bulging. Cause and action?",["Loose screw; tighten","Swollen battery; stop use and replace","Dust; blow it out","Bad RAM; reseat"],1,
+   "Bulging + rising trackpad = swelling Li-ion battery, a fire risk needing immediate replacement.",
+   {0:"A loose screw doesn't cause widespread bulging.",2:"Dust doesn't deform the chassis.",3:"Bad RAM causes crashes, not swelling."},"5.5 laptop"),
+  Q("Laptop shows no Wi-Fi networks at all. Cheapest first check?",["Replace the NIC","Check the physical/Fn wireless toggle","Reinstall Windows","Replace the motherboard"],1,
+   "A physical switch or Fn key often disables Wi-Fi; verify it's on first.",
+   {0:"Replacing the NIC is premature.",2:"Reinstalling Windows is drastic.",3:"Replacing the board is a last resort."},"5.5 wireless"),
+  Q("Which RAM form factor do laptops use?",["DIMM","SO-DIMM","ECC DIMM","PCIe"],1,
+   "Laptops use the compact SO-DIMM.",
+   {0:"DIMM is desktop-size.",2:"ECC DIMM is server memory.",3:"PCIe is expansion, not RAM."},"1.1 laptop"),
+  Q("Wi-Fi antennas run through the lid because…",["It looks better","The elevated position improves signal","It's cheaper","Required by law"],1,
+   "Routing antennas into the lid raises them for better reception.",
+   {0:"Aesthetics aren't the reason.",2:"Not primarily cost.",3:"No law dictates placement."},"1.1 antennas"),
+  Q("A docking station's main purpose is to…",["Cool the CPU","Add ports/power via one connection","Encrypt the disk","Boost Wi-Fi"],1,
+   "A dock expands ports and supplies power through one connection.",
+   {0:"Cooling is the heatsink/fan.",2:"Encryption is software.",3:"A dock doesn't boost wireless."},"1.1 docking"),
+  Q("A puffy battery should be…",["Punctured to release gas","Left in and monitored","Removed/replaced safely, not used","Charged fully"],2,
+   "A swollen battery is a fire hazard; stop using it and replace safely.",
+   {0:"Puncturing Li-ion can cause fire — never.",1:"Continuing risks fire.",3:"Charging worsens the hazard."},"5.5 safety"),
+ ],
+ notes:[
+  "Power off, disconnect power, and use ESD precautions before swapping laptop FRUs.",
+  "A swelling battery can crack screens/trackpads from inside — treat as urgent.",
+  "Some laptops hide a wireless-radio toggle in BIOS.",
+ ]},
+
+{cert:"A+",week:4,day:2,title:"Mobile devices & connectivity",focus:"Phones/tablets: sync, connections, security.",obj:"1201 · 1.3–1.4 mobile",
+ terms:[
+  T("Mobile sync","Syncing contacts/mail/photos to cloud (iCloud, Google).","Keeping devices in lockstep via the cloud.","Sync methods tested.",1),
+  T("Bluetooth pairing","Short-range wireless link between devices.","A handshake for nearby gadgets.","Pairing + PIN.",1),
+  T("NFC","Very short-range tap (payments, pairing).","Tap-to-go.","Mobile payments.",1),
+  T("Hotspot / tethering ◆CONNECTOR","Sharing a phone's cellular data to other devices.","Lending your phone's internet.","Cellular sharing.",1),
+  T("Cellular standards","3G/4G LTE/5G — newer = faster.","Generations of mobile data.","Relative speed.",1),
+  T("Airplane mode ◆CONNECTOR","Disables ALL radios at once; a 'nothing connects' phone is often just this on.","The off-switch for all wireless.","Check first.",1),
+  T("MDM (Mobile Device Management)","Central control of mobile fleets: policy, wipe, apps.","Corporate remote control for phones.","Enterprise mobile security.",1),
+  T("Remote wipe ◆CONNECTOR","Erases a lost/stolen device remotely to protect data.","The panic-delete button.","Protects lost-device data.",1),
+  T("Screen lock / biometrics","PIN/pattern/face/fingerprint to secure a device.","The lock on your pocket computer.","First line of mobile security.",1),
+  T("APN settings ◆CONNECTOR","Carrier config enabling cellular data. Wrong APN = signal but no data.","The dial-in details for mobile data.","Fixes 'signal but no data'.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> Sync vs tethering vs hotspot.",
+  "<span class='htag'>SCENARIO</span> Phone connects to nothing — first toggle?",
+  "<span class='htag'>APPLY</span> Lost work phone with data — which feature?",
+  "<span class='htag'>WRITE</span> What does MDM let IT do?",
+ ],
+ quiz:[
+  Q("Phone won't connect to Wi-Fi, Bluetooth, OR cellular. First check?",["Replace the SIM","Whether Airplane mode is on","Factory reset","Replace the antenna"],1,
+   "Airplane mode disables all radios at once; total loss is often just this toggle.",
+   {0:"A SIM affects only cellular.",2:"A reset is drastic.",3:"An antenna fault wouldn't kill all three radios."},"1.4 mobile"),
+  Q("Lost corporate phone holds sensitive data. Best protection?",["Hotspot","Remote wipe","NFC","Airplane mode"],1,
+   "Remote wipe erases the device remotely so a thief can't access data.",
+   {0:"A hotspot shares internet.",2:"NFC is short-range tap.",3:"Airplane mode is local only, can't erase remotely."},"1.4 security"),
+  Q("Sharing a phone's cellular data to a laptop is…",["Syncing","Tethering / hotspot","Pairing","Wiping"],1,
+   "Tethering / mobile hotspot shares the phone's cellular connection.",
+   {0:"Syncing copies data to cloud.",2:"Pairing links Bluetooth devices.",3:"Wiping erases a device."},"1.4 hotspot"),
+  Q("After a SIM swap: signal but no mobile data. Likely culprit?",["APN settings","Bluetooth","Screen lock","NFC"],0,
+   "Incorrect APN settings prevent cellular data even with voice/signal.",
+   {1:"Bluetooth is device linking.",2:"A screen lock secures access.",3:"NFC is tap-to-pay/pair."},"1.4 APN"),
+  Q("What does MDM provide an organization?",["Faster CPUs","Central policy, app control, and remote wipe","More storage","Better Wi-Fi range"],1,
+   "MDM centrally manages fleets — policy, app control, remote wipe.",
+   {0:"Not hardware acceleration.",2:"Doesn't add storage.",3:"Doesn't extend range."},"1.4 MDM"),
+  Q("Strongest everyday mobile security baseline?",["No lock for convenience","A screen lock with biometrics","Sharing your PIN","Leaving NFC always on"],1,
+   "A screen lock plus biometrics is the practical first line of defense.",
+   {0:"No lock leaves it open.",2:"Sharing your PIN defeats the lock.",3:"Leaving NFC on isn't a lock."},"1.4 security"),
+ ],
+ notes:[
+  "Corporate setups pair MDM with remote wipe and enforced locks.",
+  "Tethering may be limited/metered by the plan.",
+  "If data fails after carrier changes, re-check APN before harder steps.",
+ ]},
+
+{cert:"A+",week:4,day:3,title:"Display & peripheral troubleshooting",focus:"Diagnosing screens, cables, and devices.",obj:"1201 · 5.4 display issues",
+ terms:[
+  T("Video connectors","HDMI, DisplayPort, VGA, DVI, USB-C. HDMI/DP carry audio.","The plug shapes for screens.","Know which carry audio.",1),
+  T("No display vs no signal ◆CONNECTOR","'No signal' = monitor fine but no input (cable/source/input select). 'Dead screen' = display power/backlight.","Is the TV broken, or on the wrong input?","Isolates monitor vs source.",1),
+  T("Input source selection","Monitors have multiple inputs; wrong one shows 'no signal'.","Picking the right channel.","Common false alarm.",1),
+  T("Backlight / inverter ◆CONNECTOR","Lights the LCD; failure = very dim but faintly visible image.","The lamp behind the picture.","Dim-but-there = backlight.",1),
+  T("Dead pixels / artifacts ◆CONNECTOR","Stuck pixels or glitches; artifacts under load hint at GPU/overheat.","Specks or glitches on screen.","Artifacts = GPU/thermal.",1),
+  T("Refresh rate / resolution","Hz and pixel dimensions; wrong settings cause blur/flicker.","How sharp and smooth the picture is.","Set to native resolution.",1),
+  T("Cable integrity ◆CONNECTOR","A bad/loose video cable causes flicker, no signal, or color issues — swap to test.","A frayed wire garbles the picture.","Cheap first swap.",1),
+  T("External vs built-in (Fn)","Fn cycles laptop output; wrong mode = blank laptop or external.","The screen-switcher shortcut.","Common laptop fix.",1),
+  T("Burn-in / persistence","Static images ghosting on OLED/old panels.","A faint permanent shadow.","Mostly OLED/plasma.",1),
+  T("Color depth","Bits per pixel determining color range.","How many crayons the screen has.","Banding = low depth.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> 'No signal' vs 'dead screen' — what each points to.",
+  "<span class='htag'>SCENARIO</span> 'No signal' but PC on — checklist order.",
+  "<span class='htag'>APPLY</span> Very dim but faintly visible — which part?",
+  "<span class='htag'>LAB-PREP</span> Check your refresh rate + resolution.",
+ ],
+ quiz:[
+  Q("Monitor says 'No Signal' but the PC is running. Best first checks?",["Replace the monitor","Verify cable seating and the input source","Reinstall the GPU driver remotely","Replace the GPU"],1,
+   "'No signal' means the monitor works but isn't getting input — check cable and input source.",
+   {0:"Replacing the monitor is premature.",2:"Hard to do with no display, and skips the basics.",3:"Replacing the GPU is an expensive guess."},"5.4 display"),
+  Q("Black screen but you faintly see the desktop in bright light. Cause?",["Dead GPU","Backlight/inverter failure","No OS installed","Bad RAM"],1,
+   "A faintly visible image means the panel works but the backlight/inverter failed.",
+   {0:"A dead GPU usually gives no image or artifacts.",2:"No OS shows firmware text.",3:"Bad RAM causes crashes/no-POST."},"5.4 backlight"),
+  Q("Laptop shows nothing but an external monitor works. Quick fix?",["Replace the laptop screen","Cycle the Fn display-output toggle","Reinstall Windows","Replace the GPU"],1,
+   "The Fn display toggle may be set to external-only; cycling restores the built-in screen.",
+   {0:"Replacing the screen is premature.",2:"Reinstalling is drastic.",3:"The GPU clearly works."},"5.4 laptop display"),
+  Q("Visual artifacts (glitchy textures) under load most likely indicate…",["A DNS problem","GPU overheating or failure","A full hard drive","Wrong file system"],1,
+   "Artifacts under load point to the GPU overheating or failing.",
+   {0:"DNS is name resolution.",2:"A full drive slows things, no artifacts.",3:"File system doesn't cause glitches."},"5.4 artifacts"),
+  Q("Flicker and 'no signal' that change when the cable is wiggled suggest…",["A failing PSU","A bad/loose video cable","A virus","Low RAM"],1,
+   "Symptoms changing with cable movement point to a faulty/loose video cable — swap to confirm.",
+   {0:"A PSU fault causes shutdowns.",2:"A virus doesn't respond to moving a cable.",3:"Low RAM slows, doesn't flicker on wiggle."},"5.4 cable"),
+  Q("A blurry image is fixed by setting the display to its…",["Lowest resolution","Native resolution","Highest refresh only","Grayscale mode"],1,
+   "LCDs look sharpest at native resolution; non-native scaling blurs.",
+   {0:"Lowest resolution looks worse.",2:"Refresh affects smoothness, not blur.",3:"Grayscale changes color, not sharpness."},"5.4 resolution"),
+ ],
+ notes:[
+  "HDMI and DisplayPort carry audio; VGA and DVI (mostly) do not.",
+  "Swapping a suspect video cable is a cheap, fast diagnostic.",
+  "Set LCDs to native resolution and a supported refresh rate.",
+ ]},
+
+{cert:"A+",week:4,day:4,title:"Power, overheating & hardware faults",focus:"Diagnosing power and thermal problems.",obj:"1201 · 5.2 power/thermal",
+ terms:[
+  T("No power vs no POST ◆CONNECTOR","No power = nothing happens (PSU/outlet/cable). No POST = powers but fails self-test (RAM/CPU/GPU).","Totally dead vs turns on but won't roll-call.","Different first checks.",1),
+  T("PSU testing","A PSU tester/multimeter checks voltage rails.","A meter to see if the power brick is healthy.","Confirms PSU faults.",1),
+  T("Overheating symptoms ◆CONNECTOR","Throttling, random shutdowns under load, loud fans, dust. Fine idle, dies under load = thermal.","The PC sweating and slowing.","Load-triggered = thermal.",1),
+  T("Thermal paste replacement","Renewing dried paste restores heat transfer.","Re-greasing the chip-to-cooler joint.","Fixes overheating from old paste.",1),
+  T("Capacitor swelling / burning smell ◆CONNECTOR","Bulging caps or a burnt smell = failing board/PSU — power down immediately.","The board's warning signs.","Safety-critical.",1),
+  T("Intermittent shutdowns","Random offs suggest overheating or failing PSU.","Unpredictable blackouts.","Map thermal vs power.",1),
+  T("Fan failure","A dead/clogged fan causes overheating and throttling.","No breeze, rising heat.","Check fans for thermal.",1),
+  T("ESD precautions ◆CONNECTOR","Static can silently damage components; use a strap/mat when working inside.","An invisible zap that kills parts.","Always ground yourself.",1),
+  T("Surge protector vs UPS ◆CONNECTOR","Surge protector blocks spikes; a UPS ALSO gives battery backup to ride through outages.","A spike-blocker vs a backup battery.","UPS = ride-through power.",1),
+  T("Burning smell / smoke","Stop immediately; unplug. Electrical hazard.","A clear 'shut down now' sign.","Never ignore.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> No power vs no POST — first checks.",
+  "<span class='htag'>SAFETY</span> Burning smell / swollen caps — action?",
+  "<span class='htag'>APPLY</span> Fine idle, shuts off gaming — diagnosis + fix.",
+  "<span class='htag'>WRITE</span> Why use an ESD strap inside a PC?",
+ ],
+ quiz:[
+  Q("PC runs fine at idle but shuts off under heavy load. Cause?",["Dead CMOS battery","Overheating (failing fan/dust/old paste)","Wrong boot order","Bad monitor"],1,
+   "Load-triggered shutdowns indicate overheating — heat spikes under load.",
+   {0:"A dead CMOS battery resets settings/clock.",2:"Boot order only affects startup.",3:"A bad monitor affects display."},"5.2 thermal"),
+  Q("You smell burning and see smoke. Immediate action?",["Keep working to finish","Power down and unplug immediately","Add more RAM","Run sfc /scannow"],1,
+   "Smoke/burning is an electrical hazard — power off and unplug at once.",
+   {0:"Continuing risks fire.",2:"Adding RAM is unsafe and irrelevant.",3:"A scan ignores a fire risk."},"5.2 safety"),
+  Q("PC completely dead — no lights, no fans. Best first check?",["Reinstall the OS","Verify outlet, power cable, and PSU","Update drivers","Replace the CPU"],1,
+   "No power at all points to the power source — outlet, cable, PSU.",
+   {0:"Can't reach the OS on a dead machine.",2:"Drivers are irrelevant with no power.",3:"Replacing the CPU is an expensive guess."},"5.2 no power"),
+  Q("Why ground yourself with an ESD strap before handling components?",["To work faster","To prevent static discharge that can damage parts","To improve cooling","To boost performance"],1,
+   "ESD can silently damage components; grounding prevents the discharge.",
+   {0:"It's about safety, not speed.",2:"It doesn't affect cooling.",3:"It prevents damage, not boosts performance."},"5.2 ESD"),
+  Q("Which keeps a PC running through a brief outage?",["Surge protector","UPS (battery backup)","Power strip","Multimeter"],1,
+   "A UPS provides battery backup to ride through outages; a surge protector only blocks spikes.",
+   {0:"A surge protector has no battery backup.",2:"A power strip just adds outlets.",3:"A multimeter measures voltage."},"5.2 power"),
+  Q("Bulging/leaking capacitors indicate…",["Normal wear, ignore","Failing components — power down and replace","A software bug","A DNS issue"],1,
+   "Swollen/leaking caps are failing components and a hazard; power down.",
+   {0:"Not normal.",2:"Hardware, not software.",3:"DNS is networking."},"5.2 components"),
+ ],
+ notes:[
+  "Distinguish no-power (source/PSU) from no-POST (core hardware) before swapping anything.",
+  "A UPS conditions power and bridges short outages; size it to your load.",
+  "Burning smell, smoke, or swollen caps = immediate power-off.",
+ ]},
+
+{cert:"A+",week:4,day:5,title:"Week 4 checkpoint",focus:"Lock in mobile/laptop + hardware troubleshooting.",obj:"1201 · Domains 1 & 5",
+ terms:[
+  T("Preventive maintenance","Cleaning dust, checking fans/paste to prevent failures.","Oil changes for a PC.","Reduces thermal faults.",1),
+  T("Safety-first procedure","Power off, ESD precautions, unplug before internal work.","Safety checklist before opening a case.","Protects you and hardware.",1),
+  T("FRU (review)","On-site swappable part (RAM, drive, fan, keyboard).","Fix-in-the-field parts.","Speeds repairs.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> Battery swelling action; airplane-mode check.",
+  "<span class='htag'>INTEGRATE</span> 'No signal' vs 'no POST' vs 'no power'.",
+  "<span class='htag'>SELF-TEST</span> Remote wipe purpose; ESD why.",
+ ],
+ quiz:[
+  Q("Bulging case + rising trackpad =",["Loose screw","Swollen battery","Dust","Bad RAM"],1,"Swollen battery.",{0:"Won't bulge case.",2:"Doesn't deform.",3:"Causes crashes."},"5.5"),
+  Q("Phone connects to nothing — check first:",["SIM","Airplane mode","Reset","Antenna"],1,"Airplane mode.",{0:"Cellular only.",2:"Drastic.",3:"Wouldn't kill all."},"1.4"),
+  Q("Monitor 'No Signal', PC on — check:",["Replace monitor","Cable + input source","Replace GPU","Reinstall OS"],1,"Cable + input source.",{0:"Premature.",2:"Expensive guess.",3:"Can't with no display."},"5.4"),
+  Q("Faint visible image, dark screen =",["Dead GPU","Backlight failure","No OS","Bad RAM"],1,"Backlight/inverter.",{0:"Usually no image.",2:"Firmware text.",3:"Crashes."},"5.4"),
+  Q("Fine idle, shuts off under load =",["CMOS","Overheating","Boot order","Monitor"],1,"Overheating.",{0:"Resets clock.",2:"Startup only.",3:"Display only."},"5.2"),
+  Q("Lost phone with data — best feature:",["Hotspot","Remote wipe","NFC","Airplane"],1,"Remote wipe.",{0:"Shares internet.",2:"Short-range.",3:"Local only."},"1.4"),
+  Q("Smoke from PC — action:",["Keep working","Power off + unplug","Add RAM","Scan"],1,"Power off + unplug.",{0:"Dangerous.",2:"Irrelevant.",3:"Ignores hazard."},"5.2"),
+  Q("Prevent static damage with:",["Faster RAM","ESD strap","Bigger PSU","UPS"],1,"ESD strap.",{0:"Unrelated.",2:"Unrelated.",3:"Power backup, not ESD."},"5.2"),
+  Q("Dead PC, no lights/fans — check:",["OS","Outlet/cable/PSU","Drivers","CPU"],1,"Power source.",{0:"Can't reach.",2:"No power.",3:"Premature."},"5.2"),
+  Q("Rides through a power outage:",["Surge protector","UPS","Power strip","Multimeter"],1,"UPS.",{0:"Spikes only.",2:"Just outlets.",3:"Measures voltage."},"5.2"),
+ ],
+ notes:[
+  "Preventive maintenance (dust, fans, paste) prevents most thermal shutdowns.",
+  "Always distinguish no-power / no-POST / no-signal — different parts.",
+  "85%+ unlocks Tier-2 hardware-repair vocab.",
+ ]},
+
+/* ===== WEEK 5 — Virtualization, cloud & printers ===== */
+{cert:"A+",week:5,day:1,title:"Virtualization fundamentals",focus:"Foundation of your home lab AND modern IT.",obj:"1201 · 4.2 virtualization",
+ terms:[
+  T("Virtual Machine (VM)","A software computer running its own OS atop a host.","A computer inside a window on your real PC.","Core lab concept.",1),
+  T("Hypervisor ◆CONNECTOR","Software creating/running VMs. Type 1 (bare-metal, e.g., ESXi) runs on hardware; Type 2 (hosted, e.g., VirtualBox) runs on an OS.","The manager hosting pretend computers.","Type 1 vs Type 2 is tested.",1),
+  T("Host vs Guest","Host = physical machine; guest = the VM's OS.","The building vs the tenant.","Resource sharing.",1),
+  T("Snapshot ◆CONNECTOR","A saved VM state you can instantly roll back to.","A save-game for a VM.","Your lab safety net.",1),
+  T("Resource allocation ◆CONNECTOR","Assigning CPU/RAM/disk to a VM. Give ≤ half host RAM or the host crawls.","Splitting the building among tenants.","Don't over-allocate.",1),
+  T("Sandbox","An isolated environment to safely run risky software.","A padded room for experiments.","Malware analysis.",1),
+  T("Virtual networking","Virtual switches/adapters (NAT, bridged, internal) connect VMs.","Pretend network cables between VMs.","Lab networks.",1),
+  T("Emulation vs virtualization","Emulation mimics different hardware; virtualization partitions the same hardware.","Impersonating vs sharing.","Subtle distinction.",1),
+  T("Use cases","Testing, training, isolation, server consolidation, cross-OS.","Why VMs are everywhere.","Know the benefits.",1),
+  T("Hardware virtualization support ◆CONNECTOR","CPU features (Intel VT-x / AMD-V) must be enabled in BIOS or VMs won't start.","The switch that lets VMs run.","'VT-x disabled' fix.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> Type 1 vs Type 2 with an example each.",
+  "<span class='htag'>APPLY</span> VM won't start: 'VT-x disabled' — fix?",
+  "<span class='htag'>CONNECT</span> Why are snapshots key to a fearless lab?",
+  "<span class='htag'>LAB-PREP</span> You'll install VirtualBox in the Labs tab next.",
+ ],
+ quiz:[
+  Q("VirtualBox on top of Windows is which hypervisor type?",["Type 1 (bare-metal)","Type 2 (hosted)","Neither","Both"],1,
+   "VirtualBox runs on a host OS — Type 2 (hosted).",
+   {0:"Type 1 runs directly on hardware (ESXi).",2:"It is a hypervisor.",3:"A product is one type; VirtualBox is Type 2."},"4.2 virtualization"),
+  Q("A new VM won't start: 'VT-x is disabled.' Fix?",["Add more RAM","Enable Intel VT-x / AMD-V in BIOS","Reinstall the host OS","Use a bigger disk"],1,
+   "Hardware virtualization (VT-x/AMD-V) must be enabled in BIOS for VMs to run.",
+   {0:"RAM isn't the blocker when VT-x is named.",2:"Reinstalling won't enable a BIOS feature.",3:"Disk size is unrelated."},"4.2 virtualization"),
+  Q("What does a VM snapshot let you do?",["Speed up the host","Instantly roll back to a saved state","Add CPU cores","Encrypt the disk"],1,
+   "A snapshot captures the VM's state so you can roll back after risky changes.",
+   {0:"Snapshots don't speed the host.",2:"Adding cores is allocation.",3:"Encryption is separate."},"4.2 snapshots"),
+  Q("Over-allocating which resource most directly slows the HOST?",["Disk labels","RAM","Wallpaper","Fan speed"],1,
+   "Too much VM RAM starves the host; keep it ≤ half the host's.",
+   {0:"Labels are cosmetic.",2:"Wallpaper is irrelevant.",3:"Fan speed responds to heat."},"4.2 resources"),
+  Q("A Type 1 hypervisor differs from Type 2 because it…",["Runs in a browser","Runs directly on hardware with no host OS","Requires Windows","Can't run VMs"],1,
+   "Type 1 (bare-metal) runs directly on hardware; Type 2 runs atop a host OS.",
+   {0:"Hypervisors don't run in browsers.",2:"Type 1 needs no host OS.",3:"Both run VMs."},"4.2 hypervisor"),
+  Q("An isolated environment for risky software is a…",["Sandbox","Gateway","Hub","Partition"],0,
+   "A sandbox isolates execution so risky code can't affect the real system.",
+   {1:"A gateway routes traffic.",2:"A hub is a network repeater.",3:"A partition divides a disk."},"4.2 sandbox"),
+ ],
+ notes:[
+  "Type 1 (ESXi, Hyper-V) is for servers; Type 2 (VirtualBox, VMware Workstation) is your desktop lab.",
+  "Snapshots + isolation make VMs ideal for safely studying malware.",
+  "If VMs won't launch, enabling VT-x/AMD-V in BIOS fixes it the vast majority of the time.",
+ ]},
+
+{cert:"A+",week:5,day:2,title:"Cloud concepts",focus:"The models behind modern computing.",obj:"1201 · 4.1 cloud",
+ terms:[
+  T("Cloud computing","On-demand computing resources over the internet.","Renting computers you reach over the web.","Foundational.",1),
+  T("IaaS / PaaS / SaaS ◆CONNECTOR","IaaS = raw infrastructure (VMs/storage). PaaS = a platform to build on. SaaS = finished apps (Gmail). More managed as you climb.","Rent the land / a workshop / the finished product.","Three service models tested.",1),
+  T("Public / Private / Hybrid","Public = shared provider. Private = dedicated. Hybrid = mix.","Shared apartment / private house / both.","Deployment models.",1),
+  T("Elasticity / scalability ◆CONNECTOR","Resources grow/shrink on demand (e.g., holiday traffic) then back down.","Stretching capacity to fit the load.","Why variable loads love cloud.",1),
+  T("Measured / metered usage","Pay-per-use billing.","A utility meter for computing.","Cost model.",1),
+  T("Multitenancy","Many customers share provider hardware securely.","Many tenants, one building, separate locks.","Isolation matters.",1),
+  T("Cloud file storage / sync","Files stored/synced in the cloud (OneDrive, Drive).","Your filing cabinet in the sky.","Common SaaS use.",1),
+  T("On-demand / self-service","Provision resources yourself instantly.","Vending-machine computing.","Cloud hallmark.",1),
+  T("VDI (Virtual Desktop Infrastructure)","Desktops hosted centrally, streamed to thin clients.","Your desktop lives in the datacenter.","Centralized management.",1),
+  T("Cloud for SOC ◆CONNECTOR","SOC work increasingly involves cloud logs and cloud-hosted SIEMs.","Security watching cloud, not just on-prem.","Relevant to your goal.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> IaaS vs PaaS vs SaaS with an example each.",
+  "<span class='htag'>APPLY</span> Gmail is which model? A rented bare VM?",
+  "<span class='htag'>COMPARE</span> Public vs private vs hybrid.",
+  "<span class='htag'>WRITE</span> Why does holiday traffic suit the cloud?",
+ ],
+ quiz:[
+  Q("Gmail (a ready web app) is which cloud model?",["IaaS","PaaS","SaaS","On-prem"],2,
+   "SaaS delivers finished software over the web — Gmail is classic.",
+   {0:"IaaS is raw infrastructure.",1:"PaaS is a build platform.",3:"On-prem is local hardware."},"4.1 cloud"),
+  Q("A company rents bare VMs and storage to run their own systems. Which model?",["SaaS","PaaS","IaaS","DaaS"],2,
+   "IaaS provides raw infrastructure you manage yourself.",
+   {0:"SaaS is finished apps.",1:"PaaS is a managed platform.",3:"DaaS is desktop-as-a-service."},"4.1 cloud"),
+  Q("An online store auto-adds servers for a holiday rush, then removes them. This is…",["Multitenancy","Rapid elasticity","Metered billing","Private cloud"],1,
+   "Scaling up for demand and back down is rapid elasticity.",
+   {0:"Multitenancy is shared hardware.",2:"Metered billing is pay-per-use.",3:"Private cloud is a deployment model."},"4.1 elasticity"),
+  Q("Which model combines on-prem private resources with public cloud?",["Public","Private","Hybrid","Community"],2,
+   "Hybrid blends private and public cloud.",
+   {0:"Public is shared only.",1:"Private is dedicated only.",3:"Community is shared among specific orgs."},"4.1 deployment"),
+  Q("Pay-per-use billing is called…",["Elasticity","Measured/metered usage","Multitenancy","Self-service"],1,
+   "Metered usage means you pay for what you consume.",
+   {0:"Elasticity is scaling.",2:"Multitenancy is sharing.",3:"Self-service is provisioning."},"4.1 metered"),
+  Q("VDI provides…",["Local-only desktops","Centrally hosted desktops streamed to thin clients","Faster CPUs","Encrypted email"],1,
+   "VDI hosts desktops centrally and streams them to thin clients.",
+   {0:"VDI is centralized.",2:"Not about CPU speed.",3:"Email encryption is unrelated."},"4.1 VDI"),
+ ],
+ notes:[
+  "Climbing IaaS → PaaS → SaaS means the provider manages more, you manage less.",
+  "Rapid elasticity + metered billing is why cloud suits spiky workloads.",
+  "Cloud logs and cloud SIEMs matter directly for your SOC goal.",
+ ]},
+
+{cert:"A+",week:5,day:3,title:"Printers & peripherals",focus:"Printer types, processes, and faults.",obj:"1201 · 3.7 printers",
+ terms:[
+  T("Laser printer","Toner + a 7-step imaging process. Fast, sharp text.","A toner-and-laser machine.","Know the imaging steps.",1),
+  T("Laser imaging process ◆CONNECTOR","Processing → Charging → Exposing → Developing → Transferring → Fusing → Cleaning. Fusing melts toner onto paper.","The assembly line putting toner on a page.","Order tested; fusing = heat.",1),
+  T("Inkjet printer","Sprays liquid ink; good for photos, clogs if idle.","A tiny spray-paint printer.","Clogged heads = streaks.",1),
+  T("Thermal printer","Heats special paper (receipts/labels).","A heat-stylus on heat paper.","Receipts/labels.",1),
+  T("Impact / dot-matrix","Pins strike a ribbon; needed for carbon copies.","A typewriter-style printer.","Multipart forms.",1),
+  T("Print spooler ◆CONNECTOR","Service queuing print jobs. Stuck queue = restart the spooler.","The waiting line for print jobs.","Restart spooler fix.",1),
+  T("Duplex / collate","Double-sided / ordered copies.","Both sides / in order.","Common settings.",1),
+  T("Connectivity","USB/network/wireless attachment and sharing.","The printer's plug or signal.","Shared printers.",1),
+  T("Consumables","Toner/ink/paper that run out.","The refillable supplies.","Streaks/fading = low supply.",1),
+  T("Fuser issues ◆CONNECTOR","Toner that smears/rubs off means the fuser isn't melting it — a fuser fault.","The 'oven' didn't bake the toner on.","Smudged laser = fuser.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> The 7 laser imaging steps in order.",
+  "<span class='htag'>SCENARIO</span> Print jobs stuck — standard fix?",
+  "<span class='htag'>APPLY</span> Laser output smears when rubbed — which part?",
+  "<span class='htag'>WRITE</span> When is an impact printer still necessary?",
+ ],
+ quiz:[
+  Q("Print jobs are stuck and nothing prints. Standard fix?",["Replace the printer","Restart the print spooler service","Reinstall Windows","Replace the toner"],1,
+   "A stuck queue is usually the print spooler; restarting that service clears it.",
+   {0:"Replacing the printer is drastic.",2:"Reinstalling is overkill.",3:"Toner affects quality, not a frozen queue."},"3.7 printers"),
+  Q("Laser output smears when rubbed. Which component?",["The toner cartridge","The fuser","The spooler","The network cable"],1,
+   "Unmelted toner smears — the fuser (which heats/bonds toner) is failing.",
+   {0:"A toner issue causes faint/streaky output.",2:"The spooler queues jobs.",3:"A cable affects connectivity."},"3.7 fuser"),
+  Q("Which printer is REQUIRED for multipart carbon-copy forms?",["Laser","Inkjet","Impact (dot-matrix)","Thermal"],2,
+   "Only impact printers strike through multipart forms for carbon copies.",
+   {0:"Laser uses toner, no carbon copies.",1:"Inkjet sprays ink.",3:"Thermal needs heat paper."},"3.7 impact"),
+  Q("An idle inkjet now prints streaky with missing colors. Cause?",["Fuser failure","Clogged print heads","Spooler crash","Wrong file system"],1,
+   "Idle inkjets dry out and clog the print heads, causing streaks.",
+   {0:"Fusers are a laser component.",2:"A spooler crash stops printing entirely.",3:"File system is unrelated."},"3.7 inkjet"),
+  Q("Which laser step melts toner onto the paper?",["Charging","Exposing","Fusing","Cleaning"],2,
+   "Fusing applies heat and pressure to bond toner permanently.",
+   {0:"Charging prepares the drum.",1:"Exposing writes the image.",3:"Cleaning removes residual toner."},"3.7 laser process"),
+  Q("A thermal printer is most commonly used for…",["Photo printing","Receipts and labels","Carbon-copy forms","Large posters"],1,
+   "Thermal printers heat special paper, standard for receipts and labels.",
+   {0:"Photos suit inkjet.",2:"Carbon copies need impact.",3:"Posters need large-format."},"3.7 thermal"),
+ ],
+ notes:[
+  "Memorize laser steps: Processing, Charging, Exposing, Developing, Transferring, Fusing, Cleaning.",
+  "Restarting the Print Spooler resolves many 'stuck queue' tickets.",
+  "Match type to need: laser=volume text, inkjet=photos, impact=carbon, thermal=receipts.",
+ ]},
+
+{cert:"A+",week:5,day:4,title:"Virtual lab build readiness",focus:"Tie virtualization to your SOC home lab.",obj:"1201 · 4.2 applied",
+ terms:[
+  T("VirtualBox","Free Type 2 hypervisor for your lab.","The free pretend-computer host.","Your starting hypervisor.",1),
+  T("Guest ISO","An OS install image you boot a VM from.","The install disc, as a file.","Ubuntu/Windows ISOs.",1),
+  T("Virtual disk (VDI/VHD)","A file acting as the VM's hard drive.","A hard drive that's just a file.","Dynamically allocated saves space.",1),
+  T("NAT vs Bridged vs Internal ◆CONNECTOR","NAT = VM shares host's connection (internet, isolated). Bridged = VM on your real LAN. Internal = VMs talk only to each other.","Three ways to wire your pretend network.","Choose per lab need.",1),
+  T("Snapshot strategy","Snapshot before risky steps; name clearly.","Save-points before danger.","Lab discipline.",1),
+  T("Extension Pack","Adds USB/webcam support to VirtualBox.","An add-on for extra features.","Optional but handy.",1),
+  T("Resource sizing ◆CONNECTOR","Give a VM ≤ half host RAM and reasonable CPU, or the host crawls.","Don't starve the landlord feeding tenants.","Prevents slowdowns.",1),
+  T("pfSense (preview)","A firewall/router VM for Network+ practice.","A pretend firewall between VMs.","Used next.",1),
+  T("Isolation for malware (preview) ◆CONNECTOR","Run risky samples in an internal-only, snapshotted VM so they can't spread.","A sealed room for dangerous code.","Safe analysis.",1),
+  T("Lab goal: mini-SOC ◆CONNECTOR","Stack VMs + virtual network + a SIEM to mirror a real SOC — your end target.","Building a tiny SOC at home.","Ties A+ to your SOC path.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> NAT vs Bridged vs Internal — when each.",
+  "<span class='htag'>APPLY</span> How much host RAM should one VM get, max?",
+  "<span class='htag'>PLAN</span> List VMs needed for a mini-SOC.",
+  "<span class='htag'>LAB</span> Open the Labs tab and start Guide 01 when ready.",
+ ],
+ quiz:[
+  Q("Want a VM with internet but isolated from your real LAN. Which adapter mode?",["Bridged","NAT","Internal","None"],1,
+   "NAT shares the host's internet while keeping the VM off your physical LAN.",
+   {0:"Bridged puts the VM on your real LAN.",2:"Internal-only can't reach the internet.",3:"'None' gives no connectivity."},"4.2 networking"),
+  Q("Want several VMs to talk ONLY to each other. Which mode?",["Bridged","NAT","Internal Network","Public"],2,
+   "Internal Network connects VMs in isolation — ideal for a private lab.",
+   {0:"Bridged exposes them to the real LAN.",1:"NAT isolates each to the host.",3:"'Public' isn't a mode."},"4.2 networking"),
+  Q("Max RAM for one VM to avoid crippling the host?",["All of it","About half the host's RAM or less","Twice the host's","256MB always"],1,
+   "Keep a VM at roughly half the host's RAM or less.",
+   {0:"All RAM starves the host.",2:"Can't exceed physical RAM.",3:"256MB is too little for most guests."},"4.2 resources"),
+  Q("Before running a risky/malware sample in a lab VM you should…",["Bridge it to your LAN","Snapshot and use an isolated network","Give it all your RAM","Disable snapshots"],1,
+   "Snapshot first (rollback) and isolate the network so it can't spread.",
+   {0:"Bridging exposes your real network.",2:"Over-allocating RAM harms the host.",3:"Disabling snapshots removes your safety net."},"4.2 isolation"),
+  Q("VirtualBox suits your home lab because it's…",["A Type 1 datacenter hypervisor","A free Type 2 hypervisor on your existing OS","Only for servers","A cloud service"],1,
+   "VirtualBox is a free hosted (Type 2) hypervisor on your current OS.",
+   {0:"Type 1 targets servers.",2:"It runs on desktops.",3:"It's local software, not cloud."},"4.2 hypervisor"),
+  Q("The end goal of VMs + virtual network + a SIEM is to…",["Play games","Mirror a real SOC for hands-on practice","Mine crypto","Speed up your host"],1,
+   "It recreates a SOC environment to practice the analyst role.",
+   {0:"For security practice, not gaming.",2:"Not crypto mining.",3:"A lab uses host resources."},"4.2 lab goal"),
+ ],
+ notes:[
+  "NAT = isolated internet, Bridged = on your real LAN, Internal = VM-to-VM only.",
+  "Snapshot before every risky change; name them ('clean-install', 'pre-malware').",
+  "Mini-SOC target: a couple of guest VMs, a pfSense firewall, and a free SIEM.",
+ ]},
+
+{cert:"A+",week:5,day:5,title:"Week 5 checkpoint",focus:"Lock in virtualization, cloud, printers.",obj:"1201 · Domain 4 + 3.7",
+ terms:[
+  T("Thin client","Minimal device relying on server/cloud for compute (pairs with VDI).","A screen that borrows a brain.","VDI endpoints.",1),
+  T("Cloud backup","Off-site copies in the cloud for recovery.","A safety copy in the sky.","Disaster recovery.",1),
+  T("Hypervisor recap","Type 1 bare-metal vs Type 2 hosted.","Datacenter vs desktop VM host.","Core distinction.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> Type 1 vs Type 2; SaaS/PaaS/IaaS examples.",
+  "<span class='htag'>INTEGRATE</span> VT-x fix; stuck print queue fix.",
+  "<span class='htag'>SELF-TEST</span> NAT vs Bridged vs Internal.",
+ ],
+ quiz:[
+  Q("VirtualBox on Windows =",["Type 1","Type 2","Cloud","Emulator"],1,"Type 2.",{0:"Bare-metal.",2:"Local.",3:"Virtualizes, not emulates."},"4.2"),
+  Q("'VT-x disabled' fix:",["More RAM","Enable VT-x in BIOS","Reinstall OS","Bigger disk"],1,"Enable in BIOS.",{0:"Not the blocker.",2:"Won't help.",3:"Unrelated."},"4.2"),
+  Q("Gmail is which model?",["IaaS","PaaS","SaaS","On-prem"],2,"SaaS.",{0:"Raw infra.",1:"Platform.",3:"Local."},"4.1"),
+  Q("Stuck print queue fix:",["Replace printer","Restart spooler","Reinstall OS","New toner"],1,"Restart spooler.",{0:"Drastic.",2:"Overkill.",3:"Quality issue."},"3.7"),
+  Q("Laser smears when rubbed →",["Toner","Fuser","Spooler","Cable"],1,"Fuser.",{0:"Faint output.",2:"Queues.",3:"Connectivity."},"3.7"),
+  Q("VMs talk only to each other:",["Bridged","NAT","Internal","Public"],2,"Internal.",{0:"Real LAN.",1:"Host's connection.",3:"Not a mode."},"4.2"),
+  Q("Auto-scale up then down =",["Multitenancy","Rapid elasticity","Metering","Private cloud"],1,"Rapid elasticity.",{0:"Sharing.",2:"Billing.",3:"Deployment."},"4.1"),
+  Q("Carbon-copy forms need:",["Laser","Inkjet","Impact","Thermal"],2,"Impact.",{0:"Toner.",1:"Ink.",3:"Heat paper."},"3.7"),
+  Q("Max RAM for one VM:",["All","~half host","Twice host","256MB"],1,"~half the host.",{0:"Starves host.",2:"Impossible.",3:"Too little."},"4.2"),
+  Q("Snapshot lets you:",["Speed host","Roll back state","Add cores","Encrypt"],1,"Roll back.",{0:"No.",2:"Allocation.",3:"Separate."},"4.2"),
+ ],
+ notes:[
+  "Thin clients + VDI centralize management and pair with cloud.",
+  "Snapshots and isolated networking make VMs the safest place to study attacks.",
+  "85%+ unlocks Tier-2 virtualization vocab (containers, advanced networking).",
+ ]},
+{cert:"A+",week:6,day:1,title:"Malware & social engineering",focus:"The threats — your bridge to Security+ and SOC work.",obj:"1202 · 2.3–2.4 threats",
+ terms:[
+  T("Malware","Malicious software: viruses, worms, ransomware, trojans, spyware.","Any software built to harm.","Know the types.",1),
+  T("Ransomware ◆CONNECTOR","Encrypts files and demands payment. Reliable offline backups are the real defense.","Kidnaps your files for ransom.","Why backups matter.",1),
+  T("Trojan","Malware disguised as legitimate software the user runs.","A gift hiding an attacker inside.","Disguise is the key trait.",1),
+  T("Phishing ◆CONNECTOR","Deceptive messages tricking users. Spear phishing targets a specific person; whaling targets execs.","A con email posing as someone you trust.","Most common vector.",1),
+  T("Social engineering","Manipulating people (not tech) to gain access.","Hacking the human, not the machine.","Pretexting, tailgating, baiting.",1),
+  T("Tailgating","Following someone through a secure door without your own badge.","Sneaking in behind a badge-holder.","Physical attack.",1),
+  T("Spyware / keylogger","Secretly records activity/keystrokes.","A hidden spy on your device.","Credential theft.",1),
+  T("Rootkit","Deep, stealthy malware hiding from the OS.","A burglar who erases the security tapes.","Hard to detect.",1),
+  T("Zero-day ◆CONNECTOR","A flaw with no patch yet, exploited before defenders can fix it.","An unknown unlocked door attackers find first.","No fix available.",1),
+  T("Defense basics","Antivirus, patching, least privilege, training, backups.","The layered locks against malware.","Combine controls.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> Phishing vs spear phishing vs whaling.",
+  "<span class='htag'>APPLY</span> Files encrypted + ransom note — attack + best defense?",
+  "<span class='htag'>SCENARIO</span> Someone follows you through a badge door — name it.",
+  "<span class='htag'>WRITE</span> Why is a zero-day especially dangerous?",
+ ],
+ quiz:[
+  Q("Files encrypted with a payment demand. Attack and best defense?",["Phishing; antivirus","Ransomware; reliable offline backups","Trojan; a firewall","Spyware; a VPN"],1,
+   "Encrypt-and-extort is ransomware; tested offline backups let you restore without paying.",
+   {0:"Phishing is a delivery method; AV alone won't restore files.",2:"A trojan is a disguise; a firewall won't recover files.",3:"Spyware records; a VPN encrypts traffic, doesn't restore files."},"2.4 malware"),
+  Q("A targeted email impersonating the CEO asks finance to wire money. This is…",["Generic phishing","Whaling","A DDoS","A rootkit"],1,
+   "Targeting/impersonating executives is whaling, a focused phishing form.",
+   {0:"Generic phishing is mass, untargeted.",2:"A DDoS floods a service.",3:"A rootkit hides malware on a host."},"2.4 social eng"),
+  Q("Following an employee through a secure door without a badge is…",["Phishing","Tailgating","Hashing","Patching"],1,
+   "Tailgating is the physical social-engineering attack of slipping in behind someone.",
+   {0:"Phishing is digital deception.",2:"Hashing verifies integrity.",3:"Patching fixes vulnerabilities."},"2.4 physical"),
+  Q("Why is a zero-day especially dangerous?",["It's easy to patch","No patch exists yet, so attackers exploit it first","It only affects printers","It's harmless"],1,
+   "Zero-days have no available patch, giving attackers a window before a fix exists.",
+   {0:"By definition there's no patch yet.",2:"They can affect any software.",3:"They're high-risk."},"2.3 zero-day"),
+  Q("Malware disguised as a legitimate program the user installs is a…",["Worm","Trojan","Rootkit","Adware"],1,
+   "A trojan masquerades as legitimate software to trick the user.",
+   {0:"A worm self-propagates without disguise.",2:"A rootkit hides deep; the trait here is disguise.",3:"Adware shows ads; the key is the disguise."},"2.4 malware"),
+  Q("The single best defense against ransomware data loss is…",["A faster CPU","Reliable, tested, offline backups","A brighter monitor","More RAM"],1,
+   "Offline, tested backups let you restore encrypted data without paying.",
+   {0:"CPU speed doesn't protect data.",2:"Monitors are irrelevant.",3:"RAM doesn't recover files."},"2.4 defense"),
+ ],
+ notes:[
+  "Phishing → spear phishing (specific person) → whaling (executives): increasing targeting.",
+  "Keep backups offline/immutable so malware can't encrypt them too.",
+  "This week is your on-ramp to Security+ and the SOC role — the vocabulary carries over.",
+ ]},
+
+{cert:"A+",week:6,day:2,title:"Security controls & best practices",focus:"Hardening systems and accounts.",obj:"1202 · 2.5–2.6 controls",
+ terms:[
+  T("Antivirus / anti-malware","Detects and removes malicious software.","The guard scanning for known threats.","Keep it updated.",1),
+  T("Patch management ◆CONNECTOR","Applying updates promptly to fix vulnerabilities — closes the doors exploits/zero-days use.","Fixing the locks before burglars try them.","Reduces attack surface.",1),
+  T("Firewall (host/network)","Filters traffic by rules to block unwanted connections.","A gate guard with a rulebook.","Default-deny is strongest.",1),
+  T("Strong password / policy","Length, complexity, uniqueness. Length matters most.","A lock too hard to guess.","Length over complexity.",1),
+  T("MFA","Multiple auth factors beyond a password.","More than one proof of identity.","Defeats stolen passwords.",1),
+  T("Least privilege (review)","Minimum access needed per account.","Only the keys you need.","Limits blast radius.",1),
+  T("Account lockout ◆CONNECTOR","Locks after too many failed logins, slowing brute force.","Jamming the lock after wrong guesses.","Anti-brute-force.",1),
+  T("Encryption (at rest/in transit) ◆CONNECTOR","At rest = stored data (BitLocker). In transit = moving data (HTTPS/VPN).","Locking the file vs locking the delivery truck.","Two contexts tested.",1),
+  T("Physical security","Locks, badges, cameras, cable locks.","Guarding the actual hardware.","Layer with digital.",1),
+  T("Secure disposal ◆CONNECTOR","Wiping/shredding drives before disposal so data can't be recovered.","Destroying records so no one reads them.","Prevents data leaks.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> At-rest vs in-transit encryption with an example.",
+  "<span class='htag'>APPLY</span> Slow online password guessing — which control?",
+  "<span class='htag'>CONNECT</span> How does patching reduce exploit risk?",
+  "<span class='htag'>WRITE</span> Why wipe drives before disposal?",
+ ],
+ quiz:[
+  Q("Which control most directly slows an online brute-force password attack?",["Brighter screen","Account lockout after failed attempts","More RAM","A faster CPU"],1,
+   "Account lockout halts repeated guessing after a threshold.",
+   {0:"Brightness is irrelevant.",2:"RAM doesn't limit attempts.",3:"A faster CPU doesn't stop guessing."},"2.6 controls"),
+  Q("HTTPS protects data that is…",["At rest on disk","In transit over the network","In the CPU cache","On a printer"],1,
+   "HTTPS encrypts data in transit between client and server.",
+   {0:"At-rest is BitLocker.",2:"Cache isn't HTTPS's scope.",3:"Printers aren't the scope."},"2.6 encryption"),
+  Q("Promptly applying updates to fix known vulnerabilities is…",["Patch management","Tailgating","Hashing","Spooling"],0,
+   "Patch management closes known vulnerabilities before exploitation.",
+   {1:"Tailgating is physical intrusion.",2:"Hashing verifies integrity.",3:"Spooling queues print jobs."},"2.6 patching"),
+  Q("Before recycling old company drives, you should…",["Just delete files","Securely wipe or physically destroy them","Quick-format only","Leave them as-is"],1,
+   "Secure wiping/destruction prevents recovery of sensitive data.",
+   {0:"Deleting leaves data recoverable.",2:"A quick format doesn't securely erase.",3:"Leaving drives risks a leak."},"2.6 disposal"),
+  Q("BitLocker encrypting a laptop drive protects data…",["In transit","At rest","On Wi-Fi","In email"],1,
+   "Full-disk encryption protects data at rest.",
+   {0:"In-transit is TLS/VPN.",2:"Wi-Fi security is WPA2/3.",3:"Email encryption is separate."},"2.6 encryption"),
+  Q("Adding a phone-code requirement on top of passwords is…",["Least privilege","Multi-factor authentication","A firewall rule","Patch management"],1,
+   "A second factor (phone code) with the password is MFA.",
+   {0:"Least privilege limits scope.",2:"A firewall filters traffic.",3:"Patching fixes vulnerabilities."},"2.6 MFA"),
+ ],
+ notes:[
+  "Patching is one of the highest-impact, lowest-cost security controls.",
+  "Encryption splits into at-rest (stored) and in-transit (moving).",
+  "Defense in depth: layer antivirus, patching, least privilege, MFA, backups, physical controls.",
+ ]},
+
+{cert:"A+",week:6,day:3,title:"OS & security troubleshooting",focus:"Diagnosing infected or misbehaving systems.",obj:"1202 · 3.2–3.3 troubleshooting",
+ terms:[
+  T("Malware removal process ◆CONNECTOR","CompTIA steps: 1 Identify/verify 2 Quarantine 3 Disable System Restore 4 Remediate (update + scan) 5 Schedule scans/updates 6 Re-enable System Restore 7 Educate the user.","The fixed recipe to clean an infected PC.","Order is tested; quarantine early, educate last.",1),
+  T("Quarantine ◆CONNECTOR","Isolating an infected machine to stop spread before cleaning.","Putting the sick PC in isolation.","Do this early.",1),
+  T("Disable System Restore (during cleanup)","Prevents malware hiding in restore points.","Clearing infected save-points.","Step before remediation.",1),
+  T("Symptoms of infection","Pop-ups, slowness, redirects, disabled tools, new processes.","The PC acting possessed.","Recognize the signs.",1),
+  T("Boot-time / offline scan ◆CONNECTOR","Scanning before the OS fully loads to catch stealth malware/rootkits.","Searching before the burglar wakes up.","Catches rootkits.",1),
+  T("Browser redirects / hijack","Malware changing search/home pages.","Your browser taken hostage.","Common sign.",1),
+  T("Rogue antivirus ◆CONNECTOR","Fake 'security' pop-ups that ARE the malware (often urging a call).","A wolf dressed as the guard.","Don't click/call.",1),
+  T("Educate the end user ◆CONNECTOR","Final removal step: teach the user to avoid re-infection.","Teaching them not to open the bad door again.","Always last.",1),
+  T("Restore from backup","Clean reinstall + restore data when removal isn't trustworthy.","Rebuild from a known-good copy.","When cleanup fails.",1),
+  T("Event Viewer / logs","Windows logs showing errors/security events.","The system's diary.","Diagnostic source.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> The 7-step malware removal process in order.",
+  "<span class='htag'>APPLY</span> Infected PC — what do you do EARLY?",
+  "<span class='htag'>SCENARIO</span> Pop-up says you're infected, call a number — what is it?",
+  "<span class='htag'>WRITE</span> Why is 'educate the user' last?",
+ ],
+ quiz:[
+  Q("In malware removal, what do you do EARLY to stop spread?",["Educate the user","Quarantine the infected system","Re-enable System Restore","Buy new hardware"],1,
+   "Quarantining isolates the machine so the infection can't spread while you clean it.",
+   {0:"Educating is the FINAL step.",2:"Re-enabling System Restore is at the END.",3:"New hardware isn't part of the process."},"3.3 removal"),
+  Q("Pop-up says 'Your PC is infected! Call this number.' This is most likely…",["A legitimate alert","Rogue antivirus / a scam","A Windows update","A driver message"],1,
+   "Fake 'infection' pop-ups urging a call are rogue antivirus scams — they ARE the threat.",
+   {0:"Real AV quietly quarantines.",2:"Updates don't ask you to phone.",3:"Driver messages don't request calls."},"3.3 social"),
+  Q("Why disable System Restore during malware cleanup?",["To speed up the PC","So malware can't hide in restore points","To free RAM","To update drivers"],1,
+   "Malware can lurk in restore points; disabling/clearing them prevents reinfection.",
+   {0:"It's about hiding spots, not speed.",2:"Not a RAM measure.",3:"Unrelated to drivers."},"3.3 removal"),
+  Q("What is the FINAL step of the malware removal process?",["Quarantine","Educate the end user","Disable System Restore","Run a scan"],1,
+   "Educating the user to avoid re-infection is the last step.",
+   {0:"Quarantine is early.",2:"Disabling System Restore is mid-process.",3:"Scanning is part of remediation."},"3.3 removal"),
+  Q("Which scan best catches rootkits that hide once Windows loads?",["A normal in-OS scan","A boot-time / offline scan","A disk defrag","A ping sweep"],1,
+   "Boot-time/offline scans run before the OS loads, catching runtime-hiding malware.",
+   {0:"In-OS scans can miss active rootkits.",2:"Defrag doesn't detect malware.",3:"A ping sweep maps hosts."},"3.3 scanning"),
+  Q("When removal can't be trusted (deep rootkit), the safest recovery is…",["Ignore it","Clean reinstall + restore data from known-good backup","Just delete the file","Disable antivirus"],1,
+   "For deep infections, reimage and restore from a known-good backup.",
+   {0:"Ignoring an active infection is dangerous.",2:"Deleting one file rarely removes deep malware.",3:"Disabling AV makes it worse."},"3.3 recovery"),
+ ],
+ notes:[
+  "Memorize the 7 removal steps; the exam loves their ORDER (quarantine early, educate last).",
+  "Boot-time/offline scanning counters rootkits that hide at runtime.",
+  "For deep infections, reimage from known-good media and restore clean backups.",
+ ]},
+
+{cert:"A+",week:6,day:4,title:"Operational procedures & safety",focus:"Professional, safe, documented IT work.",obj:"1202 · 4.x procedures",
+ terms:[
+  T("Documentation ◆CONNECTOR","Tickets, KB articles, diagrams, asset inventory, change records. The final troubleshooting step and team memory.","Writing down what you did so others can follow.","Always document.",1),
+  T("Change management","Formal review/approval of changes before making them.","Asking before rearranging the furniture.","Reduces outages.",1),
+  T("Backup types ◆CONNECTOR","Full (everything), incremental (changes since last backup of any type), differential (changes since last full).","Full photo / today's edits / everything since the last full photo.","Tested distinctions.",1),
+  T("ESD precautions","Strap/mat, avoid carpet, handle by edges.","Grounding to avoid zapping parts.","Protects components.",1),
+  T("Electrical safety","Unplug before service, avoid PSU internals, no jewelry.","Don't get shocked.","Personal safety.",1),
+  T("Environmental","Temperature/humidity control; proper battery/toner disposal.","Keeping gear in a safe climate.","Compliance.",1),
+  T("Incident response basics ◆CONNECTOR","Identify → report/escalate → preserve evidence → document. Don't tamper.","The fire-drill for security events.","Bridges to SOC work.",1),
+  T("Chain of custody ◆CONNECTOR","Documented evidence handling to keep it admissible.","A signed logbook for evidence.","Forensics/legal.",1),
+  T("Acceptable use policy","Rules governing proper use of IT resources.","The 'how you may use this' contract.","Compliance.",1),
+  T("Communication & professionalism","Clear updates, manage expectations, respect privacy.","Treating users well and clearly.","Soft skills tested.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> Full vs incremental vs differential backups.",
+  "<span class='htag'>APPLY</span> Security event occurs — first responsible actions?",
+  "<span class='htag'>CONNECT</span> Why does chain of custody matter?",
+  "<span class='htag'>WRITE</span> Why is change management worth the overhead?",
+ ],
+ quiz:[
+  Q("Which backup captures ONLY data changed since the last backup of ANY type?",["Full","Incremental","Differential","Mirror"],1,
+   "Incremental backs up changes since the last backup (full or incremental), small but needs the chain to restore.",
+   {0:"A full captures everything each time.",2:"Differential captures changes since the last FULL backup.",3:"A mirror is a real-time copy, not a scheduled type."},"4.x backups"),
+  Q("A security incident occurs. Responsible first move?",["Delete the evidence","Identify, report/escalate, and preserve evidence","Reformat immediately","Keep it secret"],1,
+   "Proper response identifies, escalates, and preserves evidence rather than tampering.",
+   {0:"Deleting evidence destroys the investigation.",2:"Reformatting wipes evidence.",3:"Hiding incidents prevents response."},"4.x incident"),
+  Q("Why follow change management before modifying production?",["It's faster","To review/approve changes and reduce outages","To skip documentation","To avoid backups"],1,
+   "Change management reviews/approves changes first, reducing outage risk.",
+   {0:"It adds steps; the benefit is safety.",2:"It increases documentation.",3:"It doesn't replace backups."},"4.x change"),
+  Q("Chain of custody documentation exists to…",["Speed up repairs","Keep evidence handling traceable and admissible","Save disk space","Improve Wi-Fi"],1,
+   "It records who handled evidence and when, keeping it trustworthy/admissible.",
+   {0:"Not about repair speed.",2:"Doesn't save storage.",3:"Unrelated to wireless."},"4.x forensics"),
+  Q("The final, always-required step after resolving an issue is to…",["Reboot","Document findings, actions, and outcomes","Upgrade the CPU","Disable logging"],1,
+   "Documentation is the last step so the fix is repeatable and shared.",
+   {0:"A reboot isn't the universal final step.",2:"Upgrades aren't a closing step.",3:"Disabling logging removes records."},"4.x documentation"),
+  Q("A differential backup grows larger each day until the next full because it…",["Backs up nothing","Captures all changes since the last FULL backup","Copies one file","Deletes data"],1,
+   "Differential includes everything changed since the last full, growing until the next full.",
+   {0:"It does back up changed data.",2:"It captures all changes, not one file.",3:"Backups don't delete data."},"4.x backups"),
+ ],
+ notes:[
+  "Backup chains: full = baseline; incremental = smallest backup/slowest restore; differential = middle ground.",
+  "Incident response and chain of custody hand A+ off to Security+ and the SOC role.",
+  "Documentation is both the last troubleshooting step and the foundation of team knowledge.",
+ ]},
+
+{cert:"A+",week:6,day:5,title:"A+ Final Checkpoint",focus:"Cumulative across both A+ exams. 85%+ completes A+ and unlocks final Tier-2.",obj:"1201 + 1202 cumulative",
+ terms:[
+  T("A+ scope recap","Core 1: hardware, networking, mobile, virtualization/cloud, troubleshooting. Core 2: OS, security, software troubleshooting, procedures.","The whole A+ map at a glance.","Know both exams' domains.",1),
+  T("Bridge to Network+ ◆CONNECTOR","A+ networking (ports, OSI idea, IP) deepens in Network+ next.","The on-ramp to your second cert.","Sequence matters.",1),
+  T("Bridge to Security+ / SOC ◆CONNECTOR","A+ security (malware, controls, incident response) becomes Security+ and the SOC role.","Where this all leads.","Your end goal.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> Sketch both A+ exams' domains.",
+  "<span class='htag'>INTEGRATE</span> Pick 3 connector concepts; explain each cold.",
+  "<span class='htag'>SELF-TEST</span> Score 85%+ to complete A+ and unlock final Tier-2.",
+ ],
+ quiz:[
+  Q("Data flow opening a file:",["CPU→RAM→Storage","Storage→RAM→CPU","RAM→CPU→Storage","Storage→CPU→RAM"],1,"Storage→RAM→CPU.",{0:"Reversed.",2:"RAM not source.",3:"CPU not direct from storage."},"1201 3.4"),
+  Q("UEFI needs which scheme:",["MBR","GPT","FAT32","exFAT"],1,"GPT.",{0:"Legacy BIOS.",2:"File system.",3:"File system."},"1202 1.9"),
+  Q("169.254.x.x means:",["Static","DHCP unreachable","DNS down","Conflict"],1,"APIPA / DHCP failure.",{0:"Not static.",2:"DNS leaves valid IP.",3:"Warns differently."},"1201 2.5"),
+  Q("Encrypt-and-extort attack:",["Phishing","Ransomware","Trojan","Spyware"],1,"Ransomware.",{0:"Delivery method.",2:"Disguise.",3:"Records activity."},"1202 2.4"),
+  Q("Stuck print queue fix:",["Replace printer","Restart spooler","Reinstall OS","New toner"],1,"Restart spooler.",{0:"Drastic.",2:"Overkill.",3:"Quality."},"1201 3.7"),
+  Q("VirtualBox is which hypervisor type:",["Type 1","Type 2","Cloud","Emulator"],1,"Type 2 (hosted).",{0:"Bare-metal.",2:"Local.",3:"Virtualizes."},"1201 4.2"),
+  Q("Final malware-removal step:",["Quarantine","Educate the user","Disable restore","Scan"],1,"Educate the user.",{0:"Early.",2:"Mid-process.",3:"Remediation."},"1202 3.3"),
+  Q("Encrypted remote CLI:",["Telnet","SSH","FTP","HTTP"],1,"SSH.",{0:"Unencrypted.",2:"File transfer.",3:"Web."},"1201 2.1"),
+  Q("Repairs corrupted system files:",["ipconfig","sfc /scannow","ping","dir"],1,"sfc /scannow.",{0:"Network.",2:"Reachability.",3:"Lists files."},"1202 1.2"),
+  Q("Best ransomware defense:",["Antivirus only","Offline tested backups","A firewall","A VPN"],1,"Offline backups.",{0:"Won't restore.",2:"Won't recover files.",3:"Encrypts traffic only."},"1202 2.4"),
+ ],
+ notes:[
+  "This final checkpoint spans both A+ exams — hardware, OS, networking, security, and procedures.",
+  "Clear 85% to complete A+ in the tracker and unlock the last Tier-2 set.",
+  "Next stop: Network+ — your A+ networking foundation makes it click.",
+ ]}
+];
+
+/* Tier-2 expansion unlocked at >=85% weekly accuracy, keyed "cert|week" */
+const TIER2={
+ "A+|1":[
+  T("Overclocking & XMP","Running CPU/RAM above rated speeds. XMP/EXPO profiles auto-apply rated high-speed RAM timings.","Pushing past the factory redline for more speed; XMP is the easy button for fast RAM.","XMP must be enabled in BIOS or RAM runs at base speed.",2),
+  T("PCIe generations & lanes","PCIe 3.0/4.0/5.0 each double bandwidth per lane. Lane count (x1,x4,x8,x16) sets total throughput.","Each PCIe generation widens the express lanes; more lanes = more parallel traffic.","NVMe drives often use x4; GPUs use x16.",2),
+  T("Liquid (AIO) cooling","A closed-loop liquid cooler moves CPU heat to a radiator + fans, outperforming most air coolers.","Plumbing that carries heat away in liquid instead of just blowing air on it.","Used for high-TDP CPUs; watch for pump failure symptoms.",2),
+  T("NVMe namespaces & PCIe bifurcation","Advanced: splitting PCIe lanes (bifurcation) to run multiple NVMe drives off one slot.","Splitting one express on-ramp into several so multiple fast drives share it.","Board/BIOS must support bifurcation.",2),
+ ],
+};
+
+/* virtualization setup guides (unchanged structure, deep steps) */
+const VM_GUIDES=[
+ {n:"01",title:"Install VirtualBox (your hypervisor)",lv:"beg",
+  why:"A hypervisor runs other 'virtual' computers safely inside windows on your real PC. Break a VM and your actual machine is untouched. This is the foundation of the entire lab.",
+  steps:["Go to virtualbox.org → download VirtualBox for your OS.","Run the installer, accept defaults (it briefly drops your network — normal).","Download the matching Extension Pack from the same page; double-click to add USB/webcam support.","Launch it. The empty left panel is where your VMs will live."],
+  tip:"If VMs refuse to start, enable virtualization in BIOS: reboot → BIOS (Del/F2) → find 'Intel VT-x' or 'AMD-V' → Enabled.",
+  warn:"'VT-x is disabled' = that BIOS setting, ~95% of the time."},
+ {n:"02",title:"Create your first VM (Ubuntu or Windows)",lv:"beg",
+  why:"Your practice machine. You'll run A+ commands, install OSes, and break things freely here.",
+  steps:["Download an ISO: Ubuntu Desktop (ubuntu.com) is the easiest start; or the Win10/11 ISO from Microsoft.","VirtualBox → New → name it, pick OS type, give 4096 MB RAM + 2 CPUs.","Create a virtual disk (VDI, dynamically allocated, 40 GB).","Select VM → Settings → Storage → disk icon → choose your ISO → Start.","Follow the installer like a real PC. Done = a working computer in a window."],
+  tip:"Immediately after install, take a Snapshot (Machine → Take Snapshot) so you can always roll back to clean.",
+  warn:"Never give a VM more than HALF your real RAM or the host crawls."},
+ {n:"03",title:"Master Snapshots (your safety net)",lv:"beg",
+  why:"Snapshots freeze a VM's exact state. Snapshot before risky experiments, restore instantly if it breaks — this is what makes a home lab fearless.",
+  steps:["Select a VM → open Snapshots view.","Click Take, name it 'clean-install'.","Run your experiment (install tools, change settings).","To undo everything: power off → select snapshot → Restore."],
+  tip:"Name snapshots by what they represent: 'before-firewall', 'kali-ready'."},
+ {n:"04",title:"Build a virtual network (pfSense firewall)",lv:"int",
+  why:"Network+ is learned by doing. pfSense is a free firewall/router VM you place between other VMs to practice subnets, NAT, DHCP, and firewall rules.",
+  steps:["Download pfSense CE from pfsense.org.","New VM (type: BSD/FreeBSD 64-bit), attach the ISO, install.","Give pfSense two adapters: one 'NAT' (WAN/internet) and one 'Internal Network' (LAN).","Set your other VMs' adapter to that same 'Internal Network' name — now they route through pfSense.","Browse to pfSense's LAN IP from a VM to reach the web admin and set rules."],
+  tip:"This one setup covers most of the Network+ hands-on domain: subnetting, NAT, DHCP, firewall rules.",
+  warn:"Every VM sharing the same 'Internal Network' name shares that virtual switch."},
+ {n:"05",title:"Capture traffic with Wireshark",lv:"int",
+  why:"Reading packets is the highest-value SOC skill. Wireshark shows the real conversations on a network — you'll literally watch a TCP handshake and a DNS lookup.",
+  steps:["Install Wireshark (wireshark.org).","Pick your active interface, click the blue shark-fin to capture.","Filter bar: type <code>dns</code>, enter — watch name lookups appear.","Try <code>tcp.flags.syn==1</code> to isolate TCP handshake starts.","Right-click a packet → Follow → TCP Stream to read a full exchange."],
+  tip:"Capture while loading a website, then filter 'http' and 'dns' to see every step your browser took.",
+  warn:"Only capture on networks you own or are authorized to monitor."},
+ {n:"06",title:"Stand up your own SIEM (the capstone)",lv:"adv",
+  why:"This IS the SOC Tier-1 job in miniature. You'll forward logs from your VMs into a SIEM and triage real alerts.",
+  steps:["Pick a free SIEM: Wazuh (great docs) or Security Onion (full-featured).","Create a beefier VM (8 GB RAM) and install the SIEM server per its official guide.","Install the agent on your Windows/Ubuntu VMs so they ship logs.","Generate activity: fail logins on purpose, run a port scan from another VM.","Open the dashboard and triage the alerts your own actions created."],
+  tip:"Pair with TryHackMe's free 'SOC Level 1' path — do a guided room, then replicate it in your own SIEM.",
+  warn:"Advanced + RAM-hungry. Don't attempt until guides 01–05 feel easy."},
+];
+
+/* ====================================================================
+   STATE
+==================================================================== */
+const LS="soc_examgrade_v3";
+function freshState(){return{startISO:null,cursor:0,completed:{},lastDoneISO:null,streak:0,tier2Unlocked:{},quizProg:{},taskProg:{},pace:"thorough",mistakes:[]};}
+let S=loadState();
+function loadState(){try{const x=JSON.parse(localStorage.getItem(LS));if(x)return Object.assign(freshState(),x);}catch(e){}return freshState();}
+function saveState(){try{localStorage.setItem(LS,JSON.stringify(S));}catch(e){}}
+function todayISO(){return new Date().toISOString().slice(0,10);}
+function daysBetween(a,b){return Math.round((new Date(b)-new Date(a))/86400000);}
+function isRestDay(d){return d===5||d===6;}
+
+function reqCounts(L){
+  const p=PACE[S.pace];
+  return{terms:Math.min(p.terms,L.terms.length),quiz:Math.min(p.quiz,L.quiz.length)};
+}
+function weekAccuracy(cert,week){
+  const ls=CURRICULUM.map((l,i)=>({l,i})).filter(x=>x.l.cert===cert&&x.l.week===week);
+  let ok=0,total=0,allDone=true;
+  ls.forEach(x=>{const c=S.completed[x.i];if(c){ok+=c.ok;total+=c.total;}else allDone=false;});
+  return{ok,total,pct:total?Math.round(ok/total*100):0,allDone};
+}
+function overallStats(){let done=0,ok=0,total=0;Object.values(S.completed).forEach(c=>{done++;ok+=c.ok;total+=c.total;});return{done,total:CURRICULUM.length,acc:total?Math.round(ok/total*100):0};}
+function missedDayPending(){
+  if(!S.startISO)return false;
+  const start=new Date(S.startISO+"T00:00:00"),now=new Date(todayISO()+"T00:00:00");
+  let sd=0;for(let d=new Date(start);d<=now;d.setDate(d.getDate()+1)){if(!isRestDay(d.getDay()))sd++;}
+  return sd>Object.keys(S.completed).length;
+}
+
+/* ====================================================================
+   RENDER
+==================================================================== */
+const stage=document.getElementById('stage');
+let mode="today";
+
+function renderPace(){
+  document.querySelectorAll('.pace-opt').forEach(b=>{
+    b.classList.toggle('active',b.dataset.pace===S.pace);
+    b.onclick=()=>{S.pace=b.dataset.pace;saveState();render();};
+  });
+  document.getElementById('paceMeta').textContent=PACE[S.pace].label;
+}
+function renderStatus(){
+  const o=overallStats();
+  document.getElementById('status').innerHTML=`
+    <div class="stat"><div class="v">${o.done}/${o.total}</div><div class="l">Days done</div></div>
+    <div class="stat streak"><div class="v">${S.streak}🔥</div><div class="l">Streak</div></div>
+    <div class="stat"><div class="v">${o.acc}%</div><div class="l">Accuracy</div></div>
+    <div class="stat tier"><div class="v">${S.mistakes?S.mistakes.length:0}</div><div class="l">To review</div></div>`;
+}
+document.querySelectorAll('.mode-btn').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;document.querySelectorAll('.mode-btn').forEach(x=>x.classList.toggle('active',x.dataset.mode===mode));render();});
+
+function render(){renderPace();renderStatus();
+  if(mode==="today")renderToday();else if(mode==="review")renderReview();else if(mode==="week")renderWeek();else if(mode==="vm")renderVM();else renderExport();}
+
+/* -------- TODAY -------- */
+function renderToday(){
+  if(S.cursor>=CURRICULUM.length){
+    stage.innerHTML=`<div class="done-screen"><div class="big">★ SLICE COMPLETE</div>
+      <p>You finished the loaded curriculum. The engine's ready for the next batch of weeks to be added.</p></div>`;return;
+  }
+  const idx=S.cursor,L=CURRICULUM[idx],wkey=L.cert+"|"+L.week;
+  const req=reqCounts(L);
+  const tier2on=S.tier2Unlocked[wkey];
+  let terms=L.terms.slice(0,req.terms);
+  if(tier2on)terms=[...terms,...(TIER2[wkey]||[])];
+  const quizSet=L.quiz.slice(0,req.quiz);
+
+  let banners="";
+  if(missedDayPending())
+    banners+=`<div class="banner catch"><span class="ic">⚠</span><div><b>Catch-up mode.</b> A study day passed without a completed lesson. No skipping — finish this day to close the gap. Each completed day advances you one slot, so you catch up by doing the work.</div></div>`;
+  if(L.title.includes("checkpoint"))
+    banners+=`<div class="banner warn"><span class="ic">◆</span><div><b>Weekly checkpoint.</b> Score <b>85%+</b> across the week to unlock Tier-2 vocab for ${L.cert} Week ${L.week} — advanced terms layered on so you keep growing.</div></div>`;
+  if(tier2on)
+    banners+=`<div class="banner up"><span class="ic">↑</span><div><b>Tier-2 active</b> for ${L.cert} W${L.week}. Advanced terms are mixed in below (<span style="color:var(--purple)">NEW TIER</span>).</div></div>`;
+  banners+=`<div class="banner info"><span class="ic">▣</span><div><b>${S.pace.toUpperCase()} pace:</b> ${req.terms} terms + ${quizSet.length} exam questions required today. Switch pace up top anytime — FASTER trims to essentials, THOROUGH loads everything.</div></div>`;
+
+  stage.innerHTML=banners+`
+    <div class="lesson-head">
+      <span class="pill cert">${L.cert}</span>
+      <span class="pill wk">W${L.week} · D${L.day}</span>
+      <span class="pill obj">${L.obj}</span>
+      ${tier2on?'<span class="pill tierp">TIER 2</span>':''}
+    </div>
+    <div class="lesson-title">${L.title}</div>
+    <div class="lesson-focus">${L.focus}</div>
+    <div class="est">⏱ est. ${PACE[S.pace].estLo}–${PACE[S.pace].estHi} min at ${S.pace} pace</div>
+
+    <div class="sec-label">VOCABULARY &amp; TERMS <span class="sec-count">${terms.length} terms</span></div>
+    <div id="terms">${terms.map(tm=>{
+      const conn=tm.t.includes("◆CONNECTOR");
+      const nm=tm.t.replace("◆CONNECTOR","").trim();
+      return `<div class="term">
+        <div class="t">${nm} ${conn?'<span class="new" style="background:#0d1f15;color:var(--green);border-color:#1d4427">◆ CONNECTOR</span>':''} ${tm.t2?'<span class="new">NEW TIER</span>':''}</div>
+        <div class="d">${tm.d}</div>
+        <div class="eli5"><b>LIKE YOU'RE NEW ▸</b> ${tm.e}</div>
+        ${tm.exam?`<div class="exam">▸ EXAM: ${tm.exam}</div>`:''}
+      </div>`;}).join('')}
+    </div>
+
+    <div class="sec-label">PRACTICE TASKS <span class="sec-count">${L.tasks.length} tasks</span></div>
+    <div id="tasks">${L.tasks.map((tk,i)=>`
+      <div class="task" data-ti="${i}"><div class="cb" data-ti="${i}"></div><div class="tx">${tk}</div></div>`).join('')}
+    </div>
+
+    <div class="sec-label">KNOWLEDGE CHECK <span class="sec-count">${quizSet.length} questions</span></div>
+    <div id="quizarea"></div>`;
+
+  const taskState=new Array(L.tasks.length).fill(false);
+  stage.querySelectorAll('.cb').forEach(cb=>cb.onclick=()=>{
+    const i=+cb.dataset.ti;taskState[i]=!taskState[i];
+    cb.classList.toggle('checked',taskState[i]);cb.closest('.task').classList.toggle('checked',taskState[i]);
+    enableFinish();
+  });
+
+  function renderQuizArea(){
+    const area=document.getElementById('quizarea');
+    const qp=S.quizProg[idx]||{i:0,ok:0};
+    if(qp.i>=quizSet.length){
+      const pct=Math.round(qp.ok/Math.max(quizSet.length,1)*100);
+      area.innerHTML=`<div class="scorebar"><span>Quiz complete:</span><span class="ok">✓ ${qp.ok}</span><span class="no">✗ ${quizSet.length-qp.ok}</span><span>· ${pct}%</span></div>
+        <div class="mini">Finish your practice tasks above, then complete the day.</div>
+        <button class="btn primary" id="finishBtn" disabled>Finish tasks + quiz to advance</button>`;
+      wireFinish();enableFinish();return;
+    }
+    const it=quizSet[qp.i];
+    area.innerHTML=`
+      <div class="scorebar"><span>Q ${qp.i+1}/${quizSet.length}</span><span class="ok">✓ ${qp.ok}</span></div>
+      <div class="q-obj">▸ ${it.obj}</div>
+      <div class="quiz-stem">${it.s}</div>
+      <div id="opts">${it.o.map((o,i)=>`<button class="opt" data-i="${i}"><span class="ltr">${String.fromCharCode(65+i)}</span>${o}</button>`).join('')}</div>
+      <div class="explain" id="expwrong" style="border-left-color:var(--red);display:none"></div>
+      <div class="explain" id="exp"><b>Why ${String.fromCharCode(65+it.a)} is correct:</b> ${it.e}</div>
+      <button class="btn ghost" id="nextq" style="display:none">next question →</button>`;
+    let answered=false;
+    area.querySelectorAll('.opt').forEach(btn=>btn.onclick=()=>{
+      if(answered)return;answered=true;
+      const pick=+btn.dataset.i;
+      area.querySelectorAll('.opt').forEach(b=>{b.disabled=true;if(+b.dataset.i===it.a)b.classList.add('correct');});
+      if(pick===it.a)qp.ok++;else{btn.classList.add('wrong');
+        // show why THIS pick was wrong
+        const ww=(it.w&&it.w[pick])?it.w[pick]:"That option doesn't fit — re-read the correct answer's explanation below.";
+        const ew=document.getElementById('expwrong');
+        ew.innerHTML=`<b style="color:var(--red)">Why ${String.fromCharCode(65+pick)} is wrong:</b> ${ww}`;
+        ew.style.display='block';
+        // record mistake for review (dedupe by stem), now WITH wrongWhy
+        if(!S.mistakes.some(m=>m.s===it.s)){S.mistakes.push({s:it.s,o:it.o,a:it.a,e:it.e,w:it.w||{},obj:it.obj,cert:L.cert,day:L.day,week:L.week});}
+      }
+      document.getElementById('exp').classList.add('show');
+      document.getElementById('nextq').style.display='block';
+      S.quizProg[idx]=qp;saveState();
+    });
+    document.getElementById('nextq').onclick=()=>{qp.i++;S.quizProg[idx]=qp;saveState();renderQuizArea();};
+  }
+  function enableFinish(){
+    const btn=document.getElementById('finishBtn');if(!btn)return;
+    const allTasks=taskState.every(Boolean);
+    const qp=S.quizProg[idx]||{i:0};const quizDone=qp.i>=quizSet.length;
+    btn.disabled=!(allTasks&&quizDone);
+    btn.textContent=allTasks&&quizDone?`✓ Complete Day ${L.day} & advance`:`Finish tasks + quiz to advance`;
+  }
+  function wireFinish(){
+    const btn=document.getElementById('finishBtn');if(!btn)return;
+    btn.onclick=()=>{
+      const qp=S.quizProg[idx]||{i:0,ok:0};const today=todayISO();
+      if(!S.startISO)S.startISO=today;
+      S.completed[idx]={ok:qp.ok,total:quizSet.length,doneISO:today};
+      if(S.lastDoneISO){const gap=daysBetween(S.lastDoneISO,today);S.streak=(gap===0)?S.streak:S.streak+1;}else S.streak=1;
+      S.lastDoneISO=today;
+      if(L.title.includes("checkpoint")){const wa=weekAccuracy(L.cert,L.week);if(wa.pct>=85&&TIER2[wkey])S.tier2Unlocked[wkey]=true;}
+      S.cursor=idx+1;delete S.quizProg[idx];saveState();flashResult();
+    };
+  }
+  function flashResult(){
+    if(L.title.includes("checkpoint")){
+      const wa=weekAccuracy(L.cert,L.week);const unlocked=wa.pct>=85&&TIER2[wkey];
+      stage.innerHTML=`<div class="done-screen"><div class="big">${wa.pct}%</div>
+        <p>${L.cert} Week ${L.week} checkpoint complete.</p>
+        ${unlocked?`<div class="banner up" style="margin-top:16px;text-align:left"><span class="ic">↑</span><div><b>Tier-2 unlocked!</b> You cleared 85%. Advanced ${L.cert} terms now join your rotation — leveling up, not repeating.</div></div>`
+        :wa.pct>=85?`<p style="margin-top:8px;color:var(--green)">Cleared 85% — strong week.</p>`
+        :`<div class="banner warn" style="margin-top:16px;text-align:left"><span class="ic">◆</span><div>Under 85% (${wa.pct}%). No Tier-2 yet — revisit this week in the WEEK tab before pushing on. Mastery over speed.</div></div>`}
+        <button class="btn primary" id="contBtn">continue →</button></div>`;
+    }else{
+      stage.innerHTML=`<div class="done-screen"><div class="big">✓ Day done</div>
+        <p>${L.cert} W${L.week}D${L.day} logged · streak ${S.streak}🔥</p>
+        <button class="btn primary" id="contBtn">next day →</button></div>`;
+    }
+    document.getElementById('contBtn').onclick=()=>render();
+  }
+  renderQuizArea();
+}
+
+/* -------- WEEK -------- */
+function renderWeek(){
+  const L=CURRICULUM[Math.min(S.cursor,CURRICULUM.length-1)];
+  const weekLessons=CURRICULUM.map((l,i)=>({l,i})).filter(x=>x.l.cert===L.cert&&x.l.week===L.week);
+  const wa=weekAccuracy(L.cert,L.week);
+  let rail=`<div class="weekrail">`;
+  weekLessons.forEach((x,k)=>{
+    const done=S.completed[x.i],isCur=x.i===S.cursor;
+    let cls="daychip";if(done)cls+=" done";else if(x.i<S.cursor)cls+=" missed";if(isCur)cls+=" active";
+    rail+=`<div class="${cls}" data-jump="${x.i}"><div class="dow">${DOW[k]}</div><div class="dn">D${x.l.day}</div><div class="wl">${x.l.cert}</div></div>`;
+  });
+  rail+=`<div class="daychip rest"><div class="dow">FRI</div><div class="dn">OFF</div><div class="wl">rest</div></div>
+         <div class="daychip rest"><div class="dow">SAT</div><div class="dn">OFF</div><div class="wl">catch-up</div></div></div>`;
+  stage.innerHTML=`
+    <div class="lesson-head"><span class="pill cert">${L.cert}</span><span class="pill wk">WEEK ${L.week}</span></div>
+    <div class="lesson-focus" style="margin-top:8px">Week runs <b>Sun–Thu</b> (study) with <b>Fri/Sat off</b> for rest &amp; catch-up — matched to your schedule. Tap a past day to revisit it.</div>
+    ${rail}
+    <div class="banner ${wa.pct>=85?'ok':'warn'}"><span class="ic">${wa.pct>=85?'✓':'◆'}</span><div>Week accuracy: <b>${wa.pct}%</b> (${wa.ok}/${wa.total}). ${wa.pct>=85?'Tier-2 territory — keep it up.':'Reach 85% by checkpoint day to unlock Tier-2 vocab.'}</div></div>
+    <div class="sec-label">DAYS THIS WEEK</div>
+    ${weekLessons.map(x=>{const c=S.completed[x.i];
+      const tag=c?`<span style="color:var(--green);font-family:var(--mono);font-size:11px">✓ ${Math.round(c.ok/c.total*100)}%</span>`
+        :x.i===S.cursor?`<span style="color:var(--amber);font-family:var(--mono);font-size:11px">▸ current</span>`
+        :`<span style="color:var(--muted);font-family:var(--mono);font-size:11px">locked</span>`;
+      return `<div class="term" ${x.i<=S.cursor?`style="cursor:pointer" data-jump="${x.i}"`:''}>
+        <div class="t">Day ${x.l.day}: ${x.l.title} ${tag}</div>
+        <div class="d">${x.l.focus}</div><div class="exam" style="margin-top:5px;color:#c9a55a;font-family:var(--mono);font-size:11px">${x.l.obj}</div></div>`;
+    }).join('')}`;
+  stage.querySelectorAll('[data-jump]').forEach(el=>el.onclick=()=>{const j=+el.dataset.jump;if(j<=S.cursor){S.cursor=j;delete S.quizProg[j];if(S.completed[j])delete S.completed[j];saveState();mode="today";document.querySelectorAll('.mode-btn').forEach(x=>x.classList.toggle('active',x.dataset.mode==='today'));render();}});
+}
+
+/* -------- VM -------- */
+function renderVM(){
+  const o=overallStats();
+  if(o.done<4){
+    stage.innerHTML=`<div class="vm-lock"><div class="lk">🔒</div><div class="mono">Virtual lab guides unlock after Day 4.</div>
+      <p style="margin-top:10px;font-size:13px;color:var(--muted)">Build the base knowledge first — then I walk you through every setup, beginner-style. <b>${o.done}/4</b> days done.</p></div>`;return;
+  }
+  stage.innerHTML=`<div class="banner ok"><span class="ic">✓</span><div>Ready to build. Work top to bottom — each guide assumes the previous one's done. Every step is first-timer friendly.</div></div>
+    ${VM_GUIDES.map((g,i)=>`<details class="guide" ${i===0?'open':''}>
+      <summary><span class="num">${g.n}</span> ${g.title}<span class="lv ${g.lv}">${g.lv==='beg'?'BEGINNER':g.lv==='int'?'INTERMEDIATE':'ADVANCED'}</span><span class="chev">▸</span></summary>
+      <div class="gbody"><div class="why">${g.why}</div><ol>${g.steps.map(s=>`<li>${s}</li>`).join('')}</ol>
+      ${g.tip?`<div class="tip"><b>PRO TIP ▸</b> ${g.tip}</div>`:''}${g.warn?`<div class="warn2">⚠ ${g.warn}</div>`:''}</div></details>`).join('')}`;
+}
+
+/* -------- REVIEW (mistakes re-drill) -------- */
+function renderReview(){
+  if(!S.mistakes.length){
+    stage.innerHTML=`<div class="vm-lock"><div class="lk">🎯</div><div class="mono">No mistakes logged yet.</div>
+      <p style="margin-top:10px;font-size:13px;color:var(--muted)">When you miss a question in TODAY, it lands here so you can re-drill it. Repetition on your weak spots is how this sticks.</p></div>`;
+    return;
+  }
+  // a review session: re-ask each missed question; correct twice in a row removes it
+  const rp=window.__reviewPos||0;
+  const list=S.mistakes;
+  if(rp>=list.length){
+    window.__reviewPos=0;
+    stage.innerHTML=`<div class="done-screen"><div class="big">↻ Round done</div>
+      <p>You re-drilled all ${list.length} missed question${list.length>1?'s':''}. ${list.length} still in rotation.</p>
+      <button class="btn primary" id="again">drill again →</button>
+      <button class="btn ghost" id="clearOne">remove ones I now know</button></div>`;
+    document.getElementById('again').onclick=()=>{window.__reviewPos=0;renderReview();};
+    document.getElementById('clearOne').onclick=()=>{
+      // remove any marked mastered
+      S.mistakes=S.mistakes.filter(m=>!m._mastered);saveState();window.__reviewPos=0;renderReview();
+    };
+    return;
+  }
+  const it=list[rp];
+  stage.innerHTML=`
+    <div class="banner info"><span class="ic">🎯</span><div><b>Review mode.</b> Re-drilling your missed questions (${rp+1} of ${list.length}). Get it right and mark it mastered to clear it out.</div></div>
+    <div class="lesson-head"><span class="pill cert">${it.cert}</span><span class="pill wk">W${it.week} · D${it.day}</span><span class="pill obj">${it.obj}</span></div>
+    <div class="q-obj" style="margin-top:10px">▸ ${it.obj}</div>
+    <div class="quiz-stem">${it.s}</div>
+    <div id="opts">${it.o.map((o,i)=>`<button class="opt" data-i="${i}"><span class="ltr">${String.fromCharCode(65+i)}</span>${o}</button>`).join('')}</div>
+    <div class="explain" id="expwrong" style="border-left-color:var(--red);display:none"></div>
+    <div class="explain" id="exp"><b>Why ${String.fromCharCode(65+it.a)} is correct:</b> ${it.e}</div>
+    <div id="revnav" style="display:none;margin-top:14px">
+      <button class="btn primary" id="masterBtn">✓ Got it — mark mastered &amp; next</button>
+      <button class="btn ghost" id="keepBtn">keep in rotation → next</button>
+    </div>`;
+  let answered=false;
+  stage.querySelectorAll('.opt').forEach(btn=>btn.onclick=()=>{
+    if(answered)return;answered=true;
+    const pick=+btn.dataset.i;
+    stage.querySelectorAll('.opt').forEach(b=>{b.disabled=true;if(+b.dataset.i===it.a)b.classList.add('correct');});
+    if(pick!==it.a){btn.classList.add('wrong');
+      const ww=(it.w&&it.w[pick])?it.w[pick]:"That option doesn't fit — re-read the correct answer's explanation below.";
+      const ew=document.getElementById('expwrong');
+      ew.innerHTML=`<b style="color:var(--red)">Why ${String.fromCharCode(65+pick)} is wrong:</b> ${ww}`;
+      ew.style.display='block';
+    }
+    document.getElementById('exp').classList.add('show');
+    document.getElementById('revnav').style.display='block';
+    const correct=pick===it.a;
+    document.getElementById('masterBtn').onclick=()=>{it._mastered=true;S.mistakes=S.mistakes.filter(m=>m.s!==it.s);saveState();renderReview();};
+    document.getElementById('keepBtn').onclick=()=>{window.__reviewPos=rp+1;renderReview();};
+  });
+}
+
+/* -------- EXPORT (cumulative DOCX) -------- */
+function renderExport(){
+  const o=overallStats();
+  const completedLessons=CURRICULUM.map((l,i)=>({l,i})).filter(x=>S.completed[x.i]);
+  stage.innerHTML=`
+    <div class="sec-label">EXPORT STUDY GUIDE</div>
+    <div class="banner info"><span class="ic">📄</span><div>Generates a Word document (.docx) of everything you've studied — terms, every question with answers &amp; explanations, and the noteworthy notes. It rebuilds fresh each time so it always reflects your latest progress. Save it to your Google Drive folder after download.</div></div>
+    <div class="term"><div class="t">Included right now</div>
+      <div class="d">${completedLessons.length} completed day${completedLessons.length!==1?'s':''} · ${o.acc}% overall accuracy · ${S.mistakes.length} question${S.mistakes.length!==1?'s':''} flagged for review.</div></div>
+    <div class="term"><div class="t">What's in the file</div>
+      <div class="d">A title page, table of contents, each day's full terms + Q&amp;A + notes, your missed-questions appendix, and a progress log. One cumulative document you can re-read end to end.</div></div>
+    <button class="btn primary" id="genBtn">⬇ Generate &amp; download .docx</button>
+    <div class="mini" id="genStatus"></div>
+    <div class="banner ok" style="margin-top:16px"><span class="ic">↳</span><div><b>To save in Drive (iPhone):</b> after it downloads, tap the file → Share → Save to Files / Google Drive → pick your study folder. Two taps and it's archived.</div></div>`;
+  document.getElementById('genBtn').onclick=()=>generateDocx(completedLessons);
+}
+
+function esc(s){return (s||"").replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+/* Build a Word-compatible HTML doc and download as .docx (opens cleanly in Word & Google Docs) */
+function generateDocx(completedLessons){
+  const st=document.getElementById('genStatus');st.textContent="building document…";
+  const L=["A","B","C","D"];
+  let body=`
+    <h1 style="color:#1a2332;font-size:28pt;text-align:center;margin-top:120pt">SOC PATH</h1>
+    <p style="text-align:center;color:#b87600;font-size:18pt;font-weight:bold">Cumulative Study Guide</p>
+    <p style="text-align:center;color:#555;font-size:12pt">A+ → Network+ → Security+ → SOC Analyst</p>
+    <p style="text-align:center;color:#555;font-size:10pt;font-style:italic">Terms · connector concepts · every question with answers &amp; explanations. This document grows as you complete each day.</p>
+    <br style="page-break-after:always"/>
+    <h1 style="color:#1a2332">How to use this guide</h1>
+    <p>Each day below has its vocabulary, the full knowledge-check questions with the correct answer marked and explained, and extra noteworthy facts. Terms marked ◆ CONNECTOR teach how the pieces relate, so every question is answerable from what you studied. Re-read completed sections often — repetition is the method, not wasted time.</p>
+    <br/>`;
+
+  if(!completedLessons.length){
+    body+=`<p style="color:#a00"><b>No completed days yet.</b> Finish at least Day 1 in the TODAY tab, then export to capture it here.</p>`;
+  }
+
+  let curWeekKey="";
+  completedLessons.forEach(({l,i})=>{
+    const wkey=l.cert+" — Week "+l.week;
+    if(wkey!==curWeekKey){curWeekKey=wkey;
+      body+=`<br style="page-break-before:always"/><h1 style="color:#1a2332">${esc(l.cert)} — Week ${l.week}</h1>`;
+    }
+    body+=`<h2 style="color:#b87600">Day ${l.day}: ${esc(l.title)}</h2>`;
+    body+=`<p style="color:#2E75B6;font-style:italic;font-size:10pt">Objective focus: ${esc(l.obj)}</p>`;
+    // terms (respect pace count used)
+    const req=reqCounts(l);
+    let terms=l.terms.slice(0,req.terms);
+    if(S.tier2Unlocked[l.cert+"|"+l.week])terms=[...terms,...(TIER2[l.cert+"|"+l.week]||[])];
+    body+=`<h3 style="color:#1a2332">Vocabulary &amp; Terms</h3>`;
+    terms.forEach(tm=>{
+      const conn=tm.t.includes("◆CONNECTOR")||tm.t.includes("CONNECTOR");
+      const name=tm.t.replace("◆CONNECTOR","").trim();
+      body+=`<table width="100%" cellpadding="6" style="border:1px solid #ccc;border-collapse:collapse;background:${conn?'#eaf3ea':'#f2f6fa'}">
+        <tr><td style="border:1px solid #ccc"><b style="color:#1a2332">${esc(name)}</b>${conn?' <span style="color:#2d6a3e;font-size:9pt"><b>◆ CONNECTOR</b></span>':''}</td></tr>
+        <tr><td style="border:1px solid #ccc;background:#fff"><b style="color:#555">Definition:</b> ${esc(tm.d)}<br/><b style="color:#2E75B6">Like you're new:</b> <i>${esc(tm.e)}</i>${tm.exam?`<br/><span style="color:#b87600;font-size:9pt">EXAM: ${esc(tm.exam)}</span>`:''}</td></tr>
+      </table><br/>`;
+    });
+    // quiz
+    const quizSet=l.quiz.slice(0,req.quiz);
+    body+=`<h3 style="color:#1a2332">Knowledge Check — Questions, Answers &amp; Explanations</h3>`;
+    quizSet.forEach((q,qi)=>{
+      body+=`<p style="margin-bottom:2pt"><b style="color:#b87600">Q${qi+1}.</b> <b>${esc(q.s)}</b></p>`;
+      q.o.forEach((opt,oi)=>{const c=oi===q.a;
+        body+=`<p style="margin:0 0 0 24pt;color:${c?'#2d6a3e':'#000'}"><b>${L[oi]}.</b> ${c?'<b>':''}${esc(opt)}${c?' ✓</b>':''}</p>`;});
+      body+=`<p style="margin:2pt 0 2pt 24pt;border-left:3px solid #2d6a3e;padding-left:8pt"><b style="color:#2d6a3e">Why ${L[q.a]} is correct:</b> <i>${esc(q.e)}</i></p>`;
+      if(q.w&&Object.keys(q.w).length){
+        Object.keys(q.w).forEach(k=>{ body+=`<p style="margin:0 0 0 24pt;border-left:3px solid #c0392b;padding-left:8pt;color:#555;font-size:10pt"><b style="color:#c0392b">Why ${L[+k]} is wrong:</b> ${esc(q.w[k])}</p>`; });
+      }
+      body+=`<p style="margin-bottom:8pt"></p>`;
+    });
+  });
+
+  // mistakes appendix
+  if(S.mistakes.length){
+    body+=`<br style="page-break-before:always"/><h1 style="color:#1a2332">Appendix — Questions You Missed</h1>
+      <p style="font-style:italic;color:#555">Drill these until they're automatic. Repetition on weak spots is the highest-value study time.</p>`;
+    S.mistakes.forEach((q,qi)=>{
+      body+=`<p style="margin-bottom:2pt"><b style="color:#f85149">Missed ${qi+1}.</b> <b>${esc(q.s)}</b> <span style="color:#555;font-size:9pt">(${esc(q.cert)} W${q.week}D${q.day})</span></p>`;
+      q.o.forEach((opt,oi)=>{const c=oi===q.a;
+        body+=`<p style="margin:0 0 0 24pt;color:${c?'#2d6a3e':'#000'}"><b>${L[oi]}.</b> ${c?'<b>':''}${esc(opt)}${c?' ✓</b>':''}</p>`;});
+      body+=`<p style="margin:2pt 0 2pt 24pt;border-left:3px solid #2d6a3e;padding-left:8pt"><b style="color:#2d6a3e">Why ${L[q.a]} is correct:</b> <i>${esc(q.e)}</i></p>`;
+      if(q.w&&Object.keys(q.w).length){
+        Object.keys(q.w).forEach(k=>{ body+=`<p style="margin:0 0 0 24pt;border-left:3px solid #c0392b;padding-left:8pt;color:#555;font-size:10pt"><b style="color:#c0392b">Why ${L[+k]} is wrong:</b> ${esc(q.w[k])}</p>`; });
+      }
+      body+=`<p style="margin-bottom:8pt"></p>`;
+    });
+  }
+
+  // progress log
+  body+=`<br style="page-break-before:always"/><h1 style="color:#1a2332">Progress Log</h1>
+    <table width="100%" cellpadding="6" style="border:1px solid #ccc;border-collapse:collapse">
+    <tr style="background:#1a2332;color:#fff"><td><b>Date</b></td><td><b>Cert / Week / Day</b></td><td><b>Score %</b></td><td><b>Notes</b></td></tr>`;
+  completedLessons.forEach(({l,i})=>{const c=S.completed[i];
+    body+=`<tr><td>${c.doneISO||''}</td><td>${esc(l.cert)} W${l.week} D${l.day}</td><td>${Math.round(c.ok/c.total*100)}%</td><td></td></tr>`;});
+  body+=`</table>`;
+
+  const html=`<!DOCTYPE html><html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+    <head><meta charset='utf-8'><title>SOC Path Study Guide</title>
+    <!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View></w:WordDocument></xml><![endif]-->
+    <style>body{font-family:Arial,sans-serif;font-size:11pt;color:#000} h1{font-size:18pt} h2{font-size:14pt} h3{font-size:12pt} table{margin:4pt 0}</style>
+    </head><body>${body}</body></html>`;
+
+  try{
+    const blob=new Blob(['\ufeff'+html],{type:'application/msword'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    const stamp=new Date().toISOString().slice(0,10);
+    a.href=url;a.download=`SOC_Path_Study_Guide_${stamp}.doc`;
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),1500);
+    st.innerHTML=`<span style="color:var(--green)">✓ Downloaded. Opens in Word & Google Docs. Now save it to your Drive folder.</span>`;
+  }catch(e){st.innerHTML=`<span style="color:var(--red)">Export failed: ${e.message}</span>`;}
+}
+
+
+function renderHow(){
+  stage.innerHTML=`
+    <div class="sec-label">HOW THIS TRAINER WORKS</div>
+    <div class="term"><div class="t">🎚️ Pace you control</div><div class="d">THOROUGH loads every term + question (~50–75 min/day). BALANCED trims to the core 8+8. FASTER hits essentials only (6+6) to compress the timeline. Switch anytime up top — your call, week to week.</div></div>
+    <div class="term"><div class="t">📅 One exam-mapped day at a time</div><div class="d">Each day targets specific CompTIA objectives (shown as a green pill). Order is A+ → Network+ → Security+. Week = Sun–Thu study, Fri/Sat off.</div></div>
+    <div class="term"><div class="t">✅ Real work to advance</div><div class="d">A day counts only when you finish the hands-on practice tasks AND the knowledge check. No passive reading — the advance button stays locked until both are done.</div></div>
+    <div class="term"><div class="t">⚠ No skipping</div><div class="d">If a study day passes uncompleted, Catch-up mode appears. You close the gap by finishing lessons, never by jumping ahead.</div></div>
+    <div class="term"><div class="t">↑ 85% unlocks Tier-2</div><div class="d">Each week's checkpoint scores you. 85%+ layers advanced vocab into that cert — always growing.</div></div>
+    <div class="term"><div class="t">🧒 Beginner-built, exam-grade</div><div class="d">Every term has a plain-English explanation AND an exam note tying it to what CompTIA actually tests. Nothing you learn is wasted.</div></div>
+    <div class="term"><div class="t">🖥️ Labs after Day 4</div><div class="d">Step-by-step VirtualBox → VM → pfSense → Wireshark → SIEM. The SOC job in miniature.</div></div>
+    <div class="mini">Timeline at your settings: ~8–9 months thorough · ~5–6 months faster. Progress saves on this device.</div>`;
+}
+
+document.getElementById('resetBtn').onclick=()=>{if(confirm('Reset everything — days, streak, unlocks, pace?')){localStorage.removeItem(LS);S=freshState();mode="today";document.querySelectorAll('.mode-btn').forEach(x=>x.classList.toggle('active',x.dataset.mode==='today'));render();}};
+
+/* -------- BACKUP: export / import progress -------- */
+function flashHint(msg,color){const h=document.getElementById('backupHint');if(!h)return;const prev=h.textContent;h.textContent=msg;if(color)h.style.color=color;setTimeout(()=>{h.textContent=prev;h.style.color='';},4000);}
+
+document.getElementById('exportBackupBtn').onclick=()=>{
+  try{
+    const payload={app:"soc-daily-trainer",fmt:1,savedISO:new Date().toISOString(),state:S};
+    const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download="soc-progress-"+todayISO()+".json";
+    document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1500);
+    flashHint("✓ Backup downloaded. Move it to your other device, then tap 'restore progress' there.","var(--green)");
+  }catch(e){flashHint("Couldn't create the backup file on this browser.","var(--red)");}
+};
+
+document.getElementById('importBackupBtn').onclick=()=>document.getElementById('importFile').click();
+
+document.getElementById('importFile').onchange=(ev)=>{
+  const file=ev.target.files&&ev.target.files[0];
+  ev.target.value=""; // allow re-importing same file later
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const obj=JSON.parse(reader.result);
+      const incoming=(obj&&obj.state)?obj.state:obj; // accept wrapped or raw
+      if(!incoming||typeof incoming!=='object'||!('completed'in incoming)||!('pace'in incoming)){
+        flashHint("That file doesn't look like a SOC trainer backup.","var(--red)");return;
+      }
+      const when=obj.savedISO?(" from "+obj.savedISO.slice(0,10)):"";
+      if(!confirm("Restore progress"+when+"? This replaces the current progress on THIS device.")){flashHint("Restore cancelled — nothing changed.");return;}
+      S=Object.assign(freshState(),incoming);
+      saveState();
+      mode="today";
+      document.querySelectorAll('.mode-btn').forEach(x=>x.classList.toggle('active',x.dataset.mode==='today'));
+      render();
+      flashHint("✓ Progress restored on this device.","var(--green)");
+    }catch(e){flashHint("Couldn't read that file — is it the .json backup?","var(--red)");}
+  };
+  reader.onerror=()=>flashHint("Couldn't open that file.","var(--red)");
+  reader.readAsText(file);
+};
+
+render();
+</script>
+</body>
+</html>

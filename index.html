@@ -137,6 +137,21 @@
   .gbody .tip b{color:var(--green);font-family:var(--mono);font-size:10px}
   .gbody .warn2{border-left:3px solid var(--amber);background:#1a1405;padding:9px 12px;border-radius:0 6px 6px 0;margin-top:8px;color:#ffd27a;font-size:12.5px}
 
+  .pb-toc{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 4px}
+  .pb-chip{font-family:var(--mono);font-size:11.5px;padding:7px 11px;border-radius:20px;border:1px solid var(--line);background:var(--panel);color:var(--ink);text-decoration:none;cursor:pointer;transition:.15s}
+  .pb-chip:hover{border-color:var(--amber);color:var(--amber)}
+  .pb-chip.do{border-color:#1d4427;color:var(--green)}
+  .guide.pb summary{font-size:14px}
+  .pb-ic{margin-right:6px}
+  .pb-intro{color:var(--muted);font-style:italic;font-size:12.5px;margin:4px 0 14px;line-height:1.6}
+  .pb-block{margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #141c28}
+  .pb-block:last-child{border-bottom:none}
+  .pb-h{font-weight:700;color:var(--amber);font-size:13.5px;margin-bottom:5px}
+  .pb-p{color:var(--ink);font-size:13px;line-height:1.65}
+  .pb-list{margin:6px 0 0;padding-left:18px}
+  .pb-list li{margin-bottom:7px;font-size:13px;line-height:1.6}
+  .pb code{background:#0d1622;color:var(--green);padding:1px 5px;border-radius:4px;font-family:var(--mono);font-size:12px}
+
   .reset{font-family:var(--mono);font-size:11px;color:var(--muted);background:none;border:none;cursor:pointer;text-decoration:underline;margin-top:22px}
   .reset:hover{color:var(--red)}
   .backup-row{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
@@ -175,6 +190,7 @@
     <button class="mode-btn" data-mode="review">REVIEW</button>
     <button class="mode-btn" data-mode="week">WEEK</button>
     <button class="mode-btn" data-mode="vm">LABS</button>
+    <button class="mode-btn" data-mode="playbook">SOC ROLE</button>
     <button class="mode-btn" data-mode="export">EXPORT</button>
   </div>
 
@@ -1583,6 +1599,90 @@ const TIER2={
 };
 
 /* virtualization setup guides (unchanged structure, deep steps) */
+/* ====================================================================
+   SOC ROLE PLAYBOOK — the job itself, beyond the cert exams.
+   Sourced from 2026 SOC hiring guides + framework docs.
+==================================================================== */
+const PLAYBOOK=[
+ {id:"role",icon:"🎯",title:"What the job actually is",lv:"core",
+  intro:"The certs prove you know the concepts. This is what you'll DO 8 hours a day. Read this so the whole path has a destination you can picture.",
+  blocks:[
+   {h:"The one-sentence version",p:"A SOC (Security Operations Center) analyst is the person watching the alerts, deciding which ones are real threats, and either handling them or escalating them. You are the first line of defense — the smoke detector that a human is attached to."},
+   {h:"The three tiers (your career ladder)",list:[
+     "<b>Tier 1 (you, starting out):</b> Monitor the SIEM dashboard, triage incoming alerts, filter out false positives, escalate the real ones, write up what you found. 0–2 yrs, ~$55–80K to start.",
+     "<b>Tier 2:</b> Take the escalations from Tier 1, dig deeper, do root-cause analysis, start tuning detection rules. 2–5 yrs.",
+     "<b>Tier 3:</b> Threat hunting, forensics, building detections, leading major incidents. 5+ yrs, $130K+."]},
+   {h:"The reality in 2026",p:"AI now handles a lot of the routine first-pass triage. That's GOOD for you — it means the Tier 1 role is shifting from mind-numbing alert-clicking toward reviewing AI findings, handling the weird cases AI can't, and learning faster. The human judgment part — business context, novel threats, communicating to people — is exactly what can't be automated."},
+   {h:"The honest door-in",p:"Many SOC teams hire from internal IT/help desk. If a direct SOC role doesn't land first, a help desk or sysadmin job at a company that HAS a SOC is a known side-entrance — transfer internally after 6–12 months. Your A+ → Net+ → Sec+ path is built for exactly this."},
+  ]},
+
+ {id:"frameworks",icon:"🧩",title:"The frameworks you'll use daily",lv:"core",
+  intro:"These are the mental models every SOC uses as a shared language. Hiring managers expect you to speak these on day one. Learn them cold — they're free and they appear in every interview.",
+  blocks:[
+   {h:"CIA Triad — the foundation",p:"Every security control protects one of three things: <b>Confidentiality</b> (keep secrets secret), <b>Integrity</b> (data isn't tampered with), <b>Availability</b> (systems stay up). When you assess any incident, you're asking: which of these three is threatened?"},
+   {h:"The Cyber Kill Chain — the attack as stages",p:"Lockheed Martin's model breaks an attack into 7 steps: Reconnaissance → Weaponization → Delivery → Exploitation → Installation → Command & Control (C2) → Actions on Objectives. The point for you: the earlier in the chain you catch it, the less damage. An alert at 'Delivery' (phishing email arrived) is far better than one at 'Actions on Objectives' (data being stolen)."},
+   {h:"MITRE ATT&CK — the most important one",p:"A giant free catalog of real attacker behaviors, each with an ID. Example: <code>T1566.001</code> = Spearphishing Attachment, <code>T1059.001</code> = malicious PowerShell. SOCs tag every alert with these IDs so everyone instantly knows what behavior they're seeing and what usually comes next. You'll map alerts to ATT&CK techniques constantly. Bookmark attack.mitre.org — it's the single most-referenced resource in the field."},
+   {h:"The Pyramid of Pain — why some indicators matter more",p:"Blocking a hash or IP barely slows an attacker (they change it in seconds). Detecting their TTPs — their actual techniques — is 'painful' for them to change. This is why ATT&CK (which catalogs TTPs) beats just blocking bad IPs. Aim your detection at the top of the pyramid."},
+   {h:"The Diamond Model — connecting the dots",p:"Every intrusion has four linked corners: Adversary, Capability (their tool/malware), Infrastructure (their servers/IPs), and Victim. When investigating, filling in one corner often reveals the others. Useful for threat intel and connecting separate alerts into one campaign."},
+   {h:"A worked example (this is the job)",p:"Alert fires: 'suspicious PowerShell.' You map it → ATT&CK T1059.001 (Execution). That context tells you what threat groups use it and what comes next (often persistence via T1053 Scheduled Task). You check the logs for that follow-on. You've just done real Tier-1 analysis using the frameworks."},
+  ]},
+
+ {id:"tools",icon:"🛠️",title:"The tools & skills (beyond CompTIA)",lv:"core",
+  intro:"CompTIA gives you the vocabulary. These are the actual tools on the job. You don't need to master all of them before applying — but knowing what each IS and having touched the free ones is what separates you from someone who only studied theory.",
+  blocks:[
+   {h:"SIEM — your main screen",p:"Security Information & Event Management. It collects logs from everything and raises alerts. <b>Splunk</b> is the market leader (learn its SPL query language), with <b>Microsoft Sentinel</b>, <b>IBM QRadar</b>, and the free <b>Elastic/ELK</b> + <b>Wazuh</b> close behind. Your Lab 06 builds one. If you learn one deeply, make it Splunk — it's on the most job postings."},
+   {h:"Log analysis — the core skill",p:"Reading <b>Windows Event Logs</b> (e.g. Event ID 4625 = failed logon, 4624 = success, 4688 = process created), <b>Sysmon</b> (richer Windows telemetry — install it in your lab), <b>Syslog</b> (Linux), and firewall logs. Most of the job is spotting the abnormal line in a sea of normal ones. This is worth more practice than almost anything else."},
+   {h:"EDR/XDR — endpoint detection",p:"Endpoint Detection & Response watches individual machines for malicious behavior. <b>CrowdStrike</b>, <b>SentinelOne</b>, <b>Microsoft Defender for Endpoint</b>. You likely won't install these at home (enterprise tools), but know what they DO and the terms — they're all over job descriptions."},
+   {h:"Packet & traffic analysis",p:"<b>Wireshark</b> (your Lab 05) and <b>tcpdump</b>. Reading a TCP handshake, spotting a DNS query to a sketchy domain, following a stream. High-value, very interview-friendly."},
+   {h:"Threat intel lookups — daily habits",p:"<b>VirusTotal</b> (paste a hash/URL/IP, see if it's known-bad), <b>AbuseIPDB</b> (is this IP a known attacker?), <b>MISP</b> (threat-intel sharing). You'll use VirusTotal many times a day to enrich alerts. Start using it now on suspicious files."},
+   {h:"Scripting — your force multiplier",p:"Not required for every Tier-1 role, but it's what gets you promoted. <b>Python</b> (parse logs, automate enrichment), <b>PowerShell</b> (Windows investigation + automation), <b>Bash</b> (Linux). Even basic scripting on your resume stands out. Start with Python after Security+."},
+   {h:"AI literacy — the 2026 edge",p:"64% of cyber job listings now want AI/automation familiarity. You won't be replaced by AI — you'll be the person reviewing what the AI flagged and catching what it missed. Being comfortable evaluating AI-generated findings is a genuine 2026 hiring advantage."},
+  ]},
+
+ {id:"workflow",icon:"🔁",title:"A shift in the life: the triage workflow",lv:"core",
+  intro:"This is the actual loop you'll run hundreds of times. Internalize it — being able to describe this process in an interview is what proves you understand the job, not just the theory.",
+  blocks:[
+   {h:"1 · Shift handoff",p:"Start by reading the overnight queue and notes from the previous shift. What's still open? What got escalated? You inherit context."},
+   {h:"2 · Alert triage (the core loop)",p:"Alerts pour in. For each: Is it a real threat or a false positive? How severe? A ransomware indicator outranks a single failed login. You prioritize ruthlessly because the queue never empties."},
+   {h:"3 · Investigate",p:"For a real alert: pull the related logs, correlate events across systems, map the behavior to ATT&CK, enrich indicators with VirusTotal/AbuseIPDB. Build a picture of what happened."},
+   {h:"4 · Decide: close, contain, or escalate",p:"False positive → document and close (and ideally note why, to tune the rule). Real and within your scope → contain per playbook. Serious/complex → escalate to Tier 2 with your findings."},
+   {h:"5 · Document — the 5 W's",p:"Write it up clearly: Who, What, When, Where, Why, plus the IOCs (indicators of compromise) and your recommended actions. SOC analysts write constantly. Good writing is a genuine differentiator — practice it on every lab."},
+   {h:"The unforgiving math (know this going in)",p:"Enterprise SOCs see hundreds–thousands of alerts/day; a single alert can take 30–70 min to investigate properly. This is why triage skill and false-positive filtering matter so much, and why AI assistance is now standard. Working nights/weekends as a new analyst is common — flexibility on shifts gets callbacks faster."},
+  ]},
+
+ {id:"practice",icon:"🧪",title:"Free practice platforms (apply the knowledge)",lv:"do",
+  intro:"Reading isn't enough — the #1 thing that gets people hired is demonstrable hands-on practice. These let you investigate real scenarios for free or cheap. Do them alongside the certs, not after.",
+  blocks:[
+   {h:"TryHackMe — SOC Level 1 path",p:"The most-recommended starting point. Guided 'rooms' on SIEM, phishing analysis, the frameworks, and Windows/Linux monitoring, ending in realistic SIEM scenarios. ~$14/mo premium for the full path, but lots of free rooms. Genuinely aligned to entry-level job duties."},
+   {h:"LetsDefend.io",p:"A simulated SOC — you log in and work an actual alert queue like a real analyst. Closest thing to the day job you can get from your couch. Free tier available."},
+   {h:"CyberDefenders & Blue Team Labs Online",p:"Blue-team CTF-style challenges: analyze real PCAP files, investigate malware in sandboxes, work breach scenarios. Great for building (and showing off) investigation skill."},
+   {h:"Splunk Boss of the SOC (BOTS)",p:"Free Splunk datasets built for investigation practice. Pair with the free 'Splunk Fundamentals 1' course to get real SPL query reps — directly resume-relevant."},
+   {h:"How to use these",p:"Pick ONE, go deep, and document every investigation as you go (next section). One platform done thoroughly + written up beats five dabbled in."},
+  ]},
+
+ {id:"portfolio",icon:"📁",title:"Build a portfolio (what gets you hired)",lv:"do",
+  intro:"Every single 2026 guide says the same thing: one cert + a visible portfolio of hands-on work beats three certs with nothing to show. This is how you prove you can actually do it.",
+  blocks:[
+   {h:"Why it matters more than another cert",p:"A hiring manager can't see your knowledge — but they CAN see a written SIEM investigation walkthrough. That's worth more than another line on your resume. It turns 'I studied security' into 'here's me doing security.'"},
+   {h:"Start a GitHub + a blog",p:"GitHub: post any scripts you write (log parsers, automation). Blog (even free Medium/dev.to): write up your home-lab builds and your practice-platform investigations. LinkedIn: post about certs earned and projects done, with SOC keywords so recruiters find you."},
+   {h:"High-value portfolio pieces",list:[
+     "A walkthrough of detecting a brute-force attack in your own Splunk/Wazuh lab (tie it to Windows Event ID 4625 + an ATT&CK technique).",
+     "A phishing-email analysis: extract the headers, pull the IOCs, check them on VirusTotal, write your verdict.",
+     "A Sigma or YARA detection rule you wrote, explained in plain English.",
+     "A documented investigation from LetsDefend/CyberDefenders, written like a real incident report (5 W's + IOCs + recommendation)."]},
+   {h:"The habit to start now",p:"Every lab you build and every practice scenario you solve = a portfolio post. Document AS you learn, not later. By the time you've got Security+, you'll have a body of visible work most applicants don't."},
+  ]},
+
+ {id:"certmap",icon:"🗺️",title:"Your cert path in context",lv:"core",
+  intro:"Where your A+ → Net+ → Sec+ plan fits, and what comes after for SOC specifically. You're on a solid, deliberately-paced road.",
+  blocks:[
+   {h:"What you're doing now (the foundation)",p:"<b>A+</b> = broad IT literacy (the device, OS, and troubleshooting fluency a SOC analyst is assumed to have). <b>Network+</b> = how traffic moves, which is what you'll be analyzing. <b>Security+</b> = the security baseline that virtually every employer recognizes and that meets the U.S. DoD 8570 requirement. This is the gold-standard entry sequence."},
+   {h:"The SOC-specific next step",p:"After Security+, the natural follow-on is <b>CompTIA CySA+</b> (threat detection & analysis — squarely Tier 1–2 SOC work). Strong alternatives/additions: <b>Blue Team Level 1 (BTL1)</b> and <b>LetsDefend/CyberDefenders' CCD</b> — these are hands-on and SOC-purpose-built, covering investigation skills the vendor-neutral certs don't."},
+   {h:"Don't fall into the cert-collecting trap",p:"More certs with no practical skill is a known dead end. The winning formula every guide repeats: <b>one solid cert + demonstrable hands-on ability (labs + portfolio)</b>. Your job is to pair this study app with the labs and a portfolio — not to stack certificates."},
+   {h:"Realistic timeline to job-ready",p:"Self-taught SOC-ready in roughly 6–9 months is realistic with consistent effort: your cert sequence + a home lab + a practice platform + a documented portfolio, applying to Tier 1 / SOC Analyst I / NOC / IT-security roles. Be flexible on shift work to get callbacks faster."},
+  ]},
+];
+
 const VM_GUIDES=[
  {n:"01",title:"Install VirtualBox (your hypervisor)",lv:"beg",
   why:"A hypervisor runs other 'virtual' computers safely inside windows on your real PC. Break a VM and your actual machine is untouched. This is the foundation of the entire lab.",
@@ -1608,11 +1708,31 @@ const VM_GUIDES=[
   steps:["Install Wireshark (wireshark.org).","Pick your active interface, click the blue shark-fin to capture.","Filter bar: type <code>dns</code>, enter — watch name lookups appear.","Try <code>tcp.flags.syn==1</code> to isolate TCP handshake starts.","Right-click a packet → Follow → TCP Stream to read a full exchange."],
   tip:"Capture while loading a website, then filter 'http' and 'dns' to see every step your browser took.",
   warn:"Only capture on networks you own or are authorized to monitor."},
- {n:"06",title:"Stand up your own SIEM (the capstone)",lv:"adv",
-  why:"This IS the SOC Tier-1 job in miniature. You'll forward logs from your VMs into a SIEM and triage real alerts.",
-  steps:["Pick a free SIEM: Wazuh (great docs) or Security Onion (full-featured).","Create a beefier VM (8 GB RAM) and install the SIEM server per its official guide.","Install the agent on your Windows/Ubuntu VMs so they ship logs.","Generate activity: fail logins on purpose, run a port scan from another VM.","Open the dashboard and triage the alerts your own actions created."],
-  tip:"Pair with TryHackMe's free 'SOC Level 1' path — do a guided room, then replicate it in your own SIEM.",
-  warn:"Advanced + RAM-hungry. Don't attempt until guides 01–05 feel easy."},
+ {n:"06",title:"Install Sysmon (see what Windows hides)",lv:"beg",
+  why:"Default Windows logging misses a lot. Sysmon (free, from Microsoft Sysinternals) adds rich detail — process creation with command lines, network connections, file hashes. This is the telemetry real SOCs run on, and it makes your lab investigations actually realistic.",
+  steps:["On your Windows VM, download Sysmon from Microsoft Sysinternals.","Grab a community config (search 'SwiftOnSecurity sysmon-config') — it's a sane starting ruleset.","Open an admin PowerShell, run: <code>sysmon -accepteula -i sysmonconfig.xml</code>.","Open Event Viewer → Applications and Services → Microsoft → Windows → Sysmon → Operational.","Launch any program and watch the Event ID 1 (process create) entries appear with full command lines."],
+  tip:"Sysmon Event ID 1 = process creation, 3 = network connection, 11 = file created. These three carry most investigations.",
+  warn:"Take a snapshot before installing so you can roll back cleanly."},
+ {n:"07",title:"Hunt in Windows Event Logs",lv:"int",
+  why:"Reading Windows Event Logs is THE core Tier-1 skill. You'll spot a brute-force attack by its fingerprint — a flood of failed logons followed by a success. This is a perfect first portfolio piece.",
+  steps:["On your Windows VM, deliberately fail several RDP/local logins, then succeed.","Event Viewer → Windows Logs → Security.","Filter for Event ID <code>4625</code> (failed logon) — see your failures stack up.","Find the <code>4624</code> (successful logon) right after — that's the 'break-in' moment.","Note the source IP, account, and timestamps — write it up like an incident: who/what/when/where + ATT&CK T1110 (Brute Force)."],
+  tip:"Key IDs: 4625 fail, 4624 success, 4688 process created, 4720 user account created, 4672 admin logon. Memorize these five.",
+  warn:"Only do this in your own lab VM."},
+ {n:"08",title:"Analyze a phishing email",lv:"int",
+  why:"Phishing is the #1 way attacks start, and phishing triage is bread-and-butter Tier-1 work. Learning to read email headers and pull indicators is directly job-relevant and another strong portfolio piece.",
+  steps:["Get a sample: use a phishing room on TryHackMe, or a (safe, text-only) sample from a phishing-analysis dataset.","View the raw email source / full headers.","Trace the 'Received:' chain to find the true origin IP (not the friendly 'From' name).","Check SPF/DKIM/DMARC results in the headers — failures are red flags.","Extract IOCs: sender IP, sender domain, any URLs/attachment hashes.","Look up each IOC on VirtualTotal / AbuseIPDB. Write a verdict: phish or legit, and why."],
+  tip:"NEVER click links or open attachments from a real sample outside an isolated VM. Work from headers and text.",
+  warn:"Do attachment detonation only inside an isolated, snapshotted VM with no access to your real network."},
+ {n:"09",title:"Enrich indicators with threat intel",lv:"int",
+  why:"Enrichment — turning a bare IP or hash into 'known APT infrastructure' or 'clean' — is something you'll do dozens of times a shift. Building the habit now makes you fast later.",
+  steps:["Take any suspicious IP, domain, URL, or file hash (from your logs or a lab).","VirusTotal: paste it — how many engines flag it? Check the 'Relations' and 'Behavior' tabs.","AbuseIPDB: look up an IP's abuse history and confidence score.","Cross-reference: does the ATT&CK technique, the IP reputation, and the file behavior tell one consistent story?","Record your enrichment in your notes — this is exactly what goes in an escalation."],
+  tip:"A single 'clean' result isn't proof of safety — correlate multiple sources and the behavior in your own logs.",
+  warn:"Uploading a real internal file to VirusTotal makes it public — in a real job, check policy first. Fine for lab samples."},
+ {n:"10",title:"Stand up your own SIEM (the capstone)",lv:"adv",
+  why:"This IS the SOC Tier-1 job in miniature. You'll forward logs from your VMs into a SIEM and triage real alerts — pulling together Sysmon, event logs, and enrichment from the earlier labs.",
+  steps:["Pick a free SIEM: Wazuh (great docs) or Security Onion (full-featured).","Create a beefier VM (8 GB RAM) and install the SIEM server per its official guide.","Install the agent on your Windows/Ubuntu VMs so they ship logs (including your Sysmon data).","Generate activity: fail logins on purpose, run a port scan from another VM, execute suspicious PowerShell.","Open the dashboard and triage the alerts your own actions created — map each to ATT&CK and write it up."],
+  tip:"Pair with TryHackMe's 'SOC Level 1' path — do a guided room, then replicate it in your own SIEM. Document the whole thing as your flagship portfolio project.",
+  warn:"Advanced + RAM-hungry. Don't attempt until guides 01–09 feel easy."},
 ];
 
 /* ====================================================================
@@ -1670,7 +1790,7 @@ function renderStatus(){
 document.querySelectorAll('.mode-btn').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;viewIdx=null;document.querySelectorAll('.mode-btn').forEach(x=>x.classList.toggle('active',x.dataset.mode===mode));render();});
 
 function render(){renderPace();renderStatus();
-  if(mode==="today")renderToday();else if(mode==="review")renderReview();else if(mode==="week")renderWeek();else if(mode==="vm")renderVM();else renderExport();}
+  if(mode==="today")renderToday();else if(mode==="review")renderReview();else if(mode==="week")renderWeek();else if(mode==="vm")renderVM();else if(mode==="playbook")renderPlaybook();else renderExport();}
 
 /* -------- READ-ONLY PAST-DAY VIEW (no progress mutation) -------- */
 function renderDayView(idx){
@@ -1915,6 +2035,32 @@ function renderVM(){
       <summary><span class="num">${g.n}</span> ${g.title}<span class="lv ${g.lv}">${g.lv==='beg'?'BEGINNER':g.lv==='int'?'INTERMEDIATE':'ADVANCED'}</span><span class="chev">▸</span></summary>
       <div class="gbody"><div class="why">${g.why}</div><ol>${g.steps.map(s=>`<li>${s}</li>`).join('')}</ol>
       ${g.tip?`<div class="tip"><b>PRO TIP ▸</b> ${g.tip}</div>`:''}${g.warn?`<div class="warn2">⚠ ${g.warn}</div>`:''}</div></details>`).join('')}`;
+}
+
+/* -------- SOC ROLE PLAYBOOK -------- */
+function renderPlaybook(){
+  const o=overallStats();
+  stage.innerHTML=`
+    <div class="banner info"><span class="ic">🎓</span><div><b>The SOC analyst role, end to end.</b> Your certs teach the concepts — this teaches the <i>job</i>. Free knowledge that every 2026 hiring guide says you need beyond CompTIA. Read a section a week alongside your daily lessons.</div></div>
+    <div class="pb-toc">${PLAYBOOK.map(s=>`<a class="pb-chip ${s.lv}" href="#pb-${s.id}">${s.icon} ${s.title}</a>`).join('')}</div>
+    ${PLAYBOOK.map(s=>`
+      <details class="guide pb" id="pb-${s.id}">
+        <summary><span class="pb-ic">${s.icon}</span> ${s.title}<span class="lv ${s.lv==='core'?'beg':'int'}">${s.lv==='core'?'KNOW THIS':'DO THIS'}</span><span class="chev">▸</span></summary>
+        <div class="gbody">
+          <div class="pb-intro">${s.intro}</div>
+          ${s.blocks.map(b=>`
+            <div class="pb-block">
+              <div class="pb-h">${b.h}</div>
+              ${b.p?`<div class="pb-p">${b.p}</div>`:''}
+              ${b.list?`<ul class="pb-list">${b.list.map(li=>`<li>${li}</li>`).join('')}</ul>`:''}
+            </div>`).join('')}
+        </div>
+      </details>`).join('')}
+    <div class="mini" style="margin-top:18px">These are starting points, not endorsements — verify current pricing and free tiers yourself, they change. The frameworks (CIA, Kill Chain, MITRE ATT&CK) are free forever and worth memorizing first.</div>`;
+  stage.querySelectorAll('.pb-chip').forEach(a=>a.onclick=e=>{
+    e.preventDefault();const t=document.querySelector(a.getAttribute('href'));
+    if(t){t.open=true;t.scrollIntoView({behavior:'smooth',block:'start'});}
+  });
 }
 
 /* -------- REVIEW (mistakes re-drill) -------- */

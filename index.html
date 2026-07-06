@@ -1607,11 +1607,226 @@ const CURRICULUM=[
   "This final checkpoint spans both A+ exams — hardware, OS, networking, security, and procedures.",
   "Clear 85% to complete A+ in the tracker and unlock the last Tier-2 set.",
   "Next stop: Network+ — your A+ networking foundation makes it click.",
- ]}
+ ]},
+
+/* ===== NETWORK+ — WEEK 1: Models, ports & the physical layer ===== */
+{cert:"N+",week:1,day:1,title:"OSI & TCP/IP at Network+ depth",focus:"You met the models in A+. Now you own them — PDUs, encapsulation, and placing anything on sight.",obj:"N10-009 · 1.1 OSI reference",
+ terms:[
+  T("OSI reference model","7-layer conceptual model: Physical, Data Link, Network, Transport, Session, Presentation, Application.","The shared vocabulary of networking — 'that's a Layer 2 problem.'","Know all 7 in order, both directions.",1),
+  T("TCP/IP model ◆CONNECTOR","The 4-layer implemented model: Network Access, Internet, Transport, Application. OSI 1–2→Access, 3→Internet, 4→Transport, 5–7→Application.","What the internet actually runs; OSI collapsed into four.","The mapping is tested directly.",1),
+  T("PDU (Protocol Data Unit) ◆CONNECTOR","The data unit at each layer: bits (L1), FRAME (L2), PACKET (L3), SEGMENT (L4).","Same data, new envelope name at each layer.","Frame/packet/segment naming is exam gold.",1),
+  T("Encapsulation / de-encapsulation","Wrapping data with headers going DOWN the stack to send; unwrapping going UP to receive.","Nesting envelopes on the way out, opening them on the way in.","Direction matters: encapsulate down, de-encapsulate up.",1),
+  T("MAC address (L2)","48-bit hardware address written in hex (e.g., A4:5E:60:B2:1C:9F); first half = manufacturer OUI.","The device's factory fingerprint.","OUI = vendor ID in the first 3 bytes.",1),
+  T("Switch vs Router placement ◆CONNECTOR","Switch = L2, forwards frames by MAC within a network. Router = L3, routes packets by IP between networks.","Mailroom inside the building vs postal service between buildings.","'What layer is X' questions live here.",1),
+  T("Layer 4: ports & sockets","TCP/UDP add port numbers; IP + port = a socket identifying one conversation.","The apartment number added to the street address.","Socket = IP:port pairing.",1),
+  T("MTU (Maximum Transmission Unit)","Largest payload a frame carries — Ethernet default 1500 bytes; oversized packets fragment.","The max box size the truck accepts.","MTU mismatch causes fragmentation/drops.",1),
+  T("Broadcast vs collision domains ◆CONNECTOR","Each switch PORT = its own collision domain; a whole VLAN/subnet = one broadcast domain. Routers stop broadcasts.","Private lanes per port, but one shared megaphone per subnet.","Switches split collision; routers split broadcast.",1),
+  T("Bottom-up troubleshooting","Diagnosing L1→L7: cable, link, IP, port/service, app.","Climb the ladder from the wire upward.","Name the method in interviews.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> All 7 OSI layers in order + the 4 TCP/IP layers.",
+  "<span class='htag'>MAP</span> Frame/packet/segment → their layers, cold.",
+  "<span class='htag'>APPLY</span> Which domains does a switch split? A router?",
+  "<span class='htag'>DRILL</span> Run the DEEP DIVE models section once more — it's now exam material.",
+ ],
+ quiz:[
+  Q("Data at Layer 3 is called a…",["Frame","Segment","Packet","Bit"],2,
+   "L3 (Network/IP) carries PACKETS. Frames are L2, segments are L4.",
+   {0:"Frames are Layer 2 — MAC-addressed delivery.",1:"Segments are Layer 4 (TCP/UDP).",3:"Bits are Layer 1 on the wire."},"1.1 PDUs"),
+  Q("In the TCP/IP model, OSI layers 5–7 map to…",["Network Access","Internet","Transport","Application"],3,
+   "Session, Presentation, and Application collapse into TCP/IP's Application layer.",
+   {0:"Network Access covers OSI 1–2.",1:"Internet equals OSI 3.",2:"Transport equals OSI 4."},"1.1 mapping"),
+  Q("A switch splits ______ domains; a router splits ______ domains.",["broadcast / collision","collision / broadcast","MAC / IP","frame / packet"],1,
+   "Every switch port is its own collision domain; routers (or VLANs) bound broadcast domains.",
+   {0:"Reversed — switches don't stop broadcasts.",2:"MAC/IP are addresses, not domains.",3:"Frame/packet are PDUs, not domains."},"1.1 domains"),
+  Q("Sending an email, encapsulation happens in which direction?",["Up the stack L1→L7","Down the stack L7→L1","Only at L3","It doesn't occur on send"],1,
+   "Outbound data moves DOWN the stack, gaining headers at each layer (segment→packet→frame).",
+   {0:"Up the stack is de-encapsulation on RECEIPT.",2:"Every layer participates, not just L3.",3:"Encapsulation is precisely what sending does."},"1.1 encapsulation"),
+  Q("The first 3 bytes of a MAC address identify…",["The subnet","The manufacturer (OUI)","The VLAN","The gateway"],1,
+   "The OUI (Organizationally Unique Identifier) marks the NIC's manufacturer.",
+   {0:"Subnets are IP-layer concepts.",2:"VLAN tags live in the frame header, not the MAC.",3:"The gateway is a router's IP."},"1.1 MAC"),
+  Q("Users can ping IPs and reach services, but one app fails only on oversized transfers. A likely culprit is…",["Wrong DNS","MTU mismatch causing fragmentation issues","Dead NIC","Bad power supply"],1,
+   "Oversized-payload failures with otherwise-working connectivity point at MTU/fragmentation problems.",
+   {0:"DNS failures break names, not payload sizes.",2:"A dead NIC breaks everything, not just large transfers.",3:"A PSU issue takes the machine down, not one traffic size."},"1.1 MTU"),
+ ],
+ notes:[
+  "Memorize both PDU chains: bits→frames→packets→segments going up; reverse going down.",
+  "Access points and hubs are L1/L2 citizens; firewalls span L3–L7 depending on type.",
+  "Network+ loves 'which layer' phrasing — answer with layer NUMBER and NAME.",
+ ]},
+
+{cert:"N+",week:1,day:2,title:"Ports & protocols — the full N+ set",focus:"Your A+ greatest-hits list grows into the complete exam table, with secure-vs-insecure pairings.",obj:"N10-009 · 1.4 ports & protocols",
+ terms:[
+  T("Secure vs insecure pairs ◆CONNECTOR","Every legacy protocol has a secure sibling: Telnet 23→SSH 22, HTTP 80→HTTPS 443, FTP 21→SFTP 22/FTPS 990, LDAP 389→LDAPS 636, SMTP 25→587 (TLS submission).","Old open doors, each with a locked replacement.","'Pick the SECURE option' is a repeat exam pattern.",1),
+  T("TFTP 69","Trivial FTP — tiny, UDP-based, no authentication; used for firmware/config transfer on LANs.","FTP's stripped-down cousin for quick internal jobs.","UDP 69; insecure by design.",1),
+  T("SNMP 161/162 ◆CONNECTOR","Simple Network Management Protocol — polls device stats on 161; devices send TRAPS (alerts) to 162. v3 adds security.","The health-check system for network gear.","161 poll vs 162 trap; use v3.",1),
+  T("Syslog 514","Centralized log collection over UDP 514 — the feed your future SIEM drinks from.","Every device mailing its diary to one collector.","UDP 514; SOC-relevant.",1),
+  T("NTP 123","Network Time Protocol syncs clocks — critical for logs, auth (Kerberos), and forensics.","Everyone setting their watch to one clock.","UDP 123; skewed time breaks Kerberos and log correlation.",1),
+  T("SMB 445","Server Message Block — Windows file/printer sharing.","The Windows shared-folder protocol.","TCP 445; a favorite malware highway when exposed.",1),
+  T("LDAP 389 / LDAPS 636","Directory lookups (Active Directory queries); LDAPS is the TLS version.","Asking the company phone book who's who.","389 plain, 636 secure.",1),
+  T("SQL ports","Microsoft SQL Server 1433; MySQL 3306.","The database service doors.","1433 MSSQL / 3306 MySQL.",1),
+  T("SIP 5060/5061 ◆CONNECTOR","Session Initiation Protocol sets up VoIP calls — 5060 plain, 5061 TLS. The call itself rides RTP over UDP.","The phone operator that connects the call before voice flows.","SIP signals; RTP carries voice.",1),
+  T("IP protocol types","Beyond TCP(6)/UDP(17): ICMP (ping), GRE (tunnels), IPSec's AH & ESP (VPN security).","Different vehicle classes on the same IP road.","ICMP has no ports — it's its own protocol.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> Every insecure→secure pairing, both directions.",
+  "<span class='htag'>DRILL</span> Ports speed-drill in PRACTICE until streak ≥ 15.",
+  "<span class='htag'>APPLY</span> Which port feeds a SIEM logs? Which syncs time?",
+  "<span class='htag'>WRITE</span> Why does wrong system time break authentication?",
+ ],
+ quiz:[
+  Q("A device should send alert TRAPS to the monitoring server. Which port receives them?",["161","162","514","123"],1,
+   "SNMP traps arrive on UDP 162; 161 is for the manager POLLING devices.",
+   {0:"161 is the polling direction (manager→agent).",2:"514 is syslog, not SNMP traps.",3:"123 is NTP time sync."},"1.4 SNMP"),
+  Q("Replace insecure LDAP with its encrypted version. Which port?",["389","443","636","3389"],2,
+   "LDAPS runs on TCP 636 — LDAP over TLS.",
+   {0:"389 IS the insecure LDAP you're replacing.",1:"443 is HTTPS, not directory services.",3:"3389 is RDP."},"1.4 secure pairs"),
+  Q("Kerberos authentication is failing across the domain and logs show clock skew. Which service/port fixes the root cause?",["DNS 53","NTP 123","SMB 445","SIP 5060"],1,
+   "Kerberos tolerates only small time differences; NTP (UDP 123) restores sync.",
+   {0:"DNS resolves names — not a time issue.",2:"SMB is file sharing.",3:"SIP is VoIP call setup."},"1.4 NTP"),
+  Q("Your future SIEM collects device logs centrally. The classic protocol/port is…",["SNMP 161","Syslog UDP 514","TFTP 69","MySQL 3306"],1,
+   "Syslog on UDP 514 is the standard log-shipping channel SIEMs ingest.",
+   {0:"SNMP polls metrics, not log streams.",2:"TFTP moves files like firmware.",3:"3306 is a database service."},"1.4 syslog"),
+  Q("VoIP: which protocol SETS UP the call (vs carrying the audio)?",["RTP","SIP","SMB","GRE"],1,
+   "SIP (5060/5061) signals and establishes the session; RTP then carries the media.",
+   {0:"RTP carries the voice AFTER setup.",2:"SMB is Windows file sharing.",3:"GRE is a tunneling protocol."},"1.4 VoIP"),
+  Q("Which has NO port number because it isn't TCP or UDP?",["HTTPS","ICMP (ping)","RDP","IMAP"],1,
+   "ICMP is its own IP protocol — ping uses no ports, which is why 'what port is ping' is a trick question.",
+   {0:"HTTPS is TCP 443.",2:"RDP is TCP 3389.",3:"IMAP is TCP 143/993."},"1.4 protocols"),
+ ],
+ notes:[
+  "Update your mental table: 69 TFTP, 123 NTP, 161/162 SNMP, 389/636 LDAP(S), 445 SMB, 514 syslog, 1433/3306 SQL, 5060/5061 SIP.",
+  "Exam pattern: a scenario says 'securely' — instantly eliminate the plaintext option.",
+  "Syslog + NTP together make logs trustworthy: collected centrally AND timestamped consistently.",
+ ]},
+
+{cert:"N+",week:1,day:3,title:"Copper cabling & connectors",focus:"Cat ratings, shielding, termination — the physical layer you'll actually touch.",obj:"N10-009 · 1.5 copper media",
+ terms:[
+  T("Cat rating ladder ◆CONNECTOR","Cat5e = 1Gbps/100m · Cat6 = 1G/100m (10G to ~55m) · Cat6a = 10G/100m · Cat8 = 25–40G/~30m (datacenter).","Speed tiers of the same twisted-pair idea.","Match the rating to speed + distance asked.",1),
+  T("UTP vs STP","Unshielded vs Shielded Twisted Pair — shielding fights EMI near motors/fluorescents/industrial gear.","Bare wires vs wires in armor.","Pick STP in high-interference areas.",1),
+  T("Why twisted pairs twist","Twisting cancels electromagnetic interference and crosstalk between pairs.","Braiding the wires so noise cancels itself.","More twists = better rejection (higher Cats).",1),
+  T("Plenum vs riser ◆CONNECTOR","Plenum-rated jackets burn slower with less toxic smoke — REQUIRED in air-handling spaces (above drop ceilings). Riser for vertical runs.","Fire-safe insulation for the air ducts people breathe from.","Building code + exam favorite.",1),
+  T("T568A/B & termination","The two wiring pin-outs for RJ45 ends. Same standard both ends = straight-through; A one end + B other = crossover.","Two color orders; mixing them flips send/receive.","Consistency matters; know both exist.",1),
+  T("Straight-through vs crossover ◆CONNECTOR","Straight-through connects UNLIKE devices (PC→switch); crossover connects LIKE devices (switch→switch, PC→PC). Auto-MDIX now auto-corrects.","Normal cable vs the special one for twins.","Modern gear auto-senses, but the concept is tested.",1),
+  T("RJ45 / RJ11","RJ45 = 8-pin Ethernet connector; RJ11 = smaller 4/6-pin telephone/DSL.","The big network plug vs the little phone plug.","Visual ID question material.",1),
+  T("Coax & F-type","Coaxial cable (RG-6) with screw-on F-type connectors — cable internet/TV.","The round screw-on TV cable.","RG-6 + F-type = cable modem.",1),
+  T("Crosstalk & attenuation ◆CONNECTOR","Crosstalk = signal bleeding between pairs; attenuation = signal weakening over distance (why 100m limits exist).","Neighbors overhearing each other; voices fading down a long hall.","Symptoms: intermittent errors / dead past length limit.",1),
+  T("Punchdown & patch panels","110 punchdown blocks terminate runs into patch panels; patch cables jump to switch ports.","The wiring closet's organized landing zone.","Toolside: punchdown tool, not a screwdriver.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> The Cat ladder with speeds + distances.",
+  "<span class='htag'>APPLY</span> Cable above a drop ceiling feeding office air — which jacket?",
+  "<span class='htag'>SCENARIO</span> 10 Gbps needed at 90m — minimum Cat?",
+  "<span class='htag'>WRITE</span> Why does twisting the pairs matter?",
+ ],
+ quiz:[
+  Q("You need 10 Gbps at a 90-meter run. Minimum copper spec?",["Cat5e","Cat6","Cat6a","RG-6"],2,
+   "Cat6a carries 10G the full 100m; plain Cat6 only sustains 10G to ~55m.",
+   {0:"Cat5e tops out at 1 Gbps.",1:"Cat6 does 10G only to ~55m — too short for 90m.",3:"RG-6 is coax for cable service, not 10G Ethernet."},"1.5 copper"),
+  Q("Cable runs through the air-handling space above a drop ceiling. Code requires…",["Riser","Plenum-rated","UTP any type","Crossover"],1,
+   "Plenum jackets emit less toxic smoke and burn slower — mandatory in air-circulation spaces.",
+   {0:"Riser is for vertical between-floor runs.",2:"'Any' ignores fire code.",3:"Crossover is a wiring pattern, not a jacket."},"1.5 plenum"),
+  Q("Ethernet near industrial motors keeps corrupting. Best copper fix?",["More UTP","Shielded twisted pair (STP)","RJ11 cabling","Longer cable"],1,
+   "Shielding defends against the EMI those motors generate.",
+   {0:"More unshielded cable has the same weakness.",2:"RJ11 is telephone wiring.",3:"Longer runs worsen attenuation."},"1.5 shielding"),
+  Q("A cable with T568A on one end and T568B on the other is a…",["Straight-through","Crossover","Rollover","Plenum"],1,
+   "Mixed pin-outs flip transmit/receive — that's a crossover, for like-device links.",
+   {0:"Straight-through uses the SAME standard both ends.",2:"Rollover is the Cisco console cable.",3:"Plenum describes the jacket, not pin-out."},"1.5 termination"),
+  Q("A 130-meter Cat6 run has no link. Most likely cause?",["Wrong DNS","Exceeds the 100m attenuation limit","Bad OS","Plenum jacket"],1,
+   "Twisted-pair Ethernet is spec'd to 100m; beyond that, attenuation kills the signal.",
+   {0:"DNS is name resolution — irrelevant to link.",2:"The OS doesn't set cable physics.",3:"Jacket rating doesn't limit distance."},"1.5 attenuation"),
+  Q("Cable internet enters the modem via…",["RJ45 on Cat6","F-type connector on RG-6 coax","LC fiber","RJ11"],1,
+   "Cable service rides RG-6 coax with screw-on F-type connectors.",
+   {0:"RJ45/Cat6 runs FROM the modem to your gear.",2:"LC fiber is a fiber connector.",3:"RJ11 is DSL/telephone."},"1.5 coax"),
+ ],
+ notes:[
+  "Cheat row: Cat5e 1G/100m · Cat6 10G@55m · Cat6a 10G/100m · Cat8 40G/30m.",
+  "Auto-MDIX made crossover cables mostly historical — but the exam still asks.",
+  "A cable tester (wiremap) is the first tool for suspected termination faults.",
+ ]},
+
+{cert:"N+",week:1,day:4,title:"Fiber & transceivers",focus:"When copper can't — distance, speed, and interference immunity.",obj:"N10-009 · 1.5 fiber media",
+ terms:[
+  T("Fiber optics","Data as light through glass — immune to EMI, spans far beyond copper's 100m.","Information riding a beam instead of electricity.","EMI immunity + distance = fiber's pitch.",1),
+  T("SMF vs MMF ◆CONNECTOR","Single-Mode: thin core (~9µm), laser, kilometers of reach — long haul. Multimode: wider core (50/62.5µm), LED/VCSEL, cheaper, ~hundreds of meters — inside buildings.","One narrow laser lane vs a wider, cheaper carpool lane.","SMF = distance; MMF = short/cheap.",1),
+  T("Fiber connectors ◆CONNECTOR","LC = small, most common today. SC = square push-pull. ST = old bayonet twist. MPO/MTP = multi-fiber ribbon for 40/100G.","The plug shapes: Little Connector, Square, Twist, and the multi-lane ribbon.","Visual ID + 'most common' = LC.",1),
+  T("SFP / SFP+ / QSFP ◆CONNECTOR","Hot-swappable transceiver modules in switch ports: SFP = 1G, SFP+ = 10G, QSFP/QSFP28 = 40/100G. They convert electrical↔optical.","Interchangeable cartridges that give a switch port whatever media it needs.","Match module speed AND fiber type.",1),
+  T("Transceiver mismatch","SMF module on MMF fiber (or wavelength mismatch) = no/flaky link even with perfect cable.","Right cable, wrong cartridge — still broken.","Check BOTH ends match the glass.",1),
+  T("Attenuation & dB loss","Light weakens over distance/connectors; each splice/connector adds dB loss against a power budget.","Every joint dims the flashlight a little.","Too many joints = link budget blown.",1),
+  T("Dirty/damaged fiber ◆CONNECTOR","Dust or scratches on connector faces are the #1 real-world fiber fault — clean before replacing.","A smudged lens ruins the picture.","Inspect + clean FIRST.",1),
+  T("OTDR & light meter","OTDR locates breaks/loss along a fiber run; a light/power meter verifies signal strength.","Radar for the glass + a brightness gauge.","OTDR = find WHERE it broke.",1),
+  T("DAC / twinax","Direct-attach copper: transceivers pre-attached to short copper cable — cheap 10G+ for in-rack links.","A ready-made short jumper for servers a meter apart.","Rack-internal alternative to optics.",1),
+  T("When fiber over copper","Choose fiber for: >100m runs, high EMI environments, building-to-building, and top speeds.","When distance, noise, or speed rules copper out.","Scenario-selection favorite.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> SMF vs MMF: core, light source, reach, cost.",
+  "<span class='htag'>MAP</span> SFP/SFP+/QSFP → speeds.",
+  "<span class='htag'>SCENARIO</span> Two buildings 800m apart — media + mode?",
+  "<span class='htag'>WRITE</span> Flaky fiber link — what do you check before replacing?",
+ ],
+ quiz:[
+  Q("Linking two buildings 800m apart. Best media?",["Cat6a","Multimode fiber","Single-mode fiber","RG-6 coax"],2,
+   "800m exceeds copper entirely and stretches multimode; single-mode is built for kilometer-class runs.",
+   {0:"Cat6a dies at 100m.",1:"MMF strains at that distance depending on speed — SMF is the safe spec.",3:"Coax is for cable service, not campus links."},"1.5 fiber"),
+  Q("Which transceiver provides a 10 Gbps port?",["SFP","SFP+","QSFP28","RJ45 only"],1,
+   "SFP+ is the 10G module; SFP is 1G; QSFP28 is 100G.",
+   {0:"SFP tops at 1G.",2:"QSFP28 is 100G-class.",3:"RJ45 is a copper connector, not a transceiver."},"1.5 transceivers"),
+  Q("The most common modern fiber connector is…",["ST","SC","LC","F-type"],2,
+   "LC's small form factor made it today's default.",
+   {0:"ST is the legacy bayonet twist.",1:"SC is older square push-pull.",3:"F-type is coax."},"1.5 connectors"),
+  Q("New fiber link won't come up: SMF optic installed, but the glass is multimode. Problem?",["Too much bandwidth","Transceiver/fiber type mismatch","DNS","MTU"],1,
+   "Module and fiber mode must match — SMF optics on MMF glass fail or flap.",
+   {0:"'Too much bandwidth' isn't a fault.",2:"DNS is name resolution.",3:"MTU is a frame-size setting, not optics."},"1.5 mismatch"),
+  Q("Intermittent fiber errors appear after patching through a panel. FIRST action?",["Replace the switch","Inspect and CLEAN the connector faces","Re-run all fiber","Reboot the server"],1,
+   "Contaminated connector faces are the most common fiber fault — inspect/clean before spending money.",
+   {0:"The switch is a leap.",2:"Re-running fiber is the expensive last resort.",3:"Reboots don't clean glass."},"1.5 dirty fiber"),
+  Q("Pinpointing WHERE a buried fiber run is broken calls for a(n)…",["Multimeter","OTDR","Ping","Toner probe"],1,
+   "An OTDR maps loss along the fiber and reports the distance to the break.",
+   {0:"Multimeters measure electricity, not light.",2:"Ping proves reachability, not break location.",3:"Toner probes trace copper."},"1.5 tools"),
+ ],
+ notes:[
+  "Two-word summaries: SMF 'laser, far.' MMF 'LED, near.' DAC 'in-rack.'",
+  "Both transceiver ends must match: speed, fiber mode, and wavelength.",
+  "Real-world order for fiber faults: clean → verify optic match → light meter → OTDR.",
+ ]},
+
+{cert:"N+",week:1,day:5,title:"N+ Week 1 checkpoint",focus:"Models, ports, copper, fiber — locked. 85%+ unlocks Tier-2.",obj:"N10-009 · Domain 1 cumulative",
+ terms:[
+  T("Media selection logic","Distance/EMI/speed → fiber; short + cheap → copper; in-rack → DAC.","The decision tree for picking the wire.","Scenario questions = this tree.",1),
+  T("Layer placement recap","Hub L1 · Switch L2 · Router L3 · TCP/UDP L4 · HTTP/DNS L7.","Where everything lives.","Answer with number AND name.",1),
+  T("Secure-pair recap","23→22, 80→443, 21→22(SFTP), 389→636, 25→587.","Every open door's locked twin.","Instant-recall list.",1),
+ ],
+ tasks:[
+  "<span class='htag'>RECALL</span> PDU chain + TCP/IP mapping cold.",
+  "<span class='htag'>INTEGRATE</span> Ports drill streak 15+, then the matching game on this week.",
+  "<span class='htag'>SELF-TEST</span> Explain SMF vs MMF and the Cat ladder out loud.",
+ ],
+ quiz:[
+  Q("Layer 2 PDU:",["Packet","Frame","Segment","Bit"],1,"Frame.",{0:"L3.",2:"L4.",3:"L1."},"1.1"),
+  Q("OSI L3 maps to TCP/IP…",["Access","Internet","Transport","Application"],1,"Internet.",{0:"OSI 1–2.",2:"OSI 4.",3:"OSI 5–7."},"1.1"),
+  Q("Syslog port:",["161","514","123","445"],1,"UDP 514.",{0:"SNMP poll.",2:"NTP.",3:"SMB."},"1.4"),
+  Q("Secure LDAP:",["389","443","636","3389"],2,"LDAPS 636.",{0:"Plain LDAP.",1:"HTTPS.",3:"RDP."},"1.4"),
+  Q("10G at 100m copper:",["Cat5e","Cat6","Cat6a","Cat8 only"],2,"Cat6a.",{0:"1G.",1:"10G@55m.",3:"Cat8 is short-range DC."},"1.5"),
+  Q("Above-ceiling air space requires…",["Riser","Plenum","STP","Crossover"],1,"Plenum.",{0:"Vertical runs.",2:"EMI armor.",3:"Pin-out."},"1.5"),
+  Q("Kilometer-class fiber runs use:",["MMF","SMF","DAC","RG-6"],1,"Single-mode.",{0:"Short haul.",2:"In-rack.",3:"Coax."},"1.5"),
+  Q("10G transceiver module:",["SFP","SFP+","QSFP28","RJ11"],1,"SFP+.",{0:"1G.",2:"100G.",3:"Phone plug."},"1.5"),
+  Q("Ping's protocol has no ports because it's…",["TCP","UDP","ICMP","GRE"],2,"ICMP.",{0:"Ports.",1:"Ports.",3:"Tunneling."},"1.4"),
+  Q("Switch port = its own ______ domain.",["broadcast","collision","routing","DNS"],1,"Collision.",{0:"Routers split those.",2:"Not a domain type.",3:"Not a domain type."},"1.1"),
+ ],
+ notes:[
+  "85%+ here unlocks N+ Tier-2 (VLANs preview, PoE standards, wavelengths).",
+  "Week 2 goes deeper into IP: subnetting mastery, IPv6, and routing concepts — your Deep Dive subnetting section becomes core material.",
+  "You're officially in cert #2 territory. Same engine, same habits.",
+ ]},
 ];
 
 /* Tier-2 expansion unlocked at >=85% weekly accuracy, keyed "cert|week" */
 const TIER2={
+ "N+|1":[
+  T("VLAN (preview)","Virtual LAN — logically segmenting one switch into multiple broadcast domains; ports are assigned to VLAN IDs.","Invisible walls splitting one switch into several networks.","Deep coverage arrives in N+ Week 3.",2),
+  T("PoE standards","802.3af (15.4W), 802.3at/PoE+ (30W), 802.3bt/PoE++ (60–100W) — power budgets for APs, cameras, phones.","Three wattage tiers of power-over-the-wire.","Match device draw to the standard.",2),
+  T("Fiber wavelengths","MMF commonly 850nm; SMF 1310/1550nm — transceiver wavelength must match on both ends.","Different colors of invisible light for different glass.","Mismatched wavelength = no link.",2),
+ ],
  "A+|1":[
   T("Overclocking & XMP","Running CPU/RAM above rated speeds. XMP/EXPO profiles auto-apply rated high-speed RAM timings.","Pushing past the factory redline for more speed; XMP is the easy button for fast RAM.","XMP must be enabled in BIOS or RAM runs at base speed.",2),
   T("PCIe generations & lanes","PCIe 3.0/4.0/5.0 each double bandwidth per lane. Lane count (x1,x4,x8,x16) sets total throughput.","Each PCIe generation widens the express lanes; more lanes = more parallel traffic.","NVMe drives often use x4; GPUs use x16.",2),
@@ -1852,7 +2067,7 @@ const VM_GUIDES=[
    STATE
 ==================================================================== */
 const LS="soc_examgrade_v3";
-function freshState(){return{startISO:null,cursor:0,completed:{},lastDoneISO:null,streak:0,tier2Unlocked:{},quizProg:{},taskProg:{},pace:"thorough",mistakes:[],fcShaky:{},portsBest:0};}
+function freshState(){return{startISO:null,cursor:0,completed:{},lastDoneISO:null,streak:0,tier2Unlocked:{},quizProg:{},taskProg:{},pace:"thorough",mistakes:[],fcShaky:{},portsBest:0,warmup:null,explainNeeds:{}};}
 let S=loadState();
 function loadState(){try{const x=JSON.parse(localStorage.getItem(LS));if(x)return Object.assign(freshState(),x);}catch(e){}return freshState();}
 function saveState(){try{localStorage.setItem(LS,JSON.stringify(S));}catch(e){}}
@@ -1956,6 +2171,56 @@ function renderDayView(idx){
   document.getElementById('backToCurrent').onclick=document.getElementById('backToCurrent2').onclick=()=>{viewIdx=null;render();};
 }
 
+/* -------- DAILY WARM-UP (3 review questions before the new lesson) -------- */
+function ensureWarmup(){
+  if(S.cursor===0)return null;
+  const today=todayISO();
+  if(!S.warmup||S.warmup.date!==today||!Array.isArray(S.warmup.qs)){
+    const pool=[];
+    for(let li=0;li<S.cursor&&li<CURRICULUM.length;li++)CURRICULUM[li].quiz.forEach((q,qi)=>pool.push({li,qi}));
+    if(pool.length<3)return null;
+    S.warmup={date:today,qs:shuffle(pool).slice(0,3),i:0,ok:0,picked:null};
+    saveState();
+  }
+  return S.warmup;
+}
+function warmupHTML(){
+  const w=ensureWarmup();if(!w)return "";
+  if(w.i>=w.qs.length){
+    return `<div class="banner ok" style="margin-bottom:14px"><span class="ic">☀</span><div><b>Warm-up done: ${w.ok}/${w.qs.length}.</b> Old material stays sharp through daily reps. On to today's lesson.</div></div>`;
+  }
+  const ref=w.qs[w.i],src=CURRICULUM[ref.li],q=src.quiz[ref.qi];
+  let opts=q.o.map((o,i)=>{
+    let cls="opt";
+    if(w.picked!==null){if(i===q.a)cls+=" correct";else if(i===w.picked)cls+=" wrong";}
+    return `<button class="${cls}" data-wu="${i}" ${w.picked!==null?'disabled':''}><span class="ltr">${String.fromCharCode(65+i)}</span>${o}</button>`;
+  }).join('');
+  let fb="";
+  if(w.picked!==null){
+    const right=w.picked===q.a;
+    const ww=(!right&&q.w&&q.w[w.picked])?`<div style="margin-top:6px;border-left:2px solid var(--red);padding-left:8px"><b style="color:var(--red)">Why ${String.fromCharCode(65+w.picked)} is wrong:</b> ${q.w[w.picked]}</div>`:"";
+    fb=`${ww}<div style="margin-top:6px;border-left:2px solid var(--green);padding-left:8px"><b style="color:var(--green)">Why ${String.fromCharCode(65+q.a)} is correct:</b> ${q.e}</div>
+        <button class="btn ghost" id="wuNext" style="width:100%;margin-top:10px">${w.i>=w.qs.length-1?'finish warm-up ✓':'next warm-up question →'}</button>`;
+  }
+  return `<div class="term" style="border-color:#2a3a20" id="wublock">
+    <div class="t">☀ DAILY WARM-UP <span class="sec-count" style="float:right">${w.i+1}/${w.qs.length} · from ${src.cert} W${src.week}D${src.day}</span></div>
+    <div class="quiz-stem" style="margin-top:8px">${q.s}</div>
+    <div>${opts}</div>${fb}
+  </div>`;
+}
+function wireWarmup(){
+  const w=S.warmup;if(!w)return;
+  stage.querySelectorAll('[data-wu]').forEach(b=>b.onclick=()=>{
+    if(w.picked!==null)return;
+    w.picked=+b.dataset.wu;
+    const ref=w.qs[w.i],q=CURRICULUM[ref.li].quiz[ref.qi];
+    if(w.picked===q.a)w.ok++;
+    saveState();render();
+  });
+  const nx=document.getElementById('wuNext');
+  if(nx)nx.onclick=()=>{w.i++;w.picked=null;saveState();render();};
+}
+
 /* -------- TODAY -------- */
 function renderToday(){
   if(viewIdx!==null&&viewIdx!==S.cursor){renderDayView(viewIdx);return;}
@@ -1979,7 +2244,7 @@ function renderToday(){
     banners+=`<div class="banner up"><span class="ic">↑</span><div><b>Tier-2 active</b> for ${L.cert} W${L.week}. Advanced terms are mixed in below (<span style="color:var(--purple)">NEW TIER</span>).</div></div>`;
   banners+=`<div class="banner info"><span class="ic">▣</span><div><b>${S.pace.toUpperCase()} pace:</b> ${req.terms} terms + ${quizSet.length} exam questions required today. Switch pace up top anytime — FASTER trims to essentials, THOROUGH loads everything.</div></div>`;
 
-  stage.innerHTML=banners+`
+  stage.innerHTML=warmupHTML()+banners+`
     <div class="lesson-head">
       <span class="pill cert">${L.cert}</span>
       <span class="pill wk">W${L.week} · D${L.day}</span>
@@ -2010,6 +2275,7 @@ function renderToday(){
     <div class="sec-label">KNOWLEDGE CHECK <span class="sec-count">${quizSet.length} questions</span></div>
     <div id="quizarea"></div>`;
 
+  wireWarmup();
   const taskState=new Array(L.tasks.length).fill(false);
   stage.querySelectorAll('.cb').forEach(cb=>cb.onclick=()=>{
     const i=+cb.dataset.ti;taskState[i]=!taskState[i];
@@ -2241,6 +2507,7 @@ function renderPractice(){
   if(prGame==="match"){renderMatch(picker);return;}
   if(prGame==="subnet"){renderSubnetDrill();return;}
   if(prGame==="ports"){renderPortsDrill();return;}
+  if(prGame==="explain"){renderExplain();return;}
   const shakyCount=Object.keys(S.fcShaky||{}).length;
   stage.innerHTML=`
     <div class="banner info"><span class="ic">♻️</span><div><b>Endless practice, zero pressure.</b> Nothing here touches your progress, streak, or scores — drill as much as you want.</div></div>
@@ -2250,12 +2517,14 @@ function renderPractice(){
     <div class="term" style="cursor:pointer" id="goMatch"><div class="t">🧩 Match-up — ${prWeek.cert} Week ${prWeek.week}</div><div class="d">Six terms, six definitions, shuffled. Tap a term, tap its definition. Clear the board, beat your miss count.</div></div>
     <div class="sec-label">SKILL DRILLS <span class="sec-count">any time, any week</span></div>
     <div class="term" style="cursor:pointer" id="goSubnet"><div class="t">🔪 Subnetting drill</div><div class="d">Infinite generated problems — network addresses, broadcast, host counts, same-subnet checks. Every answer explained with the magic-number method. Pairs with the Deep Dive.</div></div>
-    <div class="term" style="cursor:pointer" id="goPorts"><div class="t">🔌 Ports speed-drill</div><div class="d">Rapid-fire port ↔ service matching. Build a streak; your best is saved.${S.portsBest?` <span style="color:var(--green)">Best streak: ${S.portsBest}</span>`:''}</div></div>`;
+    <div class="term" style="cursor:pointer" id="goPorts"><div class="t">🔌 Ports speed-drill</div><div class="d">Rapid-fire port ↔ service matching. Build a streak; your best is saved.${S.portsBest?` <span style="color:var(--green)">Best streak: ${S.portsBest}</span>`:''}</div></div>
+    <div class="term" style="cursor:pointer" id="goExplain"><div class="t">🗣 Explain it back</div><div class="d">Feynman mode: a real-world prompt, you explain OUT LOUD, then compare against a model answer and key points. Doubles as interview prep. Flag weak ones to resurface.${Object.keys(S.explainNeeds||{}).length?` <span style="color:var(--amber)">${Object.keys(S.explainNeeds).length} flagged for rework.</span>`:''}</div></div>`;
   wirePicker();
   document.getElementById('goCards').onclick=()=>{prGame="cards";prDeck=buildDeck(prWeek.cert,prWeek.week);prPos=0;prFlip=false;render();};
   document.getElementById('goMatch').onclick=()=>{prGame="match";newMatch();render();};
   document.getElementById('goSubnet').onclick=()=>{prGame="subnet";newSubnetQ();render();};
   document.getElementById('goPorts').onclick=()=>{prGame="ports";newPortQ();window.__portStreak=0;render();};
+  document.getElementById('goExplain').onclick=()=>{prGame="explain";window.__exSeen=[];newExplainQ();render();};
 }
 function wirePicker(){stage.querySelectorAll('[data-wk]').forEach(a=>a.onclick=e=>{e.preventDefault();const[c,w]=a.dataset.wk.split("|");prWeek={cert:c,week:+w};if(prGame==="cards"){prDeck=buildDeck(c,+w);prPos=0;prFlip=false;}if(prGame==="match")newMatch();render();});}
 
@@ -2388,6 +2657,80 @@ function renderSubnetDrill(){
     render();
   });
   const nx=document.getElementById('snNext');if(nx)nx.onclick=()=>{newSubnetQ();render();};
+}
+
+/* -------- EXPLAIN IT BACK (Feynman prompts + model answers) -------- */
+const EXPLAIN=[
+ {id:"subnet",topic:"Subnetting",prompt:"A junior coworker asks: \"what does the /26 in an IP address even mean?\" Explain it.",
+  points:["The /number counts the NETWORK bits in the 32-bit address — /26 means 26 bits identify the network, leaving 6 for hosts","Host math: 2^6 = 64 addresses per subnet, minus network + broadcast = 62 usable","Fast method: mask octet is 192, so block size = 256−192 = 64 — subnets start every 64"],
+  say:"The slash counts network bits out of 32. A /26 leaves 6 host bits, so each subnet is a block of 64 addresses — 62 usable after you reserve the network and broadcast. Block math: 256 minus the mask octet gives you the block size."},
+ {id:"dhcpdns",topic:"DHCP vs DNS",prompt:"A user asks why their PC says 169.254.x.x and \"nothing loads.\" Explain what happened and the difference between DHCP and DNS.",
+  points:["DHCP ASSIGNS the IP (via Discover-Offer-Request-Acknowledge); DNS TRANSLATES names to IPs","169.254 = APIPA: the PC never heard back from a DHCP server, so it self-assigned","So this is a DHCP failure, not DNS — DNS problems show as 'IPs work, names don't'"],
+  say:"Your PC asks a DHCP server for an address when it joins the network. 169.254 means no server answered, so it gave itself a placeholder that can't reach the internet. That's DHCP — the address assigner. DNS is different: it translates names like google.com into IPs after you already have an address."},
+ {id:"models",topic:"OSI & TCP/IP",prompt:"An interviewer says: \"Walk me through the OSI model and how it maps to TCP/IP.\"",
+  points:["OSI = 7-layer reference vocabulary; TCP/IP = the 4-layer model actually implemented","Key residents: L2 switches/MAC, L3 routers/IP, L4 TCP-UDP/ports, L7 app protocols","Mapping: OSI 1–2→Network Access, 3→Internet, 4→Transport, 5–7→Application","Encapsulation names: segment (L4) → packet (L3) → frame (L2)"],
+  say:"OSI is the seven-layer reference model we use as shared vocabulary — physical, data link with MACs and switches, network with IPs and routers, transport with TCP/UDP and ports, then session, presentation, application. TCP/IP is what actually runs: four layers — OSI one and two collapse into Network Access, three is Internet, four is Transport, five through seven become Application. Data encapsulates down the stack: segments at transport, packets at network, frames at the link."},
+ {id:"tcp",topic:"TCP handshake",prompt:"Explain why TCP is \"reliable\" and UDP isn't — including the handshake.",
+  points:["TCP opens with SYN → SYN-ACK → ACK so both sides agree on sequence numbers","Every byte is numbered and acknowledged; lost data is retransmitted — that IS the reliability","UDP skips all of it: no handshake, no ACKs — right for live video/voice/DNS where late data is worthless"],
+  say:"TCP starts every connection with a three-way handshake — SYN, SYN-ACK, ACK — which syncs sequence numbers. From there every segment is tracked and acknowledged, and anything lost gets resent. That's where reliability comes from. UDP skips the whole ceremony — no handshake, no acknowledgments — which is exactly what you want for real-time traffic where a resent frame arrives too late to matter."},
+ {id:"nat",topic:"NAT",prompt:"A friend asks: \"if my laptop's IP is 192.168.1.50 and my roommate's laptop is ALSO 192.168-something at their mom's house, how does the internet not get confused?\"",
+  points:["192.168.x.x is a PRIVATE range — never routed on the public internet, so anyone can reuse it","The router NATs: rewrites outgoing traffic to its single public IP and tracks each conversation by port","Replies come to the public IP; the router's translation table forwards them to the right private device"],
+  say:"Private ranges like 192.168 never touch the public internet, so millions of homes reuse them without conflict. Your router does NAT — it swaps your private address for its one public address on the way out and keeps a table of which conversation belongs to which device, matching replies back by port."},
+ {id:"ransom",topic:"Ransomware",prompt:"Your manager asks: \"what's actually our best defense against ransomware?\"",
+  points:["Ransomware encrypts files and extorts payment — antivirus alone can't un-encrypt anything","The real defense is reliable, TESTED, OFFLINE/immutable backups — restore instead of paying","Layer the rest: patching, least privilege, phishing training (the usual delivery vector)"],
+  say:"Ransomware encrypts your data and charges you for the key, so the defense that actually matters is tested offline backups — if we can restore, the extortion has no leverage. Everything else is layered prevention: patching, least privilege so infections can't spread far, and phishing training since that's how most of it gets in."},
+ {id:"removal",topic:"Malware removal",prompt:"Recite the CompTIA malware-removal process in order — and say WHY quarantine is early and education is last.",
+  points:["1 Identify/verify → 2 Quarantine → 3 Disable System Restore → 4 Remediate (update+scan) → 5 Schedule scans → 6 Re-enable Restore → 7 Educate","Quarantine early = stop the spread before anything else","Educate last = prevent RE-infection once the machine is clean"],
+  say:"Identify and verify the symptoms, quarantine the machine immediately so it can't spread, disable System Restore so malware can't hide in restore points, remediate with updated tools, schedule future scans, re-enable Restore, and finally educate the user — quarantine comes early to contain it, education comes last because it's about preventing the next infection."},
+ {id:"leastpriv",topic:"Least privilege",prompt:"Explain least privilege to a new hire who asks why they didn't get admin rights.",
+  points:["Every account gets only the access its role needs — nothing extra","If malware runs under your account, it inherits YOUR permissions — limited account = limited blast radius","It's not distrust; it's damage control that protects you too"],
+  say:"Least privilege means every account gets exactly the access its job requires and nothing more. It's not about trust — if anything malicious ever runs under your login, it can only do what YOU can do. A standard account keeps the blast radius small."},
+ {id:"bitlocker",topic:"Encryption at rest vs in transit",prompt:"A user asks: \"we have BitLocker, so why do I still need HTTPS?\" Untangle it.",
+  points:["BitLocker = data AT REST: protects the drive if the laptop is lost or stolen","HTTPS/TLS = data IN TRANSIT: protects it moving across the network","Different attack, different lock — you need both"],
+  say:"They protect two different moments. BitLocker encrypts the drive itself, so a thief with your laptop can't read the disk — that's data at rest. HTTPS encrypts data while it travels the network so nobody can eavesdrop — that's data in transit. Different threats, so you need both locks."},
+ {id:"vm",topic:"Virtualization",prompt:"Explain to a classmate what a hypervisor is and why Type 1 vs Type 2 matters.",
+  points:["A hypervisor creates and runs virtual machines — software computers sharing real hardware","Type 1 = bare-metal, runs directly on hardware (ESXi, Hyper-V) — datacenters","Type 2 = hosted, runs on top of an OS (VirtualBox) — desktops and labs","Snapshots + isolation = why VMs are the safe place to test and break things"],
+  say:"A hypervisor is the software that runs virtual machines — whole computers sharing one physical box. Type 1 runs straight on the hardware, which is what datacenters use; Type 2 runs as an app on your OS, like VirtualBox on a laptop — that's your lab. Snapshots and isolation are the superpower: you can break a VM, roll back, and your real machine never notices."},
+ {id:"apipa",topic:"Troubleshooting flow",prompt:"Talk through your FULL process: a user says \"internet's down\" — narrate the isolation steps out loud like on a call.",
+  points:["Scope first: just them or everyone? Wired or Wi-Fi? — changes the whole path","Check the local stack: valid IP (ipconfig)? 169.254 = DHCP failure","Ping outward in rings: gateway → 8.8.8.8 → a domain name — where it dies tells you the layer","IP works but names fail = DNS; nothing past gateway = router/ISP"],
+  say:"First I scope it — is it just you or the whole office, wired or wireless? Then I check the machine: does ipconfig show a real address or a 169.254, which means DHCP failed? Then I ping in rings: the gateway, then an outside IP like 8.8.8.8, then a name. If the IP pings but the name fails, it's DNS. If nothing gets past the gateway, I'm looking at the router or the ISP."},
+ {id:"osilayers",topic:"Device layer placement",prompt:"Quick-fire: an interviewer asks what layer a switch, a router, and HTTPS each operate at — and why.",
+  points:["Switch = Layer 2 — forwards frames by MAC within one network","Router = Layer 3 — routes packets by IP between networks","HTTPS = Application (L7 in OSI, Application layer in TCP/IP), with TLS encryption often described at L6"],
+  say:"A switch is Layer 2 — it forwards frames by MAC address inside one network. A router is Layer 3 — it routes packets by IP between networks. HTTPS is an application-layer protocol; its TLS encryption is usually described at the presentation layer in OSI terms."},
+];
+let exQ=null;
+function newExplainQ(){
+  const needs=S.explainNeeds||{};
+  const flagged=EXPLAIN.filter(e=>needs[e.id]);
+  const rest=shuffle(EXPLAIN.filter(e=>!needs[e.id]));
+  const order=[...shuffle(flagged),...rest];
+  if(!window.__exSeen)window.__exSeen=[];
+  const next=order.find(e=>!window.__exSeen.includes(e.id))||order[0];
+  exQ={item:next,revealed:false};
+}
+function renderExplain(){
+  const e=exQ.item;
+  const flagged=(S.explainNeeds||{})[e.id];
+  stage.innerHTML=`
+    <button class="btn ghost" id="prBack" style="margin-bottom:10px">← practice menu</button>
+    <div class="scorebar"><span>Explain it back</span><span>${e.topic}${flagged?' · <span style="color:var(--amber)">↻ needs work</span>':''}</span></div>
+    <div class="banner info"><span class="ic">🗣</span><div><b>Say it OUT LOUD before revealing.</b> If you can teach it, you own it — and this doubles as interview practice.</div></div>
+    <div class="quiz-stem">${e.prompt}</div>
+    ${exQ.revealed?`
+      <div class="explain show"><b>Key points to have hit:</b><ul class="pb-list">${e.points.map(p=>`<li>${p}</li>`).join('')}</ul></div>
+      <div class="explain show" style="border-left-color:var(--green)"><b style="color:var(--green)">Model answer, out loud:</b> <i>${e.say}</i></div>
+      <div class="backup-row">
+        <button class="backup-btn" id="exGot" style="border-color:#1d4427;color:var(--green)">✓ nailed it</button>
+        <button class="backup-btn" id="exNeeds" style="border-color:#4a3a10;color:var(--amber)">↻ needs work</button>
+      </div>`
+    :`<button class="btn primary" id="exReveal" style="width:100%;margin-top:12px">reveal model answer</button>`}
+    <div class="mini" style="margin-top:10px">\"Needs work\" prompts come back first next session. ${Object.keys(S.explainNeeds||{}).length?`Currently flagged: ${Object.keys(S.explainNeeds).length}.`:''}</div>`;
+  document.getElementById('prBack').onclick=()=>{prGame=null;render();};
+  const rv=document.getElementById('exReveal');if(rv)rv.onclick=()=>{exQ.revealed=true;render();};
+  const g=document.getElementById('exGot'),n=document.getElementById('exNeeds');
+  const advance=()=>{window.__exSeen=window.__exSeen||[];window.__exSeen.push(e.id);if(window.__exSeen.length>=EXPLAIN.length)window.__exSeen=[];newExplainQ();render();};
+  if(g)g.onclick=()=>{S.explainNeeds=S.explainNeeds||{};delete S.explainNeeds[e.id];saveState();advance();};
+  if(n)n.onclick=()=>{S.explainNeeds=S.explainNeeds||{};S.explainNeeds[e.id]=(S.explainNeeds[e.id]||0)+1;saveState();advance();};
 }
 
 /* -------- PORTS SPEED-DRILL -------- */

@@ -152,6 +152,26 @@
   .pb-list li{margin-bottom:7px;font-size:13px;line-height:1.6}
   .pb code{background:#0d1622;color:var(--green);padding:1px 5px;border-radius:4px;font-family:var(--mono);font-size:12px}
 
+  .weeknav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:12px 0 8px}
+  .weeknav .wk-label{font-family:var(--mono);font-size:13px;color:var(--ink);font-weight:700}
+  .weeknav .btn[disabled]{opacity:.3;cursor:default}
+
+  .flashcard{background:var(--panel);border:1px solid var(--line);border-radius:14px;min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:26px 18px;margin:14px 0;cursor:pointer;transition:.15s;user-select:none}
+  .flashcard:active{transform:scale(.985)}
+  .flashcard.flipped{border-color:var(--amber)}
+  .fc-term{font-size:22px;font-weight:800;color:var(--ink);line-height:1.35}
+  .fc-hint{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:14px}
+  .fc-def{font-size:14px;color:var(--ink);line-height:1.6;text-align:left}
+  .fc-def .eli5{border-left:3px solid var(--blue);padding:8px 10px;background:#0c1420;border-radius:0 6px 6px 0;font-size:13px}
+
+  .match-grid{display:grid;grid-template-columns:1fr 1.5fr;gap:8px;margin-top:12px}
+  .match-col{display:flex;flex-direction:column;gap:8px}
+  .mcell{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:10px;font-size:12px;line-height:1.45;color:var(--ink);cursor:pointer;text-align:left;transition:.12s}
+  .mcell.term-c{font-weight:700;font-size:12.5px}
+  .mcell.sel{border-color:var(--amber);background:#1a1405}
+  .mcell.ok{border-color:#1d4427;background:#0d1f15;color:var(--green);opacity:.55}
+  .mcell:disabled{cursor:default}
+
   .reset{font-family:var(--mono);font-size:11px;color:var(--muted);background:none;border:none;cursor:pointer;text-decoration:underline;margin-top:22px}
   .reset:hover{color:var(--red)}
   .backup-row{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
@@ -189,6 +209,8 @@
     <button class="mode-btn active" data-mode="today">TODAY</button>
     <button class="mode-btn" data-mode="review">REVIEW</button>
     <button class="mode-btn" data-mode="week">WEEK</button>
+    <button class="mode-btn" data-mode="practice">PRACTICE</button>
+    <button class="mode-btn" data-mode="deep">DEEP DIVE</button>
     <button class="mode-btn" data-mode="vm">LABS</button>
     <button class="mode-btn" data-mode="playbook">SOC ROLE</button>
     <button class="mode-btn" data-mode="export">EXPORT</button>
@@ -1683,6 +1705,97 @@ const PLAYBOOK=[
   ]},
 ];
 
+/* ====================================================================
+   DEEP DIVE — full understanding of the topics that quizzes alone
+   can't teach. Built to make you able to EXPLAIN, not just recognize.
+==================================================================== */
+const DEEPDIVE=[
+ {id:"binary",icon:"0️⃣",title:"Binary & hex (the foundation under everything)",
+  intro:"Subnetting, MAC addresses, permissions — they all sit on binary. Ten minutes here makes everything after it easier.",
+  blocks:[
+   {h:"The core idea",p:"Computers only store two states: off (0) and on (1). Every number is built from these using place values. In decimal, places are 1, 10, 100, 1000 (powers of ten). In binary, places are <b>1, 2, 4, 8, 16, 32, 64, 128</b> (powers of two). Memorize that row right-to-left — it's the single most useful row of numbers in networking."},
+   {h:"Reading a binary number",p:"Take <code>11000000</code>. Line it up under the place values: 128 64 32 16 8 4 2 1. Where there's a 1, add the place value: 128 + 64 = <b>192</b>. That's it — that's the whole trick. <code>10101000</code>? 128+32+8 = <b>168</b>. Notice something? <code>11000000.10101000</code>... that's the start of 192.168 — every IP address is just four of these 8-bit groups (octets)."},
+   {h:"Why 255 keeps showing up",p:"An octet has 8 bits. All ones — <code>11111111</code> — is 128+64+32+16+8+4+2+1 = <b>255</b>. That's why octets run 0–255 and why subnet masks are full of 255s: a 255 means 'all 8 bits in this octet are network bits.'"},
+   {h:"Hex in one paragraph",p:"Hexadecimal is base-16, using 0–9 then A–F (A=10 ... F=15). One hex digit = exactly 4 bits, so it's a compact way to write binary. MAC addresses (like <code>A4:5E:60:B2:1C:9F</code>) and IPv6 addresses are written in hex. You rarely do hex math at Tier 1 — just recognize it and know F = 1111 = 15."},
+   {h:"Say it in an interview",p:"\u201cBinary is base-2 — each bit doubles in value: 1, 2, 4, 8, up to 128 in an octet. An IP address is four octets, so four groups of 8 bits. All eight bits on equals 255, which is why masks use 255.\u201d"},
+  ]},
+ {id:"subnet",icon:"🔪",title:"Subnetting — actually understood",
+  intro:"This is the one everyone memorizes without understanding. We're going to fix that. Work through this slowly, do the practice at the end, and you'll be able to subnet on a whiteboard in an interview.",
+  blocks:[
+   {h:"What a subnet even is (the why)",p:"A network gets slow and chaotic when too many devices share it — every broadcast reaches everyone, like one giant group chat for a whole company. Subnetting cuts one big network into smaller isolated neighborhoods. Benefits: less broadcast noise, better security (finance's subnet can be walled off from guests'), and cleaner organization. When an interviewer asks 'why subnet?', those three: <b>performance, security, organization</b>."},
+   {h:"The mask is just a dividing line",p:"An IPv4 address is 32 bits (four octets). The subnet mask marks where the <b>network part</b> ends and the <b>host part</b> begins. Mask bits that are 1 = 'this part identifies the neighborhood.' Bits that are 0 = 'this part identifies the individual house.' <code>255.255.255.0</code> in binary is <code>11111111.11111111.11111111.00000000</code> — 24 ones. That's why we call it <b>/24</b>. CIDR notation (/24, /26...) is literally just counting the 1-bits in the mask. Nothing more mysterious than that."},
+   {h:"The host-count formula (and the minus 2)",p:"If the mask uses 24 bits for network, 32−24 = <b>8 bits are left for hosts</b>. Each host bit doubles your addresses: 2^8 = 256 addresses. But two are always reserved: the <b>network address</b> (all host bits 0 — the neighborhood's name) and the <b>broadcast address</b> (all host bits 1 — the 'everyone' address). So usable hosts = 2^h − 2. For /24: 256−2 = <b>254 usable</b>. That minus-2 is the most-tested detail in subnetting."},
+   {h:"The magic number method (do math fast)",p:"For any mask, find the 'interesting octet' (the one that isn't 255 or 0) and compute <b>magic number = 256 − that octet's value</b>. That's your block size — subnets count up by it. Example: <code>255.255.255.192</code> (/26). Magic number = 256−192 = <b>64</b>. So subnets start at .0, .64, .128, .192. Each block: first address = network, last = broadcast, everything between = usable. The .64 block runs .64 (network), .65–.126 (62 usable hosts), .127 (broadcast)."},
+   {h:"Worked example 1 — which subnet is this host in?",p:"Host <code>192.168.1.100/26</code>. Block size 64 → blocks at 0, 64, 128, 192. 100 falls in the 64–127 block. So: network <code>192.168.1.64</code>, broadcast <code>192.168.1.127</code>, usable <code>.65–.126</code>. Can 192.168.1.100 talk directly to 192.168.1.130? <b>No</b> — 130 is in the .128 block, a different subnet, so traffic must go through the router (gateway). This exact question style shows up in interviews and on Network+."},
+   {h:"Worked example 2 — design for a need",p:"\u201cYou need 6 subnets from 192.168.10.0/24, each with at least 25 hosts.\u201d Hosts first: need 25 → 2^5−2=30 ✓ (2^4−2=14 ✗). So 5 host bits → mask is 32−5 = <b>/27</b> (255.255.255.224), block size 256−224=32. That yields 8 subnets of 30 hosts: .0, .32, .64, .96, .128, .160, .192, .224 — covers the 6 needed with room to grow."},
+   {h:"The cheat rows (memorize both)",list:[
+     "<b>Mask endings:</b> /24→.0 | /25→.128 | /26→.192 | /27→.224 | /28→.240 | /29→.248 | /30→.252",
+     "<b>Usable hosts:</b> /24→254 | /25→126 | /26→62 | /27→30 | /28→14 | /29→6 | /30→2 (point-to-point links)",
+     "Pattern check: every step down halves the hosts (254→126→62→30...) and the mask ending climbs by the halved block."]},
+   {h:"Say it in an interview",p:"\u201cThe subnet mask splits an IP into network and host bits — CIDR just counts the network bits. Hosts = 2 to the power of host bits, minus 2 for the network and broadcast addresses. For quick math I use the block size: 256 minus the interesting octet. So a /26 is blocks of 64 with 62 usable hosts each.\u201d Deliver that and you've proven understanding, not memorization."},
+   {h:"Practice (answers upside-down in your head)",list:[
+     "1) How many usable hosts in /27? → 2^5−2 = 30",
+     "2) What subnet is 10.0.0.77/26 in? → blocks of 64 → network 10.0.0.64, broadcast 10.0.0.127",
+     "3) Smallest mask for 100 hosts? → need 2^7−2=126 → /25",
+     "4) Are 172.16.5.10/28 and 172.16.5.20/28 in the same subnet? → block 16: .0–.15 and .16–.31 → NO, different subnets",
+     "5) Why minus 2? → network address (host bits all 0) and broadcast (host bits all 1) are reserved"]},
+  ]},
+ {id:"osi",icon:"🥞",title:"The OSI & TCP/IP models — both, and how they map",
+  intro:"Interviewers love 'what layer does X operate at?' — and exams test BOTH models. Learn OSI for the vocabulary, TCP/IP for how the internet actually works, and the mapping between them.",
+  blocks:[
+   {h:"Why two models exist",p:"<b>OSI</b> (7 layers) is the teaching/reference model — nobody 'runs' OSI, but everyone uses its vocabulary ('that's a Layer 2 problem'). <b>TCP/IP</b> (4 layers) is the practical model the internet is actually built on. Interview answer if asked which is real: 'TCP/IP is what's implemented; OSI is the shared language we use to describe and troubleshoot it.'"},
+   {h:"OSI: the 7 layers with their residents",list:[
+     "<b>L1 Physical</b> — raw signals on a wire/air. Cables, hubs, repeaters. 'Is it plugged in' lives here.",
+     "<b>L2 Data Link</b> — frames, <b>MAC addresses</b>. <b>Switches</b> live here. Local delivery inside one network.",
+     "<b>L3 Network</b> — packets, <b>IP addresses</b>. <b>Routers</b> live here. Delivery BETWEEN networks. Subnetting is an L3 concept.",
+     "<b>L4 Transport</b> — <b>TCP/UDP and port numbers</b>. Reliability, ordering, which service gets the data.",
+     "<b>L5 Session</b> — opening/maintaining/closing conversations between apps.",
+     "<b>L6 Presentation</b> — data format, compression, encryption (TLS is often placed here).",
+     "<b>L7 Application</b> — the protocols users touch: HTTP, DNS, SMTP. Web browsing 'happens' here.",
+     "Mnemonic bottom-up: <b>P</b>lease <b>D</b>o <b>N</b>ot <b>T</b>hrow <b>S</b>ausage <b>P</b>izza <b>A</b>way."]},
+   {h:"TCP/IP: the 4 layers",list:[
+     "<b>Network Access (Link)</b> — everything to move bits on the local network. Combines OSI L1+L2 (cables, MAC, switches).",
+     "<b>Internet</b> — IP addressing and routing between networks. Equals OSI L3 (routers, subnetting, ICMP/ping).",
+     "<b>Transport</b> — TCP and UDP with ports. Equals OSI L4, same name on purpose.",
+     "<b>Application</b> — everything the software does: HTTP, DNS, SMTP, SSH. Collapses OSI L5+L6+L7 into one."]},
+   {h:"The mapping (memorize this table)",list:[
+     "OSI L1 + L2 &nbsp;→&nbsp; TCP/IP <b>Network Access</b>",
+     "OSI L3 &nbsp;→&nbsp; TCP/IP <b>Internet</b>",
+     "OSI L4 &nbsp;→&nbsp; TCP/IP <b>Transport</b>",
+     "OSI L5 + L6 + L7 &nbsp;→&nbsp; TCP/IP <b>Application</b>",
+     "Quick check: a switch is Network Access in TCP/IP terms; a router is Internet layer; HTTPS is Application in TCP/IP but spans L6–L7 in OSI."]},
+   {h:"Encapsulation — how data actually travels the layers",p:"When you send data, each layer wraps it like nesting envelopes going DOWN the stack: Application data → Transport adds a TCP/UDP header (now a <b>segment</b>) → Internet adds an IP header (<b>packet</b>) → Network Access adds MAC framing (<b>frame</b>) → bits on the wire. The receiver unwraps going UP. Knowing 'frame = L2, packet = L3, segment = L4' by name is a classic exam and interview check."},
+   {h:"Why techs actually use it",p:"It's a troubleshooting ladder. 'Bottom-up' troubleshooting: check cable (L1) → link/switch (L2) → IP/gateway (L3) → port/service (L4) → app (L7). When you check the cable before blaming the app — that's OSI bottom-up. Name it in the interview: it sounds senior."},
+   {h:"Say it in an interview",p:"\u201cOSI is the 7-layer reference model — I use it as troubleshooting vocabulary. TCP/IP is the 4-layer model the internet actually implements: Network Access, Internet, Transport, Application. They map cleanly: OSI 1–2 is Network Access, 3 is Internet, 4 is Transport, and 5–7 collapse into Application. Data gets encapsulated down the stack — segments at Transport, packets at Internet, frames at the link.\u201d"},
+  ]},
+ {id:"dhcpdns",icon:"🤝",title:"DHCP & DNS — the full journey of getting online",
+  intro:"Two services everyone mixes up (assigns vs. translates). Walk the actual sequence once and you'll never confuse them again.",
+  blocks:[
+   {h:"DHCP: how a device gets its address (DORA)",p:"When a device joins a network it has no IP. It gets one through a 4-step conversation called <b>DORA</b>: <b>D</b>iscover (device broadcasts 'any DHCP servers out there?') → <b>O</b>ffer (server: 'you can have 192.168.1.50') → <b>R</b>equest (device: 'I'll take it') → <b>A</b>cknowledge (server: 'it's yours, lease is 24h'). The lease also delivers the subnet mask, default gateway, and DNS server — the whole starter pack. If no server answers, the device self-assigns <b>169.254.x.x (APIPA)</b> — which is why seeing 169.254 instantly means 'DHCP failed.'"},
+   {h:"DNS: how a name becomes an address",p:"You type google.com. Your PC asks its DNS server (learned via DHCP!) 'what's the IP for google.com?' If that resolver doesn't know, it walks the chain — root servers → .com servers → Google's servers — gets the answer, caches it, returns it. Only THEN does your browser connect to the IP. DNS never assigns anything; it <b>translates names to addresses</b>, like a phone book lookup."},
+   {h:"The full 'opening a website' story (interview gold)",p:"\u201cThe device gets its IP, mask, gateway, and DNS server from DHCP via DORA. When I browse to a site, DNS resolves the name to an IP. If the IP is outside my subnet, the traffic goes to my default gateway, and TCP takes it from there.\u201d Being able to narrate that chain is what 'understanding networking' sounds like out loud."},
+   {h:"The diagnostic split (never mix them again)",list:[
+     "No IP / 169.254.x.x → <b>DHCP</b> problem (the device never got an address)",
+     "Has a good IP; sites work by IP (ping 8.8.8.8 ✓) but names fail (ping google.com ✗) → <b>DNS</b> problem",
+     "Fixes: DHCP → <code>ipconfig /release</code> + <code>/renew</code>. DNS → <code>ipconfig /flushdns</code>, try another resolver (8.8.8.8)."]},
+  ]},
+ {id:"tcp",icon:"🔁",title:"TCP vs UDP — and the 3-way handshake",
+  intro:"'Reliable vs fast' is the flashcard answer. Here's the machinery, so you can explain WHY.",
+  blocks:[
+   {h:"The handshake (how TCP starts every connection)",p:"Before any data moves, TCP does a 3-step setup: client sends <b>SYN</b> ('want to talk, here's my starting sequence number') → server replies <b>SYN-ACK</b> ('heard you, here's mine') → client sends <b>ACK</b> ('confirmed'). Now both sides agree on numbering, so every byte can be tracked, acknowledged, and re-sent if lost. That's WHERE reliability comes from — numbered, acknowledged data."},
+   {h:"What TCP buys you (and what it costs)",p:"Guaranteed delivery, correct order, congestion control. Cost: overhead and delay — every loss triggers a wait-and-resend. Perfect for web pages, email, file transfers, where a missing byte corrupts everything."},
+   {h:"Why UDP exists",p:"UDP skips all of it — no handshake, no acknowledgments, no resending. Just fire packets. For live video, voice calls, and gaming, a lost frame is better SKIPPED than re-sent late (a resent word from 2 seconds ago is useless in a call). DNS queries also use UDP: one tiny question, one tiny answer — a handshake would triple the work."},
+   {h:"Say it in an interview",p:"\u201cTCP sets up a connection with a SYN, SYN-ACK, ACK handshake and numbers every segment so lost data gets retransmitted — reliable but heavier. UDP is connectionless, no guarantees, which is exactly right for real-time traffic where late data is worthless.\u201d"},
+  ]},
+ {id:"nat",icon:"🚪",title:"NAT & private addressing — why your 192.168 works on the internet",
+  intro:"Ties together private IPs, the gateway, and why the whole world isn't out of addresses.",
+  blocks:[
+   {h:"The problem it solves",p:"IPv4 has ~4.3 billion addresses — not enough for every phone, laptop, and lightbulb. Solution: private ranges (<b>10.x.x.x</b>, <b>172.16–31.x.x</b>, <b>192.168.x.x</b>) that anyone can reuse internally, because they're never routed on the public internet. Your house and your neighbor's can BOTH be 192.168.1.0/24 with zero conflict."},
+   {h:"How NAT bridges the gap",p:"Your router holds one public IP. When your PC (192.168.1.50) requests a website, the router rewrites the packet's source to its public IP and remembers 'this conversation belongs to .50, port X' in its translation table. The reply comes back to the public IP, the router looks up the table, and forwards it to your PC. Many private devices, one public address — that's <b>PAT</b> (port address translation), the flavor of NAT every home router does."},
+   {h:"The side effects worth knowing",p:"Unsolicited inbound traffic gets dropped (no table entry) — accidental security, and the reason hosting a game server needs <b>port forwarding</b> (a manual table entry). And NAT is the main reason IPv4 is still alive; IPv6's huge space removes the need entirely."},
+   {h:"Say it in an interview",p:"\u201cPrivate ranges like 192.168 aren't internet-routable, so NAT on the router translates them to its single public IP and tracks each conversation by port. That's how a whole office shares one public address — and why inbound connections need port forwarding.\u201d"},
+  ]},
+];
 const VM_GUIDES=[
  {n:"01",title:"Install VirtualBox (your hypervisor)",lv:"beg",
   why:"A hypervisor runs other 'virtual' computers safely inside windows on your real PC. Break a VM and your actual machine is untouched. This is the foundation of the entire lab.",
@@ -1739,7 +1852,7 @@ const VM_GUIDES=[
    STATE
 ==================================================================== */
 const LS="soc_examgrade_v3";
-function freshState(){return{startISO:null,cursor:0,completed:{},lastDoneISO:null,streak:0,tier2Unlocked:{},quizProg:{},taskProg:{},pace:"thorough",mistakes:[]};}
+function freshState(){return{startISO:null,cursor:0,completed:{},lastDoneISO:null,streak:0,tier2Unlocked:{},quizProg:{},taskProg:{},pace:"thorough",mistakes:[],fcShaky:{},portsBest:0};}
 let S=loadState();
 function loadState(){try{const x=JSON.parse(localStorage.getItem(LS));if(x)return Object.assign(freshState(),x);}catch(e){}return freshState();}
 function saveState(){try{localStorage.setItem(LS,JSON.stringify(S));}catch(e){}}
@@ -1771,6 +1884,7 @@ function missedDayPending(){
 const stage=document.getElementById('stage');
 let mode="today";
 let viewIdx=null; // null = live current day; a number = read-only review of that completed/past day
+let weekView=null; // null = current week; a number = index of any lesson in the week being browsed
 
 function renderPace(){
   document.querySelectorAll('.pace-opt').forEach(b=>{
@@ -1787,10 +1901,10 @@ function renderStatus(){
     <div class="stat"><div class="v">${o.acc}%</div><div class="l">Accuracy</div></div>
     <div class="stat tier"><div class="v">${S.mistakes?S.mistakes.length:0}</div><div class="l">To review</div></div>`;
 }
-document.querySelectorAll('.mode-btn').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;viewIdx=null;document.querySelectorAll('.mode-btn').forEach(x=>x.classList.toggle('active',x.dataset.mode===mode));render();});
+document.querySelectorAll('.mode-btn').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;viewIdx=null;weekView=null;document.querySelectorAll('.mode-btn').forEach(x=>x.classList.toggle('active',x.dataset.mode===mode));render();});
 
 function render(){renderPace();renderStatus();
-  if(mode==="today")renderToday();else if(mode==="review")renderReview();else if(mode==="week")renderWeek();else if(mode==="vm")renderVM();else if(mode==="playbook")renderPlaybook();else renderExport();}
+  if(mode==="today")renderToday();else if(mode==="review")renderReview();else if(mode==="week")renderWeek();else if(mode==="vm")renderVM();else if(mode==="playbook")renderPlaybook();else if(mode==="practice")renderPractice();else if(mode==="deep")renderDeep();else renderExport();}
 
 /* -------- READ-ONLY PAST-DAY VIEW (no progress mutation) -------- */
 function renderDayView(idx){
@@ -1995,9 +2109,20 @@ function renderToday(){
 
 /* -------- WEEK -------- */
 function renderWeek(){
-  const L=CURRICULUM[Math.min(S.cursor,CURRICULUM.length-1)];
+  const anchor=(weekView!==null)?weekView:Math.min(S.cursor,CURRICULUM.length-1);
+  const L=CURRICULUM[anchor];
   const weekLessons=CURRICULUM.map((l,i)=>({l,i})).filter(x=>x.l.cert===L.cert&&x.l.week===L.week);
   const wa=weekAccuracy(L.cert,L.week);
+  // build list of all started weeks (first day unlocked) for navigation
+  const weeks=[];CURRICULUM.forEach((l,i)=>{if(!weeks.some(w=>w.cert===l.cert&&w.week===l.week))weeks.push({cert:l.cert,week:l.week,first:i});});
+  const started=weeks.filter(w=>w.first<=S.cursor);
+  const curPos=started.findIndex(w=>w.cert===L.cert&&w.week===L.week);
+  const isCurrentWeek=(weekView===null)||(CURRICULUM[Math.min(S.cursor,CURRICULUM.length-1)].week===L.week&&CURRICULUM[Math.min(S.cursor,CURRICULUM.length-1)].cert===L.cert);
+  const nav=`<div class="weeknav">
+    <button class="btn ghost" id="wkPrev" ${curPos<=0?'disabled':''}>← W${curPos>0?started[curPos-1].week:''}</button>
+    <span class="wk-label">${L.cert} · WEEK ${L.week}${isCurrentWeek?' <span style="color:var(--amber)">(current)</span>':''}</span>
+    <button class="btn ghost" id="wkNext" ${curPos>=started.length-1?'disabled':''}>W${curPos<started.length-1?started[curPos+1].week:''} →</button>
+  </div>${!isCurrentWeek?`<button class="btn ghost" id="wkNow" style="width:100%;margin-bottom:10px">↩ back to current week</button>`:''}`;
   let rail=`<div class="weekrail">`;
   weekLessons.forEach((x,k)=>{
     const done=S.completed[x.i],isCur=x.i===S.cursor;
@@ -2008,7 +2133,8 @@ function renderWeek(){
          <div class="daychip rest"><div class="dow">SAT</div><div class="dn">OFF</div><div class="wl">catch-up</div></div></div>`;
   stage.innerHTML=`
     <div class="lesson-head"><span class="pill cert">${L.cert}</span><span class="pill wk">WEEK ${L.week}</span></div>
-    <div class="lesson-focus" style="margin-top:8px">Week runs <b>Sun–Thu</b> (study) with <b>Fri/Sat off</b> for rest &amp; catch-up — matched to your schedule. Tap a past day to revisit it.</div>
+    ${nav}
+    <div class="lesson-focus" style="margin-top:8px">Week runs <b>Sun–Thu</b> (study) with <b>Fri/Sat off</b> for rest &amp; catch-up — matched to your schedule. Tap a past day to revisit it, or use the arrows to review earlier weeks.</div>
     ${rail}
     <div class="banner ${wa.pct>=85?'ok':'warn'}"><span class="ic">${wa.pct>=85?'✓':'◆'}</span><div>Week accuracy: <b>${wa.pct}%</b> (${wa.ok}/${wa.total}). ${wa.pct>=85?'Tier-2 territory — keep it up.':'Reach 85% by checkpoint day to unlock Tier-2 vocab.'}</div></div>
     <div class="sec-label">DAYS THIS WEEK</div>
@@ -2021,6 +2147,10 @@ function renderWeek(){
         <div class="d">${x.l.focus}</div><div class="exam" style="margin-top:5px;color:#c9a55a;font-family:var(--mono);font-size:11px">${x.l.obj}</div></div>`;
     }).join('')}`;
   stage.querySelectorAll('[data-jump]').forEach(el=>el.onclick=()=>{const j=+el.dataset.jump;if(j<=S.cursor){viewIdx=(j===S.cursor)?null:j;mode="today";document.querySelectorAll('.mode-btn').forEach(x=>x.classList.toggle('active',x.dataset.mode==='today'));render();}});
+  const wp=document.getElementById('wkPrev'),wn=document.getElementById('wkNext'),wc=document.getElementById('wkNow');
+  if(wp&&!wp.disabled)wp.onclick=()=>{weekView=started[curPos-1].first;render();};
+  if(wn&&!wn.disabled)wn.onclick=()=>{const t=started[curPos+1];weekView=(t.cert===CURRICULUM[Math.min(S.cursor,CURRICULUM.length-1)].cert&&t.week===CURRICULUM[Math.min(S.cursor,CURRICULUM.length-1)].week)?null:t.first;render();};
+  if(wc)wc.onclick=()=>{weekView=null;render();};
 }
 
 /* -------- VM -------- */
@@ -2061,6 +2191,238 @@ function renderPlaybook(){
     e.preventDefault();const t=document.querySelector(a.getAttribute('href'));
     if(t){t.open=true;t.scrollIntoView({behavior:'smooth',block:'start'});}
   });
+}
+
+/* -------- DEEP DIVE -------- */
+function renderDeep(){
+  stage.innerHTML=`
+    <div class="banner info"><span class="ic">🧠</span><div><b>Understanding, not memorizing.</b> These are the topics quizzes can't fully teach — each one is built so you can <i>explain it out loud</i> to an interviewer or a user. Read slowly, do the practice, and use the \u201csay it in an interview\u201d lines as your out-loud test.</div></div>
+    <div class="pb-toc">${DEEPDIVE.map(s=>`<a class="pb-chip" href="#dd-${s.id}">${s.icon} ${s.title.split(' — ')[0].split(' (')[0]}</a>`).join('')}</div>
+    ${DEEPDIVE.map(s=>`
+      <details class="guide pb" id="dd-${s.id}">
+        <summary><span class="pb-ic">${s.icon}</span> ${s.title}<span class="chev">▸</span></summary>
+        <div class="gbody">
+          <div class="pb-intro">${s.intro}</div>
+          ${s.blocks.map(b=>`
+            <div class="pb-block">
+              <div class="pb-h">${b.h}</div>
+              ${b.p?`<div class="pb-p">${b.p}</div>`:''}
+              ${b.list?`<ul class="pb-list">${b.list.map(li=>`<li>${li}</li>`).join('')}</ul>`:''}
+            </div>`).join('')}
+        </div>
+      </details>`).join('')}
+    <div class="mini" style="margin-top:16px">The real test: close this tab and explain subnetting to an imaginary user. If you can, you own it. More deep dives get added as you reach Network+ and Security+.</div>`;
+  stage.querySelectorAll('.pb-chip').forEach(a=>a.onclick=e=>{
+    e.preventDefault();const t=document.querySelector(a.getAttribute('href'));
+    if(t){t.open=true;t.scrollIntoView({behavior:'smooth',block:'start'});}
+  });
+}
+
+/* -------- PRACTICE (flashcards + matching) -------- */
+let prWeek=null, prGame=null, prDeck=null, prPos=0, prFlip=false, prMatch=null;
+function startedWeeks(){const ws=[];CURRICULUM.forEach((l,i)=>{if(i<=S.cursor&&!ws.some(w=>w.cert===l.cert&&w.week===l.week))ws.push({cert:l.cert,week:l.week});});return ws;}
+function weekTerms(cert,week){
+  let t=[];CURRICULUM.filter(l=>l.cert===cert&&l.week===week).forEach(l=>t=t.concat(l.terms));
+  const k=cert+"|"+week;if(S.tier2Unlocked[k]&&typeof TIER2!=='undefined'&&TIER2[k])t=t.concat(TIER2[k]);
+  return t.map(x=>({name:x.t.replace("◆CONNECTOR","").trim(),def:x.d,eli5:x.e}));
+}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function buildDeck(cert,week){
+  const t=weekTerms(cert,week),sh=S.fcShaky||{};let d=[];
+  t.forEach(x=>{d.push(x);if(sh[x.name])d.push(x);}); // shaky cards appear twice
+  return shuffle(d);
+}
+
+function renderPractice(){
+  const ws=startedWeeks();
+  if(prWeek===null||!ws.some(w=>w.cert===prWeek.cert&&w.week===prWeek.week))prWeek=ws[ws.length-1];
+  const picker=`<div class="pb-toc">${ws.map(w=>`<a class="pb-chip ${w.cert===prWeek.cert&&w.week===prWeek.week?'do':''}" data-wk="${w.cert}|${w.week}">${w.cert} W${w.week}</a>`).join('')}</div>`;
+  if(prGame==="cards"){renderCards(picker);return;}
+  if(prGame==="match"){renderMatch(picker);return;}
+  if(prGame==="subnet"){renderSubnetDrill();return;}
+  if(prGame==="ports"){renderPortsDrill();return;}
+  const shakyCount=Object.keys(S.fcShaky||{}).length;
+  stage.innerHTML=`
+    <div class="banner info"><span class="ic">♻️</span><div><b>Endless practice, zero pressure.</b> Nothing here touches your progress, streak, or scores — drill as much as you want.</div></div>
+    <div class="sec-label">BY WEEK <span class="sec-count">pick a week below</span></div>
+    ${picker}
+    <div class="term" style="cursor:pointer" id="goCards"><div class="t">🃏 Smart flashcards — ${prWeek.cert} Week ${prWeek.week}</div><div class="d">Flip through every term. Mark cards <b>✓ got it</b> or <b>↻ shaky</b> — shaky cards come back sooner and appear twice in future decks until you clear them.${shakyCount?` <span style="color:var(--amber)">You have ${shakyCount} shaky card${shakyCount===1?'':'s'} in rotation.</span>`:''}</div></div>
+    <div class="term" style="cursor:pointer" id="goMatch"><div class="t">🧩 Match-up — ${prWeek.cert} Week ${prWeek.week}</div><div class="d">Six terms, six definitions, shuffled. Tap a term, tap its definition. Clear the board, beat your miss count.</div></div>
+    <div class="sec-label">SKILL DRILLS <span class="sec-count">any time, any week</span></div>
+    <div class="term" style="cursor:pointer" id="goSubnet"><div class="t">🔪 Subnetting drill</div><div class="d">Infinite generated problems — network addresses, broadcast, host counts, same-subnet checks. Every answer explained with the magic-number method. Pairs with the Deep Dive.</div></div>
+    <div class="term" style="cursor:pointer" id="goPorts"><div class="t">🔌 Ports speed-drill</div><div class="d">Rapid-fire port ↔ service matching. Build a streak; your best is saved.${S.portsBest?` <span style="color:var(--green)">Best streak: ${S.portsBest}</span>`:''}</div></div>`;
+  wirePicker();
+  document.getElementById('goCards').onclick=()=>{prGame="cards";prDeck=buildDeck(prWeek.cert,prWeek.week);prPos=0;prFlip=false;render();};
+  document.getElementById('goMatch').onclick=()=>{prGame="match";newMatch();render();};
+  document.getElementById('goSubnet').onclick=()=>{prGame="subnet";newSubnetQ();render();};
+  document.getElementById('goPorts').onclick=()=>{prGame="ports";newPortQ();window.__portStreak=0;render();};
+}
+function wirePicker(){stage.querySelectorAll('[data-wk]').forEach(a=>a.onclick=e=>{e.preventDefault();const[c,w]=a.dataset.wk.split("|");prWeek={cert:c,week:+w};if(prGame==="cards"){prDeck=buildDeck(c,+w);prPos=0;prFlip=false;}if(prGame==="match")newMatch();render();});}
+
+function renderCards(picker){
+  const card=prDeck[prPos];
+  const shaky=(S.fcShaky||{})[card.name];
+  stage.innerHTML=`${picker}
+    <button class="btn ghost" id="prBack" style="margin-bottom:10px">← practice menu</button>
+    <div class="scorebar"><span>Card ${prPos+1}/${prDeck.length}</span><span>${prWeek.cert} · Week ${prWeek.week}</span></div>
+    <div class="flashcard ${prFlip?'flipped':''}" id="fc">
+      ${prFlip?`<div class="fc-def"><b>${card.name}</b>${shaky?' <span style="color:var(--amber);font-family:var(--mono);font-size:10px">↻ SHAKY</span>':''}<div style="margin-top:8px">${card.def}</div><div class="eli5" style="margin-top:10px"><b>LIKE YOU'RE NEW ▸</b> ${card.eli5}</div></div>`
+              :`<div class="fc-term">${card.name}</div><div class="fc-hint">tap to reveal${shaky?' · ↻ shaky card':''}</div>`}
+    </div>
+    ${prFlip?`<div class="backup-row">
+      <button class="backup-btn" id="fcGot" style="border-color:#1d4427;color:var(--green)">✓ got it</button>
+      <button class="backup-btn" id="fcShaky2" style="border-color:#4a3a10;color:var(--amber)">↻ shaky — bring it back</button>
+    </div>`:''}
+    <div class="backup-row">
+      <button class="backup-btn" id="fcPrev" ${prPos===0?'disabled':''}>← prev</button>
+      <button class="backup-btn" id="fcFlip">${prFlip?'hide':'reveal'}</button>
+      <button class="backup-btn" id="fcNext">${prPos>=prDeck.length-1?'restart ↻':'next →'}</button>
+    </div>
+    <button class="btn ghost" id="fcShuffle" style="width:100%;margin-top:10px">🔀 shuffle deck</button>`;
+  wirePicker();
+  document.getElementById('prBack').onclick=()=>{prGame=null;render();};
+  document.getElementById('fc').onclick=()=>{prFlip=!prFlip;render();};
+  document.getElementById('fcFlip').onclick=()=>{prFlip=!prFlip;render();};
+  const pv=document.getElementById('fcPrev');if(!pv.disabled)pv.onclick=()=>{prPos--;prFlip=false;render();};
+  const advance=()=>{prPos=(prPos>=prDeck.length-1)?0:prPos+1;prFlip=false;render();};
+  document.getElementById('fcNext').onclick=advance;
+  document.getElementById('fcShuffle').onclick=()=>{prDeck=buildDeck(prWeek.cert,prWeek.week);prPos=0;prFlip=false;render();};
+  const g=document.getElementById('fcGot'),sk=document.getElementById('fcShaky2');
+  if(g)g.onclick=()=>{S.fcShaky=S.fcShaky||{};if(S.fcShaky[card.name]){delete S.fcShaky[card.name];}saveState();advance();};
+  if(sk)sk.onclick=()=>{
+    S.fcShaky=S.fcShaky||{};S.fcShaky[card.name]=(S.fcShaky[card.name]||0)+1;saveState();
+    // re-queue a copy of this card ~3 positions ahead in the current deck
+    const at=Math.min(prPos+3,prDeck.length);prDeck=prDeck.slice();prDeck.splice(at,0,card);
+    advance();
+  };
+}
+
+function newMatch(){
+  const pool=shuffle(weekTerms(prWeek.cert,prWeek.week)).slice(0,6);
+  prMatch={pairs:pool,terms:shuffle(pool.map((p,i)=>({i,txt:p.name}))),defs:shuffle(pool.map((p,i)=>({i,txt:p.def}))),
+           solved:{},selT:null,selD:null,misses:0};
+}
+function renderMatch(picker){
+  const m=prMatch;const doneCount=Object.keys(m.solved).length;
+  const won=doneCount===m.pairs.length;
+  stage.innerHTML=`${picker}
+    <button class="btn ghost" id="prBack" style="margin-bottom:10px">← practice menu</button>
+    <div class="scorebar"><span>Matched ${doneCount}/${m.pairs.length}</span><span class="no">misses: ${m.misses}</span></div>
+    ${won?`<div class="banner ok"><span class="ic">✓</span><div><b>Board cleared with ${m.misses} miss${m.misses===1?'':'es'}.</b> ${m.misses===0?'Perfect round — you own these terms.':'Run it back and aim for zero.'}</div></div>
+      <button class="btn primary" id="mAgain" style="width:100%">↻ new round</button>`
+    :`<div class="match-grid">
+        <div class="match-col">${m.terms.map((t,k)=>`<button class="mcell term-c ${m.solved[t.i]?'ok':''} ${m.selT===k?'sel':''}" data-t="${k}" ${m.solved[t.i]?'disabled':''}>${t.txt}</button>`).join('')}</div>
+        <div class="match-col">${m.defs.map((d,k)=>`<button class="mcell def-c ${m.solved[d.i]?'ok':''} ${m.selD===k?'sel':''}" data-d="${k}" ${m.solved[d.i]?'disabled':''}>${d.txt}</button>`).join('')}</div>
+      </div>
+      <div class="mini" style="margin-top:10px">Tap a term, then tap the definition it belongs to.</div>`}`;
+  wirePicker();
+  document.getElementById('prBack').onclick=()=>{prGame=null;render();};
+  const again=document.getElementById('mAgain');if(again)again.onclick=()=>{newMatch();render();};
+  function tryResolve(){
+    if(m.selT===null||m.selD===null)return false;
+    const t=m.terms[m.selT],d=m.defs[m.selD];
+    if(t.i===d.i){m.solved[t.i]=true;}else{m.misses++;}
+    m.selT=null;m.selD=null;render();return true;
+  }
+  stage.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{m.selT=(m.selT===+b.dataset.t)?null:+b.dataset.t;if(!tryResolve())render();});
+  stage.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{m.selD=(m.selD===+b.dataset.d)?null:+b.dataset.d;if(!tryResolve())render();});
+}
+
+/* -------- SUBNETTING DRILL (infinite generated problems) -------- */
+let snQ=null;
+function snInfo(c){const hostBits=32-c,total=2**hostBits;return{hostBits,total,usable:total-2,maskEnd:256-total,block:total};}
+function newSubnetQ(){
+  const r=n=>Math.floor(Math.random()*n);
+  const cidrs=[25,26,27,28,29,30];
+  const c=cidrs[r(cidrs.length)],inf=snInfo(c);
+  const base=`192.168.${1+r(20)}`;
+  const h=1+r(254);
+  const net=Math.floor(h/inf.block)*inf.block, bc=net+inf.block-1;
+  const type=r(5);
+  const uniq=a=>[...new Set(a)];
+  let q;
+  if(type===0){ // usable hosts
+    const opts=uniq([inf.usable,inf.total,snInfo(c-1).usable,snInfo(Math.min(c+1,30)).usable,14,6].filter(x=>x>0)).slice(0,4);
+    q={s:`How many USABLE hosts does a /${c} subnet provide?`,o:shuffle(opts.map(String)),a:String(inf.usable),
+       e:`/${c} leaves ${inf.hostBits} host bits → 2^${inf.hostBits} = ${inf.total} total addresses, minus 2 (network + broadcast) = <b>${inf.usable} usable</b>.`};
+  }else if(type===1){ // network address
+    const opts=uniq([`${base}.${net}`,`${base}.${bc}`,`${base}.${Math.max(net-inf.block,0)}`,`${base}.${Math.min(net+inf.block,256-inf.block)}`]).slice(0,4);
+    q={s:`What is the NETWORK address for ${base}.${h}/${c}?`,o:shuffle(opts),a:`${base}.${net}`,
+       e:`Magic number: 256 − ${inf.maskEnd} = <b>${inf.block}</b>. Blocks start every ${inf.block}: host .${h} falls in the block starting at <b>.${net}</b> — that's the network address. (Broadcast is .${bc}.)`};
+  }else if(type===2){ // broadcast
+    const opts=uniq([`${base}.${bc}`,`${base}.${net}`,`${base}.${Math.min(bc+inf.block,255)}`,`${base}.${net+1}`]).slice(0,4);
+    q={s:`What is the BROADCAST address for ${base}.${h}/${c}?`,o:shuffle(opts),a:`${base}.${bc}`,
+       e:`Block size ${inf.block} → this block runs .${net} to .${bc}. The LAST address in the block, <b>.${bc}</b>, is the broadcast. Usable hosts are .${net+1}–.${bc-1}.`};
+  }else if(type===3){ // same subnet?
+    const h2=1+r(254);
+    const net2=Math.floor(h2/inf.block)*inf.block, same=net2===net;
+    q={s:`Are ${base}.${h}/${c} and ${base}.${h2}/${c} in the SAME subnet?`,o:["Yes — same subnet","No — different subnets"],a:same?"Yes — same subnet":"No — different subnets",
+       e:`Block size ${inf.block}. Host .${h} is in the .${net} block (${net}–${bc}); host .${h2} is in the .${net2} block (${net2}–${net2+inf.block-1}). ${same?'Same block → <b>same subnet</b> — they can talk directly.':'Different blocks → <b>different subnets</b> — traffic between them must go through the router.'}`};
+  }else{ // smallest prefix for N hosts
+    const needs=[2,6,14,25,30,50,60,100,120];const n=needs[r(needs.length)];
+    let ans=30;for(let cc=30;cc>=24;cc--){if(snInfo(cc).usable>=n){ans=cc;break;}}
+    const opts=uniq(["/"+ans,"/"+(ans-1),"/"+(ans+1),"/"+(ans-2)].filter(x=>{const v=+x.slice(1);return v>=24&&v<=30;})).slice(0,4);
+    q={s:`What's the SMALLEST subnet (largest /prefix) that supports at least ${n} usable hosts?`,o:shuffle(opts),a:"/"+ans,
+       e:`Need 2^h − 2 ≥ ${n}. /${ans} gives ${snInfo(ans).usable} usable ✓ while /${ans+1<=30?ans+1:30} gives only ${snInfo(Math.min(ans+1,30)).usable} ✗. Prefix = 32 − ${32-ans} host bits = <b>/${ans}</b>.`};
+  }
+  snQ=Object.assign(q,{picked:null});
+  if(window.__snScore===undefined)window.__snScore={ok:0,tot:0};
+}
+function renderSubnetDrill(){
+  const sc=window.__snScore||{ok:0,tot:0};
+  stage.innerHTML=`
+    <button class="btn ghost" id="prBack" style="margin-bottom:10px">← practice menu</button>
+    <div class="scorebar"><span>Subnet drill</span><span class="ok">✓ ${sc.ok}</span><span>· ${sc.tot} attempted</span></div>
+    <div class="quiz-stem">${snQ.s}</div>
+    <div id="opts">${snQ.o.map((o,i)=>{
+      let cls="opt";if(snQ.picked!==null){if(o===snQ.a)cls+=" correct";else if(i===snQ.picked)cls+=" wrong";}
+      return `<button class="${cls}" data-i="${i}" ${snQ.picked!==null?'disabled':''}><span class="ltr">${String.fromCharCode(65+i)}</span>${o}</button>`;}).join('')}</div>
+    ${snQ.picked!==null?`<div class="explain show"><b>How to work it:</b> ${snQ.e}</div>
+      <button class="btn primary" id="snNext" style="width:100%;margin-top:10px">next problem →</button>`:''}
+    <div class="mini" style="margin-top:10px">Stuck? The <b>DEEP DIVE → Subnetting</b> section teaches the magic-number method these explanations use.</div>`;
+  document.getElementById('prBack').onclick=()=>{prGame=null;render();};
+  stage.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+    if(snQ.picked!==null)return;
+    snQ.picked=+b.dataset.i;
+    window.__snScore.tot++;if(snQ.o[snQ.picked]===snQ.a)window.__snScore.ok++;
+    render();
+  });
+  const nx=document.getElementById('snNext');if(nx)nx.onclick=()=>{newSubnetQ();render();};
+}
+
+/* -------- PORTS SPEED-DRILL -------- */
+const PORTS=[[20,"FTP (data)"],[21,"FTP (control)"],[22,"SSH / SFTP"],[23,"Telnet"],[25,"SMTP"],[53,"DNS"],[67,"DHCP (server)"],[68,"DHCP (client)"],[80,"HTTP"],[110,"POP3"],[123,"NTP"],[143,"IMAP"],[161,"SNMP"],[389,"LDAP"],[443,"HTTPS"],[445,"SMB"],[587,"SMTP (secure submission)"],[993,"IMAPS"],[995,"POP3S"],[3389,"RDP"]];
+let ptQ=null;
+function newPortQ(){
+  const r=n=>Math.floor(Math.random()*n);
+  const pick=PORTS[r(PORTS.length)];
+  const askPort=Math.random()<.5; // true: show service, pick port
+  let distract=shuffle(PORTS.filter(p=>p[0]!==pick[0])).slice(0,3);
+  const opts=shuffle([pick,...distract]);
+  ptQ={askPort,pick,opts,picked:null};
+}
+function renderPortsDrill(){
+  const st=window.__portStreak||0;
+  stage.innerHTML=`
+    <button class="btn ghost" id="prBack" style="margin-bottom:10px">← practice menu</button>
+    <div class="scorebar"><span>Ports drill</span><span class="ok">🔥 streak: ${st}</span><span>· best: ${S.portsBest||0}</span></div>
+    <div class="quiz-stem">${ptQ.askPort?`Which PORT does <b>${ptQ.pick[1]}</b> use?`:`Port <b>${ptQ.pick[0]}</b> belongs to which service?`}</div>
+    <div id="opts">${ptQ.opts.map((p,i)=>{
+      const label=ptQ.askPort?String(p[0]):p[1];
+      let cls="opt";if(ptQ.picked!==null){if(p[0]===ptQ.pick[0])cls+=" correct";else if(i===ptQ.picked)cls+=" wrong";}
+      return `<button class="${cls}" data-i="${i}" ${ptQ.picked!==null?'disabled':''}><span class="ltr">${String.fromCharCode(65+i)}</span>${label}</button>`;}).join('')}</div>
+    ${ptQ.picked!==null?`<div class="explain show"><b>${ptQ.pick[1]} = port ${ptQ.pick[0]}.</b> ${ptQ.opts[ptQ.picked][0]===ptQ.pick[0]?'Locked in.':'Streak reset — every rep still counts.'}</div>
+      <button class="btn primary" id="ptNext" style="width:100%;margin-top:10px">next →</button>`:''}`;
+  document.getElementById('prBack').onclick=()=>{prGame=null;render();};
+  stage.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+    if(ptQ.picked!==null)return;
+    ptQ.picked=+b.dataset.i;
+    if(ptQ.opts[ptQ.picked][0]===ptQ.pick[0]){window.__portStreak=(window.__portStreak||0)+1;
+      if(window.__portStreak>(S.portsBest||0)){S.portsBest=window.__portStreak;saveState();}}
+    else window.__portStreak=0;
+    render();
+  });
+  const nx=document.getElementById('ptNext');if(nx)nx.onclick=()=>{newPortQ();render();};
 }
 
 /* -------- REVIEW (mistakes re-drill) -------- */

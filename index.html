@@ -189,9 +189,9 @@
 <body>
 <div class="wrap">
   <header>
-    <div class="brand"><span class="blink"></span> soc_path // exam_grade.v3</div>
+    <div class="brand"><span class="blink"></span> soc_path // exam_grade.v4</div>
     <h1>Daily <span class="arrow">→</span> Trainer</h1>
-    <div class="sub">A+ → Network+ → Security+ · exam-mapped · beginner-built</div>
+    <div class="sub">A+ → Network+ → Security+ · + Google IT Support · exam-mapped · beginner-built</div>
     <div class="pacebar">
       <span class="lbl">PACE</span>
       <div class="pace-opts" id="paceOpts">
@@ -210,6 +210,7 @@
     <button class="mode-btn" data-mode="review">REVIEW</button>
     <button class="mode-btn" data-mode="week">WEEK</button>
     <button class="mode-btn" data-mode="practice">PRACTICE</button>
+    <button class="mode-btn" data-mode="google">GOOGLE IT</button>
     <button class="mode-btn" data-mode="deep">DEEP DIVE</button>
     <button class="mode-btn" data-mode="vm">LABS</button>
     <button class="mode-btn" data-mode="playbook">SOC ROLE</button>
@@ -2064,10 +2065,331 @@ const VM_GUIDES=[
 ];
 
 /* ====================================================================
+   GOOGLE IT SUPPORT — COURSE 1: TECHNICAL SUPPORT FUNDAMENTALS
+   Cards transcribed from Kingsley's fact-checked printable flashcards.
+   C(term,def) = main card · X(term,def) = bonus term · P(question,answer,detail) = point-out
+   map = CURRICULUM indexes that cover the same ground (crosswalk)
+==================================================================== */
+function C(t,d){return{k:"m",t,d};}
+function X(t,d){return{k:"b",t,d};}
+function P(t,a,d){return{k:"p",t,a,d};}
+const GIT_MODULES=[
+{m:1,title:"Introduction to IT",focus:"What IT support is, the people who built computing, binary, character encoding, and the four layers of a computer.",map:[0,5],
+ cards:[
+  C("Information Technology (IT)","Using technology, like computers and the internet, to store and process data into useful information."),
+  C("IT Support Roles","The five parts of the job: Managing, Installing, Maintaining, Troubleshooting, and Configuring."),
+  C("Computer","A device that stores and processes data by performing calculations."),
+  C("Charles Babbage","Designed the Difference Engine (1820s) and the Analytical Engine (1837), an early general-purpose computer designed to read punch cards. He did not invent punch cards."),
+  C("Algorithm","A series of steps that solves a specific problem."),
+  C("Compiler","A program that translates code written in a human-readable programming language into machine code the computer can run."),
+  C("Grace Hopper","Made the first compiler, called A-0, in 1952. Her later work led to COBOL, one of the first widely used programming languages."),
+  C("Linux","A widely used open-source operating system, released by Linus Torvalds in 1991."),
+  C("PDA","Personal Digital Assistant. An early handheld computer, like the Palm Pilot, and a predecessor of the smartphone."),
+  C("Ada Lovelace","Published notes in 1843 containing the first computer algorithm, written for Babbage's Analytical Engine. Often called the first computer programmer."),
+  C("Alan Turing","Created the Turing machine (1936). Co-created the Turing–Welchman Bombe, which helped crack Nazi Enigma messages in World War II."),
+  C("Margaret Hamilton","Led the team that wrote the onboard flight software for NASA's Apollo missions, including Apollo 11 (1969). Early at MIT, she wrote weather-prediction software."),
+  C("Binary","The number system computers use to communicate and store data. It is base-2 and uses only 1s and 0s."),
+  C("Base-2","A number system that uses only two digits, 0 and 1. Also called binary."),
+  C("Bit","Short for binary digit. A single 1 or 0, and the smallest unit of data."),
+  C("Byte","A group of 8 bits. One byte has 256 possible values (0–255)."),
+  C("Character Encoding","Assigns binary values to characters so that humans can read them."),
+  C("ASCII","American Standard Code for Information Interchange. A character encoding for the English alphabet, digits 0–9, and punctuation marks."),
+  C("UTF-8","A character encoding that stores each character in 1 to 4 bytes, so it can represent far more characters than ASCII."),
+  C("Abstraction","Taking a complex system and simplifying it for our use. It hides the complicated parts behind a simple, common interface."),
+  C("Computer Architecture","The layers that make up a computer and how they work together: hardware, operating system, software, and user."),
+  C("Hardware Layer","The physical parts of a computer you can touch, such as the CPU, RAM, and hard drive."),
+  C("Operating System (OS) Layer","Lets the hardware communicate with the system. The OS manages the hardware and lets programs use it. Examples: Windows, macOS, Linux."),
+  C("Software Layer","How we humans interact with the computer, through programs and applications."),
+  C("User Layer","The person who interacts with the computer. It's the most important layer, also called the human element."),
+  X("Analytical Engine","A general-purpose mechanical computer designed by Charles Babbage in the 1830s. It was never fully built. Ada Lovelace wrote the first algorithm for it."),
+  X("Configuring","Setting up a system's settings and options so it works the way it should."),
+  X("Troubleshooting","Finding and fixing the cause of a technical problem."),
+  X("Interface","The point where a user and a system, or two systems, meet and interact. Examples: a steering wheel, a keyboard, a touchscreen."),
+  X("Open Source","Software whose source code is public, so anyone can view, change, and share it."),
+  X("Programming Language","A special language people use to write instructions for a computer, such as Python or C."),
+  X("Turing Machine","A theoretical machine Alan Turing described in 1936. In principle, it can carry out any calculation a modern computer can. The foundation of computer science."),
+  X("Unicode","The worldwide standard that gives a number to almost every character in every written language, plus emoji. UTF-8 is the most common way to store it."),
+  P("Lowercase “a” in ASCII binary","01100001","Decimal 97 (64 + 32 + 1). Uppercase “A” is 65."),
+  P("Max value of one byte","255","Zero counts as a value, so a byte holds 256 values in total (2^8 = 256)."),
+  P("01101000 in decimal","104","64 + 32 + 8 = 104, which is the letter “h” in ASCII."),
+  P("45 in binary","00101101","32 + 8 + 4 + 1 = 45"),
+  P("Bytes per character in UTF-8","1 to 4 bytes","The first 128 characters match ASCII and use 1 byte."),
+  P("The 4 architecture layers, bottom to top","Hardware → Operating System → Software → User",""),
+  P("Who first used punch cards to run a machine?","Joseph Marie Jacquard","On a weaving loom in the early 1800s. Babbage later designed the Analytical Engine to read them."),
+ ]},
+{m:2,title:"Hardware",focus:"Inside the box: CPU, RAM, buses, motherboard, storage, ports and cables, power, mobile devices, and the startup sequence.",map:[0,1,2,3,15,16,17,18,28],
+ cards:[
+  C("Address Bus","Connects the CPU to the MCC (memory controller chip) and sends over the location of the data, but not the data itself."),
+  C("ATA","Advanced Technology Attachment. The interface standard hard drives use to connect to the system. SATA (Serial ATA) is the modern version used today."),
+  C("ATX (Advanced Technology eXtended)","The most common form factor for motherboards."),
+  C("Backward Compatible","Newer hardware or software still works with older versions. Example: a USB 3.0 port still accepts a USB 2.0 device."),
+  C("BIOS (Basic Input/Output System)","Software that helps initialize the hardware in our computer and gets our operating system up and running. It's stored on a ROM chip on the motherboard."),
+  C("BYOD (Bring Your Own Device)","The practice of allowing people to use their own personal devices for work."),
+  C("Cache","A storage location for recently or frequently accessed data, so it can be reached faster. On a mobile app, it's where anything changed or created with that app is stored."),
+  C("Charge Cycle","One full charge and discharge of a battery."),
+  C("Chipset","Decides how components talk to each other on our machine. Traditionally made up of the northbridge and southbridge."),
+  C("Clock Cycle","One pulse of voltage sent to the clock wire."),
+  C("Clock Speed","The maximum number of clock cycles a CPU can handle in a set amount of time. Measured in hertz, usually gigahertz (GHz)."),
+  C("Clock Wire","When you send or receive data, a voltage is sent to the clock wire to let the CPU know it can start doing calculations."),
+  C("CPU","Central Processing Unit. The “brain” of the computer that runs instructions and performs calculations."),
+  C("CPU Socket","A series of pins that connects the CPU to the motherboard."),
+  C("Data Sizes","Units that measure amounts of data, including bit, byte, kilobyte, kibibyte, and megabyte."),
+  C("DDR SDRAM (Double Data Rate SDRAM)","A type of RAM that is faster, uses less power, and has a larger capacity than earlier SDRAM versions."),
+  C("Desktop","The main screen where we can navigate our files, folders, and applications."),
+  C("DIMM","Dual Inline Memory Module. The stick of RAM that plugs into the motherboard."),
+  C("DisplayPort","A port that outputs both audio and video."),
+  C("DRAM","Dynamic Random Access Memory. The type of RAM used in most computers."),
+  C("Drivers","Contain the instructions our CPU needs to understand external devices like keyboards, webcams, and printers."),
+  C("DVI","A cable that generally outputs video only, no audio."),
+  C("Electrostatic Discharge (ESD)","A sudden, momentary flow of electric current between two electrically charged objects, caused by contact, an electrical short, or dielectric breakdown. It can damage computer parts."),
+  C("External Data Bus (EDB)","A row of wires that interconnects the parts of our computer and carries the actual data."),
+  C("Factory Reset","Resetting a device to the settings it came with from the factory."),
+  C("Form Factor","The size, shape, and layout of a hardware component. Example: ATX and ITX are motherboard form factors."),
+  C("Hard Drive","A long-term storage component that holds all of our data, including music, pictures, and applications."),
+  C("Hardware","The physical devices and equipment, internal or external, that make up a computer and help it perform its functions."),
+  C("HDD (Hard Disk Drive)","Uses a spinning platter and a mechanical arm to read and write information."),
+  C("HDMI","A type of cable that outputs both video and audio."),
+  C("Heat Sink","Used to dissipate heat from our CPU."),
+  C("Instruction Set","A list of instructions that our CPU is able to run."),
+  C("ITX (Information Technology eXtended)","A form factor for motherboards that is much smaller than ATX boards."),
+  C("LGA (Land Grid Array)","A type of CPU socket where the pins stick out of the motherboard. The CPU has flat contacts instead of pins."),
+  C("Lightning Connector","Apple's 8-pin, reversible power and data connector for iPhones and iPads. Apple has been replacing it with USB-C since the iPhone 15 (2023)."),
+  C("Mb/s","Megabits per second, a unit of data transfer rate. Note the small “b”: bits, not bytes."),
+  C("Memory Controller Chip (MCC)","A bridge between the CPU and the RAM."),
+  C("Micro DisplayPort","A tiny DisplayPort connector designed for mobile devices. Carries audio and video. Rare in practice; Mini DisplayPort is the common small version."),
+  C("Micro HDMI","The smallest HDMI connector (Type D), used on some phones, cameras, and tablets."),
+  C("Micro USB","A small, non-reversible USB connector for power and data, common on older Android phones."),
+  C("Mini HDMI","A smaller HDMI connector (Type C) than standard HDMI but bigger than Micro HDMI, used on cameras and tablets."),
+  C("Mini USB","An older USB connector, bigger than Micro USB, used on older cameras and MP3 players."),
+  C("Motherboard","The body or circulatory system of the computer that connects all the pieces together."),
+  C("Northbridge","Interconnects fast components like the RAM and video cards with the CPU. In modern CPUs, its job is built into the CPU itself."),
+  C("NVMe (NVM Express)","An interface standard that allows greater data throughput and efficiency. Used by fast SSDs that connect through PCI Express."),
+  C("Overclocking","Increases the rate of your CPU's clock cycles so it can perform more tasks. It also creates more heat."),
+  C("PCI Express (PCIe)","Peripheral Component Interconnect Express. The expansion bus and slots used for cards like graphics cards."),
+  C("Peripherals","External devices we connect to our computer that add functionality, like a mouse, a keyboard, and a monitor."),
+  C("PGA (Pin Grid Array)","A CPU socket type where the pins are located on the processor itself."),
+  C("Ports","Connection points we can plug devices into that extend the functionality of our computer."),
+  C("POST (Power-On Self-Test)","Runs when the computer starts up. It figures out what hardware is on the computer and checks that it works."),
+  C("Power Supply","Converts electricity from the wall outlet (AC) into a format our computer can use (DC)."),
+  C("Programs","Basic instructions that tell the computer what to do."),
+  C("RAM","Random Access Memory. Short-term memory that holds data the CPU is using right now. It's erased when the power is off."),
+  C("Registers","Small, very fast storage locations inside the CPU that hold the data it's working with."),
+  C("Reimaging","Wiping and reinstalling an operating system using a disk image, which is a copy of an operating system."),
+  C("RMA (Return Merchandise Authorization)","The approval process for returning a product for a repair, replacement, or refund."),
+  C("ROM Chip (Read-Only Memory)","A read-only memory chip where the BIOS is stored."),
+  C("RPM","Revolutions per minute. How fast an HDD's platter spins, for example 5,400 or 7,200 RPM. Faster means quicker reads and writes."),
+  C("Safe Operating Temperature","The temperature range rechargeable batteries must be kept in to avoid damage."),
+  C("SATA (Serial ATA)","The most common interface for connecting drives today. It uses one cable for data transfers (plus a separate power cable)."),
+  C("SDRAM","Synchronous DRAM. RAM that is synchronized to the system's clock speed, allowing quicker processing of data."),
+  C("SoC (System on a Chip)","Packs the CPU, RAM, and sometimes even the storage onto a single chip."),
+  C("Southbridge","Maintains our I/O (input/output) controllers, like hard drives and USB devices that input and output data."),
+  C("SSD","Solid State Drive. Stores data on flash memory chips with no moving parts, so it's much faster than an HDD."),
+  C("Standoffs","Used to raise and attach your motherboard to the case."),
+  C("Thermal Paste","A substance that better connects the CPU and heat sink, so heat transfers from one to the other more effectively."),
+  C("Type-C Connector","A reversible USB connector meant to replace many peripheral connections."),
+  C("UEFI","Unified Extensible Firmware Interface. The modern replacement for the BIOS."),
+  C("USB (Universal Serial Bus)","A connection standard for connecting peripherals to devices such as computers."),
+  C("USB-C Adapter","Converts a reversible USB-C port to other connectors. USB-C can carry power, data, and display signals."),
+  C("CMOS (Complementary Metal-Oxide Semiconductor)","Stores the BIOS settings, like the date, time, and boot order. A coin-cell CMOS battery keeps them saved when the computer is off."),
+  C("Expansion Slots","Slots on the motherboard that let you add cards, like a graphics card, to increase the computer's functionality. PCIe is the standard."),
+  C("Voltage","The force that pushes electricity through a circuit. Measured in volts (V)."),
+  C("Amperage (Amps)","The amount of electrical current flowing. Measured in amps (A). A device only pulls the amps it needs."),
+  C("Wattage","The total power a device uses. Watts = volts × amps. Example: 5 V × 2 A = 10 W."),
+  P("Kilobyte (KB) vs. Kibibyte (KiB)","1 KB = 1,000 bytes","1 KiB = 1,024 bytes (2^10). Kibi uses base-2."),
+  P("Mb/s vs. MB/s","8 bits = 1 byte","So 100 Mb/s (megabits) is about 12.5 MB/s (megabytes). Internet speeds use Mb/s."),
+  P("LGA vs. PGA: where are the pins?","LGA: on the motherboard","PGA: on the CPU."),
+  P("Northbridge vs. Southbridge","North = fast stuff","Northbridge connects RAM and video cards. Southbridge handles I/O like hard drives and USB."),
+  P("HDMI, DisplayPort, DVI: which carry audio?","HDMI and DisplayPort","DVI generally carries video only."),
+  P("Address bus vs. data bus (EDB)","Address = where, data = what","The address bus sends the location. The external data bus carries the data itself."),
+  P("What does BIOS stand for?","Basic Input/Output System","Not “Services.”"),
+  P("Is SATA a drive?","No, it's an interface","SATA is the connection standard drives use to plug into the motherboard."),
+  P("HDD vs. SSD","HDD: spinning platter","SSD: flash chips, no moving parts, faster and more durable."),
+  P("Startup order","Power on → BIOS/UEFI → POST → OS loads","The BIOS/UEFI runs POST to check the hardware, then hands off to the operating system."),
+  P("How do you prevent ESD?","Ground yourself","Wear an anti-static wrist strap, or touch an unpainted metal part of the case before handling components."),
+  P("SoC: two meanings","System on a Chip","In cybersecurity, SOC also means Security Operations Center, where SOC analysts work."),
+  P("L1 cache","Smallest and fastest","Each CPU core usually has its own. Holds the data the CPU is using right now."),
+  P("L2 cache","Middle size and speed","Each core usually has its own. Holds recently used data the CPU isn't using at the moment."),
+  P("L3 cache","Largest and slowest cache","Still often about twice as fast as RAM. Usually shared by all cores."),
+  P("USB 2.0: color and speed","Black port","480 Mb/s"),
+  P("USB 3.0: color and speed","Blue port","5 Gb/s"),
+  P("USB 3.1: color and speed","Teal port","10 Gb/s"),
+  P("USB4 speed","Up to 40 Gb/s","Uses the Thunderbolt 3 protocol and USB-C cables."),
+  P("How fast is USB-C?","It depends","USB-C is a connector shape. Its speed depends on the standard behind it, from 480 Mb/s up to 40 Gb/s."),
+  P("CMOS vs. ROM","ROM holds the BIOS","CMOS holds the BIOS settings (date, time, boot order), kept alive by a coin battery."),
+  P("RAM vs. ROM: which is volatile?","RAM is volatile","RAM loses its data when the power is off. ROM is non-volatile and keeps it."),
+ ]},
+{m:3,title:"Operating System",focus:"What the kernel does, file systems, process and memory management, the boot chain, shells, remote access, and virtual machines.",map:[5,6,7,8,20,23],
+ cards:[
+  C("Android","A mobile operating system based on Linux."),
+  C("Application","A computer program designed for a specific use."),
+  C("BIOS/UEFI","Low-level software that initializes the computer's hardware to make sure everything is good to go before the OS loads."),
+  C("Block Storage","Stores data in blocks instead of one long piece, so it can be read and written more quickly."),
+  C("Boot","To start up a computer."),
+  C("Bootloader","A small program that loads the operating system."),
+  C("ChromeOS","A Linux-based operating system designed by Google."),
+  C("Command Line Interface (CLI)","A shell that uses text commands to interact with the operating system."),
+  C("Computer File","Data that we store. A file can be anything: a Word document, a picture, a song."),
+  C("Data Blocks","Data broken down into many pieces and written to different parts of the hard disk."),
+  C("Distributions (Distros)","Different versions of Linux, each built on the Linux kernel with its own software and tools. Common ones: Ubuntu, Debian, and Red Hat."),
+  C("Etcher","A tool (balenaEtcher, from etcher.io) that loads an install image onto a USB drive and makes it bootable."),
+  C("File Extension","The end of a filename that tells us what type of file it is, like .docx, .jpg, or .mp3."),
+  C("File Handling","How the OS and programs create, open, read, write, and delete files."),
+  C("File System","A system used to manage files. Examples: NTFS (Windows), APFS (macOS), ext4 (Linux)."),
+  C("Finder","The file manager on every Mac."),
+  C("Folders/Directories","Used to organize files."),
+  C("Hardware Resource Deficiency","A lack of system resources, like memory or hard drive space."),
+  C("HFS+/APFS","Apple's journaling file systems. HFS+ is the older one. APFS replaced it in 2017, is built for SSDs, and has stronger built-in encryption."),
+  C("Hostname","A name used to identify a computer when it talks to other computers."),
+  C("Input/Output (I/O) Device","A device that performs input or output, like monitors, keyboards, mice, hard drives, speakers, Bluetooth headsets, webcams, and network adapters."),
+  C("Install Image","A downloadable copy of an operating system used to install it on a device. Often an .iso file."),
+  C("I/O Management","How the kernel manages communication between the computer and its input and output devices."),
+  C("iOS","A mobile operating system developed by Apple."),
+  C("Kernel","The core of the operating system. It talks directly to the hardware and manages processes, memory, files, and I/O."),
+  C("Logs","Files that record system events on our computer."),
+  C("macOS","Apple's operating system for Mac computers."),
+  C("Memory Management","A kernel function that optimizes memory usage and makes sure applications have enough memory to run."),
+  C("Metadata","Tells us everything about a file: who created it, when it was last modified, who has access, and what type of file it is."),
+  C("Microsoft Terminal Services Client","A Windows program (mstsc.exe) used to create RDP connections to remote computers."),
+  C("OpenSSH","The most popular program for using SSH on Linux."),
+  C("Operating System","The whole package that manages a computer's resources and lets us interact with it."),
+  C("PC","Personal computer, which technically means a computer that one person uses."),
+  C("Plink (PuTTY Link)","A command-line tool that comes with PuTTY, used to make remote SSH connections."),
+  C("PowerShell","A shell (a program that interprets text commands) for Windows."),
+  C("Power User","An above-average computer user."),
+  C("Process Management","Managing the many programs on a system: when they run, in what order, how many resources they use, and how long they run."),
+  C("Qwiklabs","An online platform with hands-on labs in real cloud environments. Now part of Google Cloud Skills Boost."),
+  C("Remote Connection","Lets an authorized person connect to a computer or network from somewhere else, so you can manage machines from anywhere."),
+  C("Remote Desktop Protocol (RDP)","A secure protocol developed by Microsoft that lets a user connect to and control another computer's desktop remotely."),
+  C("Scalability","A system's ability to increase or decrease performance and cost as processing demands change."),
+  C("Shell","A program that interprets text commands and sends them to the OS to execute."),
+  C("SSH (Secure Shell)","A protocol that programs use to securely access one computer from another."),
+  C("SSH Authentication Key","A secure way to log in over SSH using a key pair: a public key on the server and a private key kept on your device."),
+  C("SSH Client","A program you install on your device to make an SSH connection to another device."),
+  C("SSH Server","Software installed on a machine that lets it accept SSH connections."),
+  C("Standardization","Developing and using common technical standards for IT products, systems, and processes."),
+  C("Swap Space","Space on the hard drive used as virtual memory when the physical memory (RAM) is full."),
+  C("System","A group of hardware and software components that work together to run programs or processes."),
+  C("System Settings","Settings like display resolution, user accounts, network, and devices."),
+  C("Taskbar","Gives quick options and shows info like network connection, the date, notifications, and sound."),
+  C("Terminal","A text-based interface to the computer."),
+  C("Time Slice","A very short interval of time given to a process to run on the CPU."),
+  C("Ubuntu","The most popular consumer Linux distribution."),
+  C("Username","A unique identifier for a user account."),
+  C("User Space","The part of the OS that humans interact with directly, like text editors, music players, system settings, and user interfaces."),
+  C("VirtualBox","An application that runs other operating systems, like Linux, as virtual machines completely isolated from your main system."),
+  C("Virtual Machine (VM)","A computer that runs as software inside your real one. It uses the physical computer's CPU, memory, and storage, so you can run several operating systems at once."),
+  C("Virtual Memory","A combination of hard drive space and RAM that acts like memory our processes can use."),
+  C("VPN (Virtual Private Network)","A secure way to connect a device to a private network over the internet."),
+  P("Terminal vs. shell vs. CLI","Window, interpreter, method","The terminal is the window you type in. The shell interprets your commands. The CLI is the text-command way of using a computer."),
+  P("Kernel vs. user space","Kernel = the core","The kernel works with the hardware behind the scenes. User space is everything you interact with directly."),
+  P("SSH client vs. SSH server","Client connects, server accepts","The client is on your device. The server is on the machine you're connecting to."),
+  P("RDP vs. SSH","RDP = desktop, SSH = commands","RDP shows you the remote computer's full desktop (mainly Windows). SSH gives you a secure command line (mainly Linux)."),
+  P("Swap space vs. virtual memory","Swap is part of virtual memory","Virtual memory = RAM + swap. Swap is the hard-drive part used when RAM fills up."),
+  P("VirtualBox vs. a VM","Software vs. the computer it runs","VirtualBox is the program. A VM is the virtual computer running inside it."),
+  P("Which file system goes with which OS?","NTFS: Windows","APFS: macOS. ext4: Linux."),
+  P("HFS+ vs. APFS","APFS is the newer one","APFS replaced HFS+ in 2017. It's built for SSDs and has stronger encryption."),
+  P("Name 3 Linux-based operating systems","Android, ChromeOS, Ubuntu","macOS and iOS are Unix-based, but not Linux."),
+  P("Startup order (full chain)","Power on → BIOS/UEFI → POST → bootloader → kernel → user space",""),
+  P("Why do many programs seem to run at once?","Time slices","The CPU switches between processes so fast, giving each a tiny time slice, that they look like they run at the same time."),
+ ]},
+{m:4,title:"Networking",focus:"How the internet came to be, the devices that move data, IP vs MAC, DNS, TCP, NAT, and why patching matters.",map:[10,11,12,13,30,32,33],
+ cards:[
+  C("ARPANET","The earliest version of the internet we use today. Created in the late 1960s by DARPA, a US Department of Defense agency."),
+  C("COPPA (Children's Online Privacy Protection Act)","A US law that regulates how websites and online services collect personal information from children under 13."),
+  C("Client","A device that requests and receives data from a server."),
+  C("DARPA","Defense Advanced Research Projects Agency. A US Department of Defense agency that, in the 1960s, created ARPANET, the earliest version of the internet."),
+  C("Domain Name","A website's name, like google.com. It's the part of the URL after “www.”"),
+  C("DNS (Domain Name System)","A global, highly distributed network service that turns a website name into an IP address."),
+  C("Ethernet Cable","Lets you physically connect to a network through a cable."),
+  C("Fiber Optic Cable","Contains glass fibers about as thin as a human hair. Instead of electrical voltages like copper, it uses pulses of light to send the 1s and 0s of data."),
+  C("Globalization","The movement that lets governments, businesses, and organizations communicate and work together on an international scale."),
+  C("Hub","A device that serves as a central point that data travels through. It sends data to every connected device, not just the one it's meant for."),
+  C("Internet","A worldwide system of interconnected networks."),
+  C("ICANN","Internet Corporation for Assigned Names and Numbers. Manages the domain name system and IP addresses worldwide. You register a website name through a registrar ICANN approves."),
+  C("IoT (Internet of Things)","The idea that more and more everyday devices connect to the internet, like a smart thermostat that turns off the AC when you leave and back on when you return."),
+  C("IPv4","An IP address made of 32 bits, split into four groups of 8, like 192.168.1.1. That allows about 4.3 billion addresses."),
+  C("IPv6","An IP address made of 128 bits, four times as many bits as IPv4. Written as eight groups of hexadecimal, it allows vastly more addresses."),
+  C("ISP (Internet Service Provider)","A company that provides internet connections to customers."),
+  C("IP Address","A numerical label assigned to each device on a network that uses the Internet Protocol to communicate."),
+  C("MAC Address","A globally unique, 48-bit identifier attached to a network interface. Written as six groups of two hexadecimal numbers."),
+  C("Network","Computers and devices connected so they can communicate."),
+  C("NAT (Network Address Translation)","Lets an organization use one public IP address for many private IP addresses inside its network. It helps with the shortage of IPv4 addresses."),
+  C("Networking","Managing, building, and designing networks."),
+  C("Networking Protocols","A set of rules for how data is transferred over a network."),
+  C("Network Stack","The layers of protocols and software (like the TCP/IP model) that work together to send and receive data over a network."),
+  C("Router","A device that knows how to forward data between independent networks."),
+  C("Server Logs","Text files that record the activity on a specific web server over a period of time."),
+  C("Server","A device that provides data to other devices, called clients, that request it."),
+  C("Switch","A device that connects devices on the same network and sends data only to the device it's meant for, using MAC addresses."),
+  C("TCP (Transmission Control Protocol)","Handles reliable delivery of data. It makes sure data arrives complete and in order, and resends anything that gets lost."),
+  C("URL (Uniform Resource Locator)","A web address, similar to a home address. Example: https://www.google.com"),
+  C("WannaCry Attack","A 2017 ransomware attack that hit Europe hard first and infected hundreds of thousands of computers worldwide. It spread through unpatched Windows machines."),
+  C("Wi-Fi (Wireless Networking)","Networks you connect to through radio waves and antennas instead of cables."),
+  C("World Wide Web (WWW)","The information system that lets web pages and other resources be accessed over the internet."),
+  P("Internet vs. World Wide Web","Roads vs. what's on them","The internet is the network of networks. The web is one service that runs on it, alongside email, streaming, and more."),
+  P("Hub vs. switch vs. router","Hub: sends to everyone","Switch: sends to the right device on your network. Router: sends data between different networks."),
+  P("IP address vs. MAC address","IP can change, MAC stays","An IP address is assigned by the network. A MAC address is built into the network hardware."),
+  P("What does DNS do when you type a URL?","Name → IP address","DNS looks up the website name and returns its IP address so your computer can connect."),
+  P("Copper vs. fiber","Electricity vs. light","Copper cables send data as electrical voltages. Fiber sends pulses of light."),
+  P("How many IPv4 addresses are there?","About 4.3 billion (2^32)","Not enough for every device, which is why NAT and IPv6 exist."),
+  P("IPv4 vs. IPv6: what do they look like?","IPv4: 192.168.1.1","IPv6: 2001:0db8:85a3:0000:0000:8a2e:0370:7334"),
+  P("TCP vs. IP","IP addresses, TCP delivers","IP gets data to the right device. TCP makes sure it all arrives, in order."),
+  P("Parts of https://www.google.com/maps","Protocol, domain, path","https = protocol. google.com = domain name. /maps = the path to the page."),
+  P("Client vs. server","Asks vs. answers","The client requests data. The server provides it."),
+  P("What made WannaCry spread?","Unpatched Windows","It used a Windows flaw that already had a security patch. Lesson: keep systems updated."),
+ ]},
+{m:5,title:"Software",focus:"Types of software, how code becomes something a CPU can run, scripting and automation, version control, and why updates matter.",map:[5,25,26],
+ cards:[
+  C("Application Software","Any software created to fulfill a specific need, like a text editor, web browser, or graphics editor."),
+  C("Assembly Language","A language that let computer scientists use human-readable instructions, which are assembled into machine code the computer can understand."),
+  C("Automation","Making processes run automatically, without a person doing each step by hand. Often done with scripts."),
+  C("Coding","Translating one language into another. In IT, it means turning human instructions into code a computer can run."),
+  C("Compiled Programming Language","A language written in human-readable instructions that a compiler translates into machine code before the program runs. Examples: C, C++."),
+  C("Copyright","A legal protection that gives the creator of original work, including software, the exclusive right to copy, share, and sell it."),
+  C(".exe","A file extension in Windows for an executable file, meaning a program you can run."),
+  C("Firmware","Software stored on a hardware component's non-volatile memory that controls how the hardware works. Example: the BIOS/UEFI. It stays when the power is off but can be updated."),
+  C("Git","A version control system that keeps track of changes made to files and directories."),
+  C("Interpreted Programming Language","A language that isn't compiled ahead of time. An interpreter runs the code as the program goes. Examples: Python, JavaScript."),
+  C("Programming","Coding in a programming language."),
+  C("Programming Language","A special language software developers use to write instructions for computers to execute."),
+  C("Script","A program, usually short, that's run by an interpreter. The interpreter turns the code into CPU instructions just in time to run them. Often used to automate tasks."),
+  C("Scripting","Coding in a scripting language."),
+  C("Software","The intangible instructions that tell the hardware what to do."),
+  C("Software Bug","An error in software that causes unexpected results."),
+  C("Software Management","Installing, updating, configuring, and removing the software on computers, including keeping it patched."),
+  C("System Software","Software that keeps the core system running, like the operating system and its tools and utilities."),
+  P("Compiled vs. interpreted","Before vs. while it runs","Compiled code is translated into machine code before it runs (C, C++). Interpreted code is translated while it runs (Python, JavaScript)."),
+  P("System software vs. application software","Runs the computer vs. does a task","System: the OS and its utilities. Application: things you use, like a browser or text editor."),
+  P("Hardware vs. firmware vs. software","Physical, built-in, installed","Hardware is the physical part. Firmware is software stored on that part. Software is the programs you install and run."),
+  P("Machine code → assembly → high-level","From 1s and 0s to readable","Machine code is binary the CPU runs. Assembly is short readable instructions. High-level languages like Python read close to English."),
+  P("Coding vs. programming vs. scripting","Coding is the umbrella","Programming is coding in a programming language. Scripting is coding in a scripting language, usually to automate tasks."),
+  P("What does Git let you do?","Track and undo changes","See who changed what, go back to an earlier version, and let several people work on the same code."),
+  P("Why do software updates matter?","They fix bugs and security holes","Unpatched software is one of the most common ways attackers get in. Remember WannaCry."),
+  P("Program files on Windows, macOS, and Linux","Windows: .exe and .msi","macOS: .app and .dmg. Linux: packages like .deb and .rpm."),
+ ]},
+{m:6,title:"Troubleshooting",focus:"A repeatable method: ask, isolate, follow the clues, try the quickest fix, find the root cause, document, and escalate well.",map:[3,13,17,27],
+ cards:[
+  C("404 Not Found","An error message a website shows when the server can't find the page you asked for. Usually the page was moved or deleted, or the URL was typed wrong."),
+  C("Error Message","A helpful indicator that tells you what went wrong and can point you in the right direction to fix it."),
+  C("Permission Denied","An error message you get when your account doesn't have permission to open or change a protected file."),
+  C("Root Cause","The main factor that's causing a range of issues."),
+  C("Troubleshooting","The ability to diagnose and resolve a problem."),
+  P("The 4 troubleshooting steps","Ask, isolate, follow, quickest","1. Ask questions. 2. Isolate the problem. 3. Follow the cookie crumbs (when did it start, what changed). 4. Start with the quickest step first."),
+  P("Fixing a symptom vs. the root cause","Fix the root cause","A workaround only hides the symptom, so the problem comes back. Fixing the root cause stops it for good."),
+  P("404 vs. 403 vs. 500","Not found, forbidden, server broke","404: the page doesn't exist. 403: you don't have permission. 500: something failed on the server's end."),
+  P("What do you do with an error message?","Read it, then search it","Read the whole message, search the exact text online, and check the logs for more detail."),
+  P("“Permission denied” in Linux: what do you check?","Who owns the file","Run ls -l to see the file's owner and permissions. If you're allowed to, run the command again with sudo."),
+  P("Why reproduce the problem?","To prove the cause and the fix","If you can make it happen on purpose, you know what causes it, and you can test that your fix works."),
+  P("Why document the fix?","So it can be done again","Writing it in the ticket or docs helps you and your team fix it faster next time."),
+  P("When should you escalate?","When it's beyond your access or skills","Send it to the next level with everything you've found and tried, so they don't start over."),
+ ]},
+];
+
+/* ====================================================================
    STATE
 ==================================================================== */
 const LS="soc_examgrade_v3";
-function freshState(){return{startISO:null,cursor:0,completed:{},lastDoneISO:null,streak:0,tier2Unlocked:{},quizProg:{},taskProg:{},pace:"thorough",mistakes:[],fcShaky:{},portsBest:0,warmup:null,explainNeeds:{}};}
+function freshState(){return{startISO:null,cursor:0,completed:{},lastDoneISO:null,streak:0,tier2Unlocked:{},quizProg:{},taskProg:{},pace:"thorough",mistakes:[],fcShaky:{},portsBest:0,warmup:null,explainNeeds:{},gitBest:{},gShaky:{},binBest:0};}
 let S=loadState();
 function loadState(){try{const x=JSON.parse(localStorage.getItem(LS));if(x)return Object.assign(freshState(),x);}catch(e){}return freshState();}
 function saveState(){try{localStorage.setItem(LS,JSON.stringify(S));}catch(e){}}
@@ -2116,10 +2438,10 @@ function renderStatus(){
     <div class="stat"><div class="v">${o.acc}%</div><div class="l">Accuracy</div></div>
     <div class="stat tier"><div class="v">${S.mistakes?S.mistakes.length:0}</div><div class="l">To review</div></div>`;
 }
-document.querySelectorAll('.mode-btn').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;viewIdx=null;weekView=null;document.querySelectorAll('.mode-btn').forEach(x=>x.classList.toggle('active',x.dataset.mode===mode));render();});
+document.querySelectorAll('.mode-btn').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;viewIdx=null;weekView=null;if(mode==="google"){gv=null;gq=null;}document.querySelectorAll('.mode-btn').forEach(x=>x.classList.toggle('active',x.dataset.mode===mode));render();});
 
 function render(){renderPace();renderStatus();
-  if(mode==="today")renderToday();else if(mode==="review")renderReview();else if(mode==="week")renderWeek();else if(mode==="vm")renderVM();else if(mode==="playbook")renderPlaybook();else if(mode==="practice")renderPractice();else if(mode==="deep")renderDeep();else renderExport();}
+  if(mode==="today")renderToday();else if(mode==="review")renderReview();else if(mode==="week")renderWeek();else if(mode==="vm")renderVM();else if(mode==="playbook")renderPlaybook();else if(mode==="practice")renderPractice();else if(mode==="deep")renderDeep();else if(mode==="google")renderGoogle();else renderExport();}
 
 /* -------- READ-ONLY PAST-DAY VIEW (no progress mutation) -------- */
 function renderDayView(idx){
@@ -2698,6 +3020,375 @@ const EXPLAIN=[
   points:["Switch = Layer 2 — forwards frames by MAC within one network","Router = Layer 3 — routes packets by IP between networks","HTTPS = Application (L7 in OSI, Application layer in TCP/IP), with TLS encryption often described at L6"],
   say:"A switch is Layer 2 — it forwards frames by MAC address inside one network. A router is Layer 3 — it routes packets by IP between networks. HTTPS is an application-layer protocol; its TLS encryption is usually described at the presentation layer in OSI terms."},
 ];
+/* Module quizzes — Q(stem,[opts],answerIdx,why-correct,{idx:why-wrong},objective) */
+GIT_MODULES[0].quiz=[
+ Q("Convert the binary byte 01101000 to decimal.",["96","104","108","72"],1,
+  "Place values 128-64-32-16-8-4-2-1. The 1s sit on 64, 32 and 8: 64 + 32 + 8 = 104 (the letter “h” in ASCII).",
+  {0:"96 is 64 + 32. You dropped the 8 bit, which is on (00001000).",2:"108 adds the 4 bit, but that position is 0 in this byte.",3:"72 is 64 + 8. You skipped the 32 bit, which is on."},"M1 · binary → decimal"),
+ Q("Which binary byte equals decimal 45?",["00101101","00110101","00101011","01001101"],0,
+  "45 = 32 + 8 + 4 + 1, so the 32, 8, 4 and 1 positions are on: 00101101.",
+  {1:"00110101 = 32 + 16 + 4 + 1 = 53. The 16 bit shouldn't be on.",2:"00101011 = 32 + 8 + 2 + 1 = 43. You flipped the 4 and 2 bits.",3:"01001101 = 64 + 8 + 4 + 1 = 77. 64 is already bigger than 45, so that bit must be 0."},"M1 · decimal → binary"),
+ Q("What's the highest number a single byte can store?",["256","255","128","8"],1,
+  "8 bits all set to 1 = 128+64+32+16+8+4+2+1 = 255. There are 256 values in total because 0 counts as one of them.",
+  {0:"256 is how many values a byte holds (0–255), not the largest one. Zero takes up one of the 256 slots.",2:"128 is just the value of the highest single bit. Turning the other 7 bits on adds 127 more.",3:"8 is how many bits are in a byte, not the value it can hold."},"M1 · bits & bytes"),
+ Q("Put the four layers of computer architecture in order, bottom to top.",["User → Software → OS → Hardware","Hardware → Software → OS → User","Hardware → OS → Software → User","OS → Hardware → Software → User"],2,
+  "Hardware is the foundation, the OS manages it, software runs on the OS, and the user sits on top interacting with it all.",
+  {0:"That's the right list upside down. The question asks bottom to top, and hardware is the bottom.",1:"Software can't sit directly on hardware here. The OS is what lets programs use the hardware, so it comes second.",3:"The OS can't be the bottom. It needs physical hardware underneath it to run on."},"M1 · computer architecture"),
+ Q("Who created A-0, the first compiler, in 1952?",["Ada Lovelace","Alan Turing","Grace Hopper","Charles Babbage"],2,
+  "Grace Hopper built A-0 in 1952, and her later work led to COBOL.",
+  {0:"Ada Lovelace wrote the first algorithm (1843) for Babbage's Analytical Engine, about a century before compilers.",1:"Alan Turing gave us the Turing machine (1936) and helped crack Enigma, but not the first compiler.",3:"Babbage designed the Difference and Analytical Engines in the 1800s, long before compilers existed."},"M1 · history of computing"),
+ Q("Who first used punch cards to control a machine?",["Charles Babbage","Joseph Marie Jacquard","Ada Lovelace","Herman Hollerith"],1,
+  "Jacquard used punch cards on a weaving loom in the early 1800s. Babbage later designed the Analytical Engine to read them.",
+  {0:"Common trap. Babbage borrowed the punch-card idea for the Analytical Engine, but he didn't invent it.",2:"Lovelace wrote an algorithm for a punch-card machine. She didn't originate punch cards.",3:"Hollerith used punch cards for the 1890 US census, decades after Jacquard's loom."},"M1 · history of computing"),
+ Q("A ticket says emoji in a user's messages show up as empty boxes in an old program that only supports ASCII. Best explanation?",["ASCII only covers English letters, digits and punctuation, so it has no codes for emoji","The program needs more RAM to show emoji","Emoji are stored as images, not characters","UTF-8 is older than ASCII and can't be read"],0,
+  "ASCII maps a small set of characters (English letters, 0–9, punctuation). Emoji come from Unicode, usually stored as UTF-8 using 1–4 bytes, so an ASCII-only program has nothing to draw.",
+  {1:"Memory isn't the issue. The program simply has no character mapping for those codes.",2:"Emoji are characters with Unicode numbers, which is why encoding matters here.",3:"Backwards. UTF-8 is newer, and its first 128 characters match ASCII exactly."},"M1 · character encoding"),
+ Q("You drive a car with a steering wheel and pedals without knowing how the engine works. Which concept is this?",["Algorithm","Abstraction","Compiler","Character encoding"],1,
+  "Abstraction hides the complicated parts behind a simple interface. That's why you can use a computer without thinking about voltages and bits.",
+  {0:"An algorithm is a series of steps that solves a problem. It isn't about hiding complexity.",2:"A compiler translates human-readable code into machine code. Nothing is being translated here.",3:"Character encoding maps binary to letters, which has nothing to do with car controls."},"M1 · abstraction"),
+ Q("Which is one of the five parts of the IT support job the course lists?",["Configuring","Marketing","Accounting","Recruiting"],0,
+  "Managing, Installing, Maintaining, Troubleshooting and Configuring are the five parts of IT support.",
+  {1:"Marketing is a business function, not an IT support duty.",2:"Accounting is finance work, not part of the IT support role.",3:"Recruiting is HR. IT support is about the systems themselves."},"M1 · IT support roles"),
+];
+GIT_MODULES[1].quiz=[
+ Q("What is the correct startup order?",["Power on → OS loads → POST → BIOS/UEFI","Power on → BIOS/UEFI → POST → OS loads","Power on → POST → OS loads → BIOS/UEFI","BIOS/UEFI → Power on → OS loads → POST"],1,
+  "The firmware (BIOS/UEFI) starts first, runs POST to check the hardware, then hands off to the operating system.",
+  {0:"The OS can't load before the hardware is checked. POST and firmware come first.",2:"POST is run by the BIOS/UEFI, so the firmware has to start before POST, not after the OS.",3:"Nothing runs before the power is on. The firmware starts after you press the button."},"M2 · boot sequence"),
+ Q("A user's PC forgets the date, time and boot order every time it's unplugged. Most likely fix?",["Replace the CMOS coin-cell battery","Reflash the ROM chip","Add more RAM","Replace the power supply"],0,
+  "CMOS stores the BIOS settings, and the coin battery keeps them alive when the PC is off. A dead battery means the settings reset.",
+  {1:"The ROM holds the BIOS itself, which is working fine. The lost settings live in CMOS.",2:"RAM is volatile and cleared at every shutdown anyway. It doesn't hold firmware settings.",3:"The PC boots and runs, so the PSU works. The settings only vanish when wall power is gone, which points to the CMOS battery."},"M2 · CMOS vs ROM"),
+ Q("A monitor with built-in speakers is connected over DVI. The picture works but there's no sound. Why?",["DVI generally carries video only","The monitor needs a driver for sound","DVI only works with HDMI adapters","The GPU is overheating"],0,
+  "HDMI and DisplayPort carry audio and video. DVI generally carries video only, so the speakers get nothing.",
+  {1:"Even with the right driver, the audio signal never travels down a DVI cable.",2:"DVI works on its own. Adapters change the connector shape, not what the signal carries.",3:"An overheating GPU would cause artifacts or crashes, not a clean picture with silent audio."},"M2 · display ports"),
+ Q("A customer pays for 100 Mb/s internet. Roughly what download speed should they see in a program that shows MB/s?",["100 MB/s","12.5 MB/s","800 MB/s","1 MB/s"],1,
+  "8 bits = 1 byte, so 100 megabits ÷ 8 ≈ 12.5 megabytes per second. The small “b” is bits.",
+  {0:"That mixes up the units. Mb (megabits) and MB (megabytes) differ by a factor of 8.",2:"You multiplied by 8 instead of dividing. Bytes are bigger than bits, so the MB/s number gets smaller.",3:"Too low. Dividing by 100 isn't the conversion; dividing by 8 is."},"M2 · data sizes"),
+ Q("Which statement about CPU sockets is correct?",["LGA has the pins on the CPU","PGA has the pins on the motherboard","LGA has the pins on the motherboard; the CPU has flat contacts","Both LGA and PGA put pins on the motherboard"],2,
+  "LGA (Land Grid Array): pins on the motherboard, flat contacts on the CPU. PGA (Pin Grid Array): pins on the processor itself.",
+  {0:"That describes PGA, not LGA.",1:"Reversed. PGA puts the pins on the processor.",3:"Only LGA puts pins on the board. With PGA they're on the CPU."},"M2 · CPU sockets"),
+ Q("What does the address bus carry?",["The data itself","The location of the data in memory","Power to the RAM","The clock signal"],1,
+  "Address = where, data = what. The address bus sends the location to the memory controller, and the external data bus carries the actual data.",
+  {0:"That's the job of the external data bus (EDB), not the address bus.",2:"Power comes from the PSU through the board's power circuitry, not a data or address bus.",3:"The clock wire carries the clock pulses that tell the CPU when to work."},"M2 · buses"),
+ Q("You're about to install RAM. What's the best way to prevent ESD damage?",["Work on carpet in socks","Wear an anti-static wrist strap or touch unpainted metal on the case first","Keep the PC plugged in and powered on","Hold the RAM by its gold contacts"],1,
+  "Grounding yourself drains static before it can jump into components.",
+  {0:"Carpet and socks build up static charge. That's the classic setup for an ESD zap.",2:"Never work inside a powered-on PC. Power it off first, then ground yourself.",3:"Touching the contacts is the worst place for a static discharge. Hold modules by their edges."},"M2 · ESD"),
+ Q("Which matches USB 3.0?",["Black port, 480 Mb/s","Blue port, 5 Gb/s","Teal port, 10 Gb/s","Any USB-C port, 40 Gb/s"],1,
+  "USB 3.0 ports are usually blue and run at up to 5 Gb/s.",
+  {0:"Black / 480 Mb/s is USB 2.0.",2:"Teal / 10 Gb/s is USB 3.1.",3:"USB-C is a connector shape. Its speed depends on the standard behind it (480 Mb/s up to 40 Gb/s for USB4)."},"M2 · USB"),
+ Q("A phone charger is rated 5 V at 2 A. How many watts can it deliver?",["2.5 W","7 W","10 W","3 W"],2,
+  "Watts = volts × amps. 5 × 2 = 10 W.",
+  {0:"That's volts ÷ amps. Power multiplies them.",1:"7 is volts + amps. The formula multiplies.",3:"3 is volts − amps. Watts = volts × amps."},"M2 · power"),
+ Q("A coworker calls SATA “a kind of hard drive.” What's the correction?",["SATA is a CPU socket","SATA is an interface standard drives use to connect to the motherboard","SATA is a type of RAM","SATA is a newer name for NVMe drives"],1,
+  "SATA (Serial ATA) is the connection standard. HDDs and many SSDs plug in through it.",
+  {0:"CPU sockets are LGA/PGA. SATA connects storage.",2:"RAM types are things like DDR SDRAM. SATA is for drives.",3:"NVMe is a different, faster interface that runs over PCIe."},"M2 · storage interfaces"),
+];
+GIT_MODULES[2].quiz=[
+ Q("Which is the full boot chain?",["Power on → BIOS/UEFI → POST → bootloader → kernel → user space","Power on → bootloader → BIOS/UEFI → kernel → POST → user space","Power on → kernel → bootloader → POST → user space","Power on → POST → user space → kernel → bootloader"],0,
+  "Firmware starts, POST checks the hardware, the bootloader loads the OS, the kernel takes over the hardware, then user space starts.",
+  {1:"The bootloader can't run before the firmware. BIOS/UEFI is what finds and launches it.",2:"The kernel is loaded by the bootloader, so the bootloader has to come first.",3:"User space is the last stage. It needs a running kernel underneath it."},"M3 · boot chain"),
+ Q("What does the shell do?",["It's the window you type into","It interprets your text commands and sends them to the OS","It's the core that talks directly to hardware","It stores files on disk"],1,
+  "Terminal = the window. Shell = the interpreter (PowerShell, Bash). CLI = the text-command way of working.",
+  {0:"That's the terminal. The shell runs inside it.",2:"That's the kernel. The shell sits in user space and asks the kernel to act.",3:"Storing files is the file system's job, managed by the kernel."},"M3 · terminal vs shell"),
+ Q("Which file system pairing is correct?",["NTFS: macOS","ext4: Windows","APFS: macOS","APFS: Linux"],2,
+  "NTFS goes with Windows, APFS with macOS (replacing HFS+ in 2017), and ext4 with Linux.",
+  {0:"NTFS is Windows' file system.",1:"ext4 is the common Linux file system.",3:"APFS is Apple's. Linux typically uses ext4."},"M3 · file systems"),
+ Q("You need to see and click around a remote Windows PC's full desktop. Which tool fits best?",["SSH with OpenSSH","RDP using mstsc.exe","Plink","Etcher"],1,
+  "RDP gives you the whole remote desktop, and mstsc.exe is the Windows client for it.",
+  {0:"SSH gives you a secure command line, mainly for Linux. No desktop.",2:"Plink is PuTTY's command-line SSH tool. Still text only.",3:"Etcher writes install images to USB drives. It isn't a remote-access tool."},"M3 · remote access"),
+ Q("A laptop's RAM is full, and it starts using space on the drive as extra memory. What is that drive space called?",["Cache","Swap space","Registers","Block storage"],1,
+  "Swap is the hard-drive part of virtual memory (virtual memory = RAM + swap). It's much slower than RAM, which is why a swapping PC feels sluggish.",
+  {0:"Cache is small, fast storage for frequently used data. It's not an overflow area on the drive.",2:"Registers are tiny storage spots inside the CPU itself.",3:"Block storage is a way of storing data in chunks, not a memory overflow."},"M3 · memory management"),
+ Q("Why do many programs seem to run at the same time on one CPU?",["Each program gets its own core","The CPU switches between them in tiny time slices","They pause while you aren't looking at them","The kernel merges them into one program"],1,
+  "The CPU hands each process a very short time slice and switches so fast that they appear simultaneous.",
+  {0:"You often run far more programs than you have cores. Time-slicing is what makes that work.",2:"Background programs keep running. They just share CPU time.",3:"Processes stay separate. The kernel schedules them; it doesn't combine them."},"M3 · process management"),
+ Q("Which of these is NOT Linux-based?",["Android","ChromeOS","Ubuntu","macOS"],3,
+  "macOS (and iOS) are Unix-based, but not Linux. Android, ChromeOS and Ubuntu all run on the Linux kernel.",
+  {0:"Android is built on the Linux kernel.",1:"ChromeOS is Google's Linux-based OS.",2:"Ubuntu is the most popular consumer Linux distro."},"M3 · operating systems"),
+ Q("With SSH key authentication, where does each key live?",["Both keys on the server","Public key on the server, private key on your device","Private key on the server, public key on your device","Both keys emailed to the admin"],1,
+  "The server holds your public key. Your private key stays on your device and is never shared.",
+  {0:"If the server had your private key, anyone who got into the server could pose as you.",2:"Reversed. The private key must stay with you.",3:"Private keys should never be sent anywhere, email least of all."},"M3 · SSH"),
+ Q("What's the difference between VirtualBox and a VM?",["They're the same thing","VirtualBox is the program; a VM is the virtual computer running inside it","A VM is the program; VirtualBox is the guest OS","VirtualBox is a Linux distro"],1,
+  "VirtualBox is the application (hypervisor). Each VM is a virtual computer that borrows your real CPU, RAM and storage.",
+  {0:"Related, but different. One is the software, the other is what it creates.",2:"Reversed. The guest OS runs inside the VM.",3:"VirtualBox is an Oracle application that runs on Windows, macOS and Linux. It isn't an OS."},"M3 · virtualization"),
+ Q("You downloaded an Ubuntu .iso and need a bootable USB to install it. Which tool does that?",["Finder","Etcher","PowerShell","OpenSSH"],1,
+  "balenaEtcher writes an install image onto a USB drive and makes it bootable.",
+  {0:"Finder is the Mac file manager. Dragging an .iso onto a USB won't make it bootable.",2:"PowerShell is a Windows shell. Not the tool the course uses for this.",3:"OpenSSH is for remote connections, not for creating install media."},"M3 · installing an OS"),
+];
+GIT_MODULES[3].quiz=[
+ Q("Which device forwards data between different, independent networks?",["Hub","Switch","Router","Ethernet cable"],2,
+  "A router moves data between networks, like your home network and your ISP.",
+  {0:"A hub repeats data to every port on one network. It doesn't move data between networks.",1:"A switch delivers data to the right device inside one network using MAC addresses.",3:"A cable is just the physical link. It doesn't make forwarding decisions."},"M4 · network devices"),
+ Q("What does a switch use to send data only to the device it's meant for?",["IP addresses","MAC addresses","Domain names","Port colors"],1,
+  "A switch tracks which MAC address is on which port and delivers frames only there.",
+  {0:"Routers work with IP addresses. Switches work with MAC addresses.",2:"Domain names are turned into IPs by DNS. Switches never see them.",3:"Port color is a USB thing, not how switches decide where data goes."},"M4 · switch vs hub"),
+ Q("You type google.com into a browser. What does DNS do first?",["Encrypts the connection","Looks up the name and returns its IP address","Assigns your PC an IP address","Picks the fastest route"],1,
+  "DNS turns the name into an IP address so your computer knows where to connect.",
+  {0:"Encryption comes from HTTPS/TLS, not DNS.",2:"That's DHCP's job. DNS translates names.",3:"Routers handle the path. DNS only answers “what's the IP for this name?”"},"M4 · DNS"),
+ Q("About how many IPv4 addresses exist, and why?",["About 4.3 billion, because IPv4 is 32 bits (2^32)","About 340 undecillion, because IPv4 is 128 bits","Unlimited, because addresses are reused","About 65,000, because IPv4 is 16 bits"],0,
+  "32 bits gives 2^32 ≈ 4.3 billion addresses. That isn't enough, which is why NAT and IPv6 exist.",
+  {1:"That's IPv6, which uses 128 bits.",2:"The address space is fixed. NAT stretches it, but it isn't unlimited.",3:"IPv4 is 32 bits (four 8-bit groups), not 16."},"M4 · IPv4 vs IPv6"),
+ Q("Which statement about MAC and IP addresses is true?",["A MAC address is assigned by the network and changes often","A MAC address is built into the network hardware; an IP address is assigned by the network","Both are 32 bits long","An IP address is burned into the network card"],1,
+  "The MAC (48-bit, six hex pairs) comes with the network interface. The IP is assigned by the network and can change.",
+  {0:"Reversed. The IP address is the one the network assigns and changes.",2:"A MAC address is 48 bits. IPv4 is 32 bits and IPv6 is 128.",3:"That describes the MAC address, not the IP."},"M4 · IP vs MAC"),
+ Q("What's the key difference between copper and fiber cable?",["Copper uses light; fiber uses electricity","Copper uses electrical voltages; fiber uses pulses of light","Fiber is wireless","They send data the same way"],1,
+  "Copper sends 1s and 0s as voltages. Fiber uses pulses of light through glass strands about as thin as a hair.",
+  {0:"Reversed. Light is fiber's thing.",2:"Fiber is still a physical cable. Wi-Fi is the wireless one.",3:"They use completely different physical signals."},"M4 · cabling"),
+ Q("In https://www.google.com/maps, which part is the domain name?",["https","google.com","/maps","www.google.com/maps"],1,
+  "https = protocol, google.com = domain name, /maps = path to the page.",
+  {0:"https is the protocol, the rules for how to talk to the site.",2:"/maps is the path to a page on that domain.",3:"That's the domain plus a path, more than the domain alone."},"M4 · URLs"),
+ Q("A large file arrives complete and in the right order even though some packets were lost along the way. Which protocol made that happen?",["IP","TCP","DNS","NAT"],1,
+  "TCP handles reliable delivery. It puts data back in order and resends anything that gets lost.",
+  {0:"IP addresses packets to the right device but doesn't guarantee they all arrive.",2:"DNS only translates names to IPs.",3:"NAT translates private addresses to a public one. It doesn't handle reliable delivery."},"M4 · TCP vs IP"),
+ Q("An office of 50 devices reaches the internet through one public IP address. What makes that possible?",["DNS","NAT","ICANN","A hub"],1,
+  "NAT lets many private IPs share one public IP, which helps with the IPv4 shortage.",
+  {0:"DNS resolves names. It doesn't share addresses.",2:"ICANN manages domain names and IP allocation worldwide. It doesn't translate addresses inside your network.",3:"A hub just repeats traffic. It does no address translation."},"M4 · NAT"),
+ Q("What let the 2017 WannaCry ransomware spread so widely?",["A zero-day flaw nobody knew about","Unpatched Windows machines with a flaw that already had a fix","Weak Wi-Fi passwords","Infected USB drives"],1,
+  "Microsoft had already released a patch. WannaCry spread through machines that hadn't installed it. Patch management is a security control.",
+  {0:"The vulnerability was known and patched before the outbreak. That's the whole lesson.",2:"WannaCry spread across networks through a Windows flaw, not by cracking Wi-Fi.",3:"It moved over the network on its own as a worm. USB drives weren't the main path."},"M4 · security connector"),
+ Q("What's the difference between the internet and the World Wide Web?",["They're two names for the same thing","The internet is the network of networks; the web is one service running on it","The web came first, and the internet was built on top of it","The internet is only for email"],1,
+  "Roads vs. what's on them. Email, streaming, games and the web all ride on the internet.",
+  {0:"People say them interchangeably, but they're different layers.",2:"Reversed. ARPANET (1960s) came decades before the web.",3:"Email is just one of many services on the internet."},"M4 · internet vs web"),
+];
+GIT_MODULES[4].quiz=[
+ Q("Which language is interpreted rather than compiled ahead of time?",["C","C++","Python","Assembly"],2,
+  "Interpreted languages like Python and JavaScript are translated while the program runs.",
+  {0:"C is compiled into machine code before it runs.",1:"C++ is also compiled ahead of time.",3:"Assembly is assembled into machine code, not interpreted line by line at run time."},"M5 · compiled vs interpreted"),
+ Q("Which of these is system software?",["A web browser","A text editor","The operating system","A photo editor"],2,
+  "System software keeps the core system running: the OS and its utilities. Application software does a task for you.",
+  {0:"A browser is application software. It does a specific job for the user.",1:"A text editor is application software.",3:"A photo editor is application software."},"M5 · software types"),
+ Q("Which is the best example of firmware?",["Microsoft Word","BIOS/UEFI","A Python script","The power supply"],1,
+  "Firmware is software stored on a hardware component's non-volatile memory. BIOS/UEFI is the classic example.",
+  {0:"Word is application software you install.",2:"A script is code run by an interpreter, not built into hardware.",3:"The PSU is hardware. Firmware is the software that lives on hardware."},"M5 · firmware"),
+ Q("A team wants to see who changed a file, roll back to last week's version, and work on the same code together. What should they use?",["Git","Etcher","PowerShell","A compiler"],0,
+  "Git is version control: it tracks changes, lets you undo them, and lets several people collaborate.",
+  {1:"Etcher writes install images to USB drives.",2:"PowerShell is a shell. It can run git, but it doesn't track versions by itself.",3:"A compiler turns code into machine code. It doesn't keep a history of changes."},"M5 · version control"),
+ Q("A user downloaded a .dmg file. Which OS is it meant for?",["Windows","macOS","Linux","Android"],1,
+  "macOS uses .app and .dmg. Windows uses .exe and .msi. Linux uses packages like .deb and .rpm.",
+  {0:"Windows installers are usually .exe or .msi.",2:"Linux uses package files like .deb (Debian/Ubuntu) or .rpm (Red Hat).",3:"Android apps come as .apk files."},"M5 · installing software"),
+ Q("Why is keeping software updated a security issue, not just a convenience?",["Updates make programs look newer","Updates fix bugs and close security holes attackers use","Updates free up disk space","Updates are required by copyright law"],1,
+  "Unpatched software is one of the most common ways attackers get in. WannaCry spread through a flaw that already had a patch.",
+  {0:"Visual changes are a side effect. The security fixes are what matter.",2:"Updates often use more space. That's not why they matter.",3:"Copyright covers who can copy and sell software. It doesn't force updates."},"M5 · software management"),
+ Q("What does assembly language do?",["Lets people write human-readable instructions that get assembled into machine code","Runs only inside web browsers","Stores files on disk","Translates website names into IPs"],0,
+  "Assembly sits one step above machine code: short readable instructions turned into the 1s and 0s the CPU runs.",
+  {1:"That's closer to JavaScript. Assembly is low-level, close to the hardware.",2:"Storing files is the file system's job.",3:"That's DNS, from the networking module."},"M5 · machine code to high-level"),
+ Q("An IT tech writes a short program that creates 30 user accounts automatically instead of clicking through each one. What is that?",["A firmware update","A script used for automation","A compiled operating system","A software bug"],1,
+  "Scripts are usually short programs run by an interpreter, often used to automate repetitive tasks. This is a core IT skill.",
+  {0:"Firmware controls hardware. This is a task-automation program.",2:"Nobody is building an OS. It's a small task program.",3:"A bug is an error that causes unexpected results. This program works as intended."},"M5 · scripting & automation"),
+];
+GIT_MODULES[5].quiz=[
+ Q("A user says “my computer is broken.” What's the FIRST troubleshooting step?",["Reimage the computer","Ask questions to understand the problem","Replace the hard drive","Escalate to Tier 2"],1,
+  "The four steps: ask questions, isolate the problem, follow the cookie crumbs, and start with the quickest step. You can't fix what you don't understand yet.",
+  {0:"Reimaging is a last resort. It wipes everything and you still won't know the root cause.",2:"Swapping hardware before you know the problem wastes time and money.",3:"Escalate only when it's beyond your access or skills, and only after you've gathered information."},"M6 · troubleshooting method"),
+ Q("Restarting a server makes an error go away, but it comes back every Monday. What's the real goal now?",["Restart it every Monday","Find and fix the root cause","Turn off error logging","Replace the server"],1,
+  "A workaround hides the symptom. Fixing the root cause stops it for good. A weekly pattern is a cookie crumb: what happens on Mondays?",
+  {0:"That's living with the symptom, and it'll keep coming back.",2:"Hiding the errors hides the evidence you need.",3:"Replacing hardware before you know the cause may not fix anything."},"M6 · root cause"),
+ Q("A website shows “403 Forbidden.” What does that mean?",["The page doesn't exist","You don't have permission to access it","The server crashed","Your internet is down"],1,
+  "404 = not found. 403 = forbidden (no permission). 500 = something failed on the server.",
+  {0:"That's a 404.",2:"That's a 500-series error.",3:"If your internet were down, you wouldn't get any response from the server at all."},"M6 · HTTP errors"),
+ Q("A website returns “500 Internal Server Error.” Where's the problem most likely?",["The user typed the URL wrong","Something failed on the server's end","The user lacks permission","The user's keyboard"],1,
+  "500 means the server hit an error while handling the request. The user usually can't fix it.",
+  {0:"A mistyped URL usually gives a 404 Not Found.",2:"A permission problem is a 403.",3:"The request reached the server fine, so the user's devices aren't the cause."},"M6 · HTTP errors"),
+ Q("On Linux, you run a command and get “Permission denied.” What should you check first?",["Run ls -l to see the file's owner and permissions","Reinstall Linux","Restart the router","Delete the file"],0,
+  "ls -l shows who owns the file and what's allowed. If you're authorized, rerun the command with sudo.",
+  {1:"Reinstalling for a permission error is far too much.",2:"This is a local file permission issue, not a network one.",3:"Deleting it destroys data and doesn't explain the error."},"M6 · permission errors"),
+ Q("Why try to reproduce the problem on purpose?",["To annoy the user","To prove what causes it and test that your fix works","Because tickets require it","To create more logs"],1,
+  "If you can make it happen on demand, you've found the cause, and you can confirm the fix actually solves it.",
+  {0:"Reproducing is evidence-gathering, not a hassle for the user.",2:"Even when no ticket requires it, it's how you confirm cause and fix.",3:"Logs are a side effect. The point is to confirm the cause."},"M6 · reproducing issues"),
+ Q("When should you escalate a ticket?",["As soon as you get it","When it's beyond your access or skills, with notes on everything you found and tried","Never; always solve it yourself","Only when the user complains"],1,
+  "Escalate when you've hit your limit, and pass along everything you've learned so the next tier doesn't start over.",
+  {0:"Escalating before trying anything wastes the next tier's time.",2:"Sitting on something beyond your access hurts the user. Escalating is part of the job.",3:"Escalate based on scope and urgency, not complaints."},"M6 · escalation"),
+ Q("You fixed a tricky issue. Why write it down in the ticket or docs?",["So it can be fixed faster next time, by you or your team","It's optional busywork","To prove you worked","Only managers read it"],0,
+  "Documentation turns one fix into team knowledge. In a SOC, good ticket notes are just as important.",
+  {1:"Skipping docs means someone repeats the same investigation later.",2:"The record helps, but the main value is faster future fixes.",3:"Teammates and your future self use it most."},"M6 · documentation"),
+ Q("An app shows an error message you've never seen. Best next move?",["Ignore it and restart","Read the whole message, search the exact text, and check the logs","Uninstall the app right away","Tell the user it's normal"],1,
+  "Error messages point you in the right direction. The exact text plus the logs usually gets you to the cause.",
+  {0:"A restart might hide it for now, but you lose the clue.",2:"Uninstalling before you understand the error is premature.",3:"You don't know it's normal until you've looked into it."},"M6 · error messages"),
+];
+EXPLAIN.push(
+ {id:"g-binary",topic:"Binary (Google IT M1)",prompt:"A friend asks: “why do computers use 1s and 0s, and why does a byte max out at 255?”",
+  points:["Computers store everything as bits, on/off states: binary is base-2","A byte = 8 bits; each position is a place value 128-64-32-16-8-4-2-1","All 8 on = 255; 2^8 = 256 total values because 0 counts too"],
+  say:"Inside a computer everything is on or off, so it counts in base-2 with only 1s and 0s. One digit is a bit, and eight bits make a byte. Each position is worth double the one to its right: 1, 2, 4, up to 128. Turn all eight on and you get 255, so a byte holds 256 values once you count zero."},
+ {id:"g-boot",topic:"Boot chain (Google IT M2–M3)",prompt:"An interviewer asks: “What happens between pressing the power button and seeing the login screen?”",
+  points:["Firmware (BIOS/UEFI) starts from the ROM chip; settings live in CMOS","POST checks the hardware","Bootloader loads the OS → kernel takes over the hardware → user space starts (login screen)"],
+  say:"The firmware, BIOS or UEFI, starts first and runs POST to make sure the hardware works. Then it hands off to the bootloader, which loads the operating system. The kernel takes control of the hardware, memory and processes, and finally user space starts, which is where the login screen lives."},
+ {id:"g-hsr",topic:"Hub vs switch vs router (Google IT M4)",prompt:"A customer asks what the difference is between the hub, switch and router boxes in their closet.",
+  points:["Hub repeats data to every device: noisy, insecure","Switch learns MAC addresses and sends data only to the right device on the same network","Router forwards data between different networks using IP (e.g., home ↔ ISP)"],
+  say:"A hub is the dumb one: anything it receives, it shouts to every device. A switch is smarter. It learns each device's MAC address and only sends traffic where it belongs, inside your network. A router connects different networks together, like your home network and your internet provider, using IP addresses."},
+ {id:"g-trouble",topic:"Troubleshooting method (Google IT M6)",prompt:"Interview question: “Walk me through how you troubleshoot an issue you've never seen before.”",
+  points:["Ask questions: what, when, what changed, who's affected","Isolate the problem, follow the cookie crumbs, try the quickest step first","Find the root cause (not just the symptom), reproduce it, document it, escalate with notes if needed"],
+  say:"I start by asking questions: what's happening, when it started, and what changed. Then I narrow it down and follow the clues, trying the quickest, least disruptive fix first. I aim for the root cause rather than just a workaround, reproduce it to confirm, and document the fix. If it's beyond my access, I escalate with everything I've already tried."}
+);
+
+/* -------- GOOGLE IT SUPPORT (Course 1 track — separate from day progress) -------- */
+let gv=null; // null = overview · {m, sub:null|'cards'|'points'|'quiz'} · {bin:true}
+let gDeck=null,gPos=0,gFlip=false,gq=null,gBin=null;
+function gMod(m){return GIT_MODULES.find(x=>x.m===m);}
+function gBest(m){return (S.gitBest||{})[m];}
+function gChecked(m){const b=gBest(m);return b!==undefined&&b>=85;}
+function gLessonChip(i){const l=CURRICULUM[i];if(!l)return'';return `<span class="pb-chip" style="cursor:default">${l.cert} W${l.week}·D${l.day} — ${l.title}</span>`;}
+function gBuildDeck(m,kind){
+  const md=gMod(m),sh=S.gShaky||{};let d=[];
+  md.cards.filter(c=>kind==="points"?c.k==="p":c.k!=="p").forEach(c=>{
+    const key=m+"|"+c.t;
+    const item=c.k==="p"?{key,front:c.t,bTitle:c.a,bBody:c.d,tag:"POINT-OUT"}:{key,front:c.t,bTitle:c.t,bBody:c.d,tag:c.k==="b"?"BONUS":""};
+    d.push(item);if(sh[key])d.push(item);
+  });
+  return shuffle(d);
+}
+function renderGoogle(){
+  if(gv&&gv.bin){renderGBinary();return;}
+  if(gv&&gv.sub==="quiz"){renderGQuiz();return;}
+  if(gv&&(gv.sub==="cards"||gv.sub==="points")){renderGCards();return;}
+  if(gv&&gv.m){renderGModule();return;}
+  const done=GIT_MODULES.filter(x=>gChecked(x.m)).length;
+  const shaky=Object.keys(S.gShaky||{}).length;
+  stage.innerHTML=`
+    <div class="banner info"><span class="ic">🎓</span><div><b>Google IT Support · Course 1: Technical Support Fundamentals.</b> Built from your own fact-checked notes and flashcards. This track runs alongside your daily A+/N+ days. Nothing here changes your day count or streak. Missed quiz questions go to <b>Review</b>.</div></div>
+    <div class="scorebar"><span>Modules checked off: <b class="ok">${done}/${GIT_MODULES.length}</b></span><span>Check-off = 85%+ on the module quiz</span>${shaky?`<span style="color:var(--amber)">↻ ${shaky} shaky card${shaky===1?'':'s'}</span>`:''}</div>
+    ${GIT_MODULES.map(md=>{
+      const b=gBest(md.m),n=md.cards.filter(c=>c.k!=="p").length,p=md.cards.filter(c=>c.k==="p").length;
+      return `<div class="term" style="cursor:pointer" data-gm="${md.m}">
+        <div class="t">${gChecked(md.m)?'<span style="color:var(--green)">✓</span> ':''}Module ${md.m} — ${md.title}
+          ${b!==undefined?`<span class="new" style="${b>=85?'background:#0d1f15;color:var(--green);border-color:#1d4427':''}">BEST ${b}%</span>`:''}</div>
+        <div class="d">${md.focus}</div>
+        <div class="mini" style="text-align:left;margin-top:6px">${n} cards · ${p} point-outs · ${md.quiz.length}-question quiz</div>
+      </div>`;}).join('')}
+    <div class="sec-label">SKILL DRILL</div>
+    <div class="term" style="cursor:pointer" id="gGoBin"><div class="t">🔢 Binary drill</div><div class="d">Endless decimal ↔ binary conversions using the 128-64-32-16-8-4-2-1 place values from Module 1. Every answer is broken down bit by bit.${S.binBest?` <span style="color:var(--green)">Best streak: ${S.binBest}</span>`:''}</div></div>
+    <div class="mini">Tip: the four Google “explain it back” prompts are in PRACTICE → Explain it back.</div>`;
+  stage.querySelectorAll('[data-gm]').forEach(el=>el.onclick=()=>{gv={m:+el.dataset.gm,sub:null};render();});
+  document.getElementById('gGoBin').onclick=()=>{gv={bin:true};gBin={streak:0};newBinQ();render();};
+}
+function renderGModule(){
+  const md=gMod(gv.m),b=gBest(md.m);
+  const n=md.cards.filter(c=>c.k!=="p").length,p=md.cards.filter(c=>c.k==="p").length;
+  stage.innerHTML=`
+    <button class="btn ghost" id="gBack" style="margin-bottom:14px">← all modules</button>
+    <div class="lesson-head"><span class="pill cert">G-IT</span><span class="pill wk">C1 · M${md.m}</span>${gChecked(md.m)?'<span class="pill obj">✓ CHECKED OFF</span>':''}</div>
+    <div class="lesson-title">${md.title}</div>
+    <div class="lesson-focus">${md.focus}</div>
+    <div class="term" style="cursor:pointer" id="gCards"><div class="t">🃏 Flashcards — ${n} cards</div><div class="d">Your module vocab, bonus terms included. Mark <b>↻ shaky</b> and a card comes back sooner and shows up twice until you clear it.</div></div>
+    <div class="term" style="cursor:pointer" id="gPoints"><div class="t">🎯 Point-outs — ${p} cards</div><div class="d">The “know the difference” questions from your cards: X vs Y, orders, quick conversions. These are the ones quizzes love.</div></div>
+    <div class="term" style="cursor:pointer" id="gQuiz"><div class="t">✅ Module quiz — ${md.quiz.length} questions</div><div class="d">Scenario-style questions. Every wrong pick is explained. Score 85%+ to check the module off.${b!==undefined?` <span style="color:${b>=85?'var(--green)':'var(--amber)'}">Best: ${b}%</span>`:''}</div></div>
+    <div class="sec-label">ALSO COVERED IN YOUR TRAINER <span class="sec-count">same ground, exam depth</span></div>
+    <div class="pb-toc">${md.map.map(gLessonChip).join('')}</div>
+    <div class="mini" style="text-align:left">Google teaches it, the TODAY lessons above drill it at CompTIA exam level.</div>`;
+  document.getElementById('gBack').onclick=()=>{gv=null;render();};
+  document.getElementById('gCards').onclick=()=>{gv.sub="cards";gDeck=gBuildDeck(md.m,"cards");gPos=0;gFlip=false;render();};
+  document.getElementById('gPoints').onclick=()=>{gv.sub="points";gDeck=gBuildDeck(md.m,"points");gPos=0;gFlip=false;render();};
+  document.getElementById('gQuiz').onclick=()=>{gv.sub="quiz";gq={order:shuffle(md.quiz.map((_,i)=>i)),i:0,ok:0};render();};
+}
+function renderGCards(){
+  const md=gMod(gv.m),card=gDeck[gPos],shaky=(S.gShaky||{})[card.key];
+  stage.innerHTML=`
+    <button class="btn ghost" id="gBack" style="margin-bottom:10px">← Module ${md.m}</button>
+    <div class="scorebar"><span>Card ${gPos+1}/${gDeck.length}</span><span>M${md.m} · ${gv.sub==="points"?'Point-outs':'Flashcards'}</span></div>
+    <div class="flashcard ${gFlip?'flipped':''}" id="fc">
+      ${gFlip?`<div class="fc-def"><b>${card.bTitle}</b>${shaky?' <span style="color:var(--amber);font-family:var(--mono);font-size:10px">↻ SHAKY</span>':''}${card.bBody?`<div style="margin-top:8px">${card.bBody}</div>`:''}</div>`
+             :`${card.tag?`<div class="fc-hint" style="margin:0 0 10px">${card.tag}</div>`:''}<div class="fc-term">${card.front}</div><div class="fc-hint">tap to reveal${shaky?' · ↻ shaky card':''}</div>`}
+    </div>
+    ${gFlip?`<div class="backup-row">
+      <button class="backup-btn" id="fcGot" style="border-color:#1d4427;color:var(--green)">✓ got it</button>
+      <button class="backup-btn" id="fcShaky2" style="border-color:#4a3a10;color:var(--amber)">↻ shaky, bring it back</button>
+    </div>`:''}
+    <div class="backup-row">
+      <button class="backup-btn" id="fcPrev" ${gPos===0?'disabled':''}>← prev</button>
+      <button class="backup-btn" id="fcFlip">${gFlip?'hide':'reveal'}</button>
+      <button class="backup-btn" id="fcNext">${gPos>=gDeck.length-1?'restart ↻':'next →'}</button>
+    </div>
+    <button class="btn ghost" id="fcShuffle" style="width:100%;margin-top:10px">🔀 shuffle deck</button>`;
+  document.getElementById('gBack').onclick=()=>{gv.sub=null;render();};
+  document.getElementById('fc').onclick=document.getElementById('fcFlip').onclick=()=>{gFlip=!gFlip;render();};
+  const pv=document.getElementById('fcPrev');if(!pv.disabled)pv.onclick=()=>{gPos--;gFlip=false;render();};
+  const advance=()=>{gPos=(gPos>=gDeck.length-1)?0:gPos+1;gFlip=false;render();};
+  document.getElementById('fcNext').onclick=advance;
+  document.getElementById('fcShuffle').onclick=()=>{gDeck=gBuildDeck(md.m,gv.sub);gPos=0;gFlip=false;render();};
+  const g=document.getElementById('fcGot'),sk=document.getElementById('fcShaky2');
+  if(g)g.onclick=()=>{S.gShaky=S.gShaky||{};delete S.gShaky[card.key];saveState();advance();};
+  if(sk)sk.onclick=()=>{S.gShaky=S.gShaky||{};S.gShaky[card.key]=(S.gShaky[card.key]||0)+1;saveState();
+    const at=Math.min(gPos+3,gDeck.length);gDeck=gDeck.slice();gDeck.splice(at,0,card);advance();};
+}
+function renderGQuiz(){
+  const md=gMod(gv.m);
+  if(gq.i>=gq.order.length){
+    const pct=Math.round(gq.ok/gq.order.length*100),prev=gBest(md.m);
+    S.gitBest=S.gitBest||{};if(prev===undefined||pct>prev)S.gitBest[md.m]=pct;saveState();
+    const pass=pct>=85;
+    stage.innerHTML=`<div class="done-screen"><div class="big">${pct}%</div><p>${gq.ok}/${gq.order.length} correct on Module ${md.m} — ${md.title}</p></div>
+      <div class="banner ${pass?'ok':'warn'}"><span class="ic">${pass?'✓':'◆'}</span><div>${pass?`<b>Module ${md.m} checked off.</b> ${pct===100?'Perfect run.':'Run the point-outs once more to lock in what you missed.'}`:`<b>Not there yet. You need 85%+.</b> Your misses are saved to <b>Review</b>. Hit the point-outs, then retake it.`}${prev!==undefined&&pct>prev?` New best (was ${prev}%).`:''}</div></div>
+      <button class="btn primary" id="gRetry">↻ retake quiz</button>
+      <button class="btn ghost" id="gBack" style="width:100%;margin-top:10px">← Module ${md.m}</button>`;
+    document.getElementById('gRetry').onclick=()=>{gq={order:shuffle(md.quiz.map((_,i)=>i)),i:0,ok:0};render();};
+    document.getElementById('gBack').onclick=()=>{gv.sub=null;render();};
+    return;
+  }
+  const it=md.quiz[gq.order[gq.i]];
+  stage.innerHTML=`
+    <button class="btn ghost" id="gBack" style="margin-bottom:10px">← Module ${md.m} (quits this run)</button>
+    <div class="scorebar"><span>Q ${gq.i+1}/${gq.order.length}</span><span class="ok">✓ ${gq.ok}</span><span>G-IT · M${md.m}</span></div>
+    <div class="q-obj">▸ ${it.obj}</div>
+    <div class="quiz-stem">${it.s}</div>
+    <div id="opts">${it.o.map((o,i)=>`<button class="opt" data-i="${i}"><span class="ltr">${String.fromCharCode(65+i)}</span>${o}</button>`).join('')}</div>
+    <div class="explain" id="expwrong" style="border-left-color:var(--red);display:none"></div>
+    <div class="explain" id="exp"><b>Why ${String.fromCharCode(65+it.a)} is correct:</b> ${it.e}</div>
+    <button class="btn ghost" id="nextq" style="display:none">${gq.i+1>=gq.order.length?'see score →':'next question →'}</button>`;
+  document.getElementById('gBack').onclick=()=>{gv.sub=null;render();};
+  let answered=false;
+  stage.querySelectorAll('.opt').forEach(btn=>btn.onclick=()=>{
+    if(answered)return;answered=true;
+    const pick=+btn.dataset.i;
+    stage.querySelectorAll('.opt').forEach(b=>{b.disabled=true;if(+b.dataset.i===it.a)b.classList.add('correct');});
+    if(pick===it.a)gq.ok++;else{btn.classList.add('wrong');
+      const ew=document.getElementById('expwrong');
+      ew.innerHTML=`<b style="color:var(--red)">Why ${String.fromCharCode(65+pick)} is wrong:</b> ${(it.w&&it.w[pick])||"That option doesn't fit. Re-read the explanation below."}`;
+      ew.style.display='block';
+      if(!S.mistakes.some(m=>m.s===it.s)){S.mistakes.push({s:it.s,o:it.o,a:it.a,e:it.e,w:it.w||{},obj:it.obj,cert:"G-IT",week:"C1",day:"M"+md.m});saveState();renderStatus();}
+    }
+    document.getElementById('exp').classList.add('show');
+    document.getElementById('nextq').style.display='block';
+  });
+  document.getElementById('nextq').onclick=()=>{gq.i++;render();};
+}
+function toBin(n){return n.toString(2).padStart(8,'0');}
+function binBreak(n){const pv=[128,64,32,16,8,4,2,1],b=toBin(n);const on=pv.filter((v,i)=>b[i]==='1');
+  return `<div style="font-family:var(--mono);font-size:12px;margin-top:8px;overflow-x:auto"><table style="border-collapse:collapse">
+    <tr>${pv.map(v=>`<td style="padding:2px 6px;color:var(--muted);text-align:center">${v}</td>`).join('')}</tr>
+    <tr>${b.split('').map(c=>`<td style="padding:2px 6px;text-align:center;color:${c==='1'?'var(--green)':'var(--muted)'};font-weight:${c==='1'?700:400}">${c}</td>`).join('')}</tr></table>
+    <div style="margin-top:6px">${on.length?on.join(' + '):'0'} = <b style="color:var(--amber)">${n}</b></div></div>`;}
+function newBinQ(){
+  const n=Math.floor(Math.random()*256),dir=Math.random()<.5?'d2b':'b2d';
+  const set=new Set([n]);
+  while(set.size<4){ // near-miss distractors: flip one bit, or ±small offsets
+    const r=Math.random();let x=r<.7?n^(1<<Math.floor(Math.random()*8)):n+[-2,-1,1,2,16,-16][Math.floor(Math.random()*6)];
+    if(x>=0&&x<=255)set.add(x);
+  }
+  const opts=shuffle([...set]);
+  gBin=Object.assign(gBin||{streak:0},{n,dir,opts,a:opts.indexOf(n)});
+}
+function renderGBinary(){
+  const q=gBin;
+  stage.innerHTML=`
+    <button class="btn ghost" id="gBack" style="margin-bottom:10px">← Google IT menu</button>
+    <div class="scorebar"><span>Streak: <b class="ok" id="binStreak">${q.streak}</b></span><span>Best: <span id="binBestV">${S.binBest||0}</span></span><span>Place values: 128 64 32 16 8 4 2 1</span></div>
+    <div class="q-obj">▸ M1 · ${q.dir==='d2b'?'decimal → binary':'binary → decimal'}</div>
+    <div class="quiz-stem" style="font-family:var(--mono);font-size:22px">${q.dir==='d2b'?q.n:toBin(q.n)}</div>
+    <div id="opts">${q.opts.map((o,i)=>`<button class="opt" data-i="${i}" style="font-family:var(--mono)"><span class="ltr">${String.fromCharCode(65+i)}</span>${q.dir==='d2b'?toBin(o):o}</button>`).join('')}</div>
+    <div class="explain" id="exp"></div>
+    <button class="btn primary" id="nextq" style="display:none">next →</button>`;
+  document.getElementById('gBack').onclick=()=>{gv=null;render();};
+  let answered=false;
+  stage.querySelectorAll('.opt').forEach(btn=>btn.onclick=()=>{
+    if(answered)return;answered=true;const pick=+btn.dataset.i,ok=pick===q.a;
+    stage.querySelectorAll('.opt').forEach(b=>{b.disabled=true;if(+b.dataset.i===q.a)b.classList.add('correct');});
+    if(ok){q.streak++;if(q.streak>(S.binBest||0)){S.binBest=q.streak;saveState();}}else{btn.classList.add('wrong');q.streak=0;}
+    document.getElementById('binStreak').textContent=q.streak;document.getElementById('binBestV').textContent=S.binBest||0;
+    const ex=document.getElementById('exp');
+    ex.innerHTML=`<b>${ok?'Correct.':'Not quite. Streak reset.'}</b> Here's the breakdown:${binBreak(q.n)}${!ok?`<div style="margin-top:8px;color:var(--muted)">You picked ${q.dir==='d2b'?toBin(q.opts[pick]):q.opts[pick]}, which is ${q.dir==='d2b'?q.opts[pick]:toBin(q.opts[pick])}.</div>`:''}`;
+    ex.classList.add('show');document.getElementById('nextq').style.display='block';
+  });
+  document.getElementById('nextq').onclick=()=>{newBinQ();render();};
+}
+
 let exQ=null;
 function newExplainQ(){
   const needs=S.explainNeeds||{};
@@ -2794,7 +3485,7 @@ function renderReview(){
   const it=list[rp];
   stage.innerHTML=`
     <div class="banner info"><span class="ic">🎯</span><div><b>Review mode.</b> Re-drilling your missed questions (${rp+1} of ${list.length}). Get it right and mark it mastered to clear it out.</div></div>
-    <div class="lesson-head"><span class="pill cert">${it.cert}</span><span class="pill wk">W${it.week} · D${it.day}</span><span class="pill obj">${it.obj}</span></div>
+    <div class="lesson-head"><span class="pill cert">${it.cert}</span><span class="pill wk">${it.cert==="G-IT"?`${it.week} · ${it.day}`:`W${it.week} · D${it.day}`}</span><span class="pill obj">${it.obj}</span></div>
     <div class="q-obj" style="margin-top:10px">▸ ${it.obj}</div>
     <div class="quiz-stem">${it.s}</div>
     <div id="opts">${it.o.map((o,i)=>`<button class="opt" data-i="${i}"><span class="ltr">${String.fromCharCode(65+i)}</span>${o}</button>`).join('')}</div>

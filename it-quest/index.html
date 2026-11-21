@@ -179,11 +179,13 @@ textarea.code{width:100%;height:90px;margin-top:8px;border-radius:10px;backgroun
     </div>
     <div class="done-badge hidden" id="doneBadge">✓ Beaten today. Streak safe.</div>
     <button class="cta" id="fightBtn">FIGHT ▸</button>
+    <button class="quit hidden" id="abandonBtn" style="display:block;margin:10px auto 0">Abandon this run</button>
   </div>
 
   <div class="week" id="week"></div>
 
   <h2>MODULES · TAP TO TRAIN</h2>
+  <div class="dim" id="mixHint" style="font-size:13px;margin:-2px 0 10px;line-height:1.45"></div>
   <div class="mods" id="mods"></div>
   <button class="mod" id="mixBtn" style="margin-top:8px;justify-content:center"><span class="pix" style="font-size:10px;color:var(--gold)">⚔ BOSS RUSH · ALL MODULES</span></button>
 </section>
@@ -193,7 +195,7 @@ textarea.code{width:100%;height:90px;margin-top:8px;border-radius:10px;backgroun
   <div class="hud">
     <div class="hearts" id="hearts"></div>
     <div class="combo" id="combo"></div>
-    <button class="quit" id="quitBtn">✕ Run</button>
+    <button class="quit" id="quitBtn">❚❚ Save &amp; exit</button>
   </div>
   <div class="arena" id="arena">
     <div class="hpname" id="bName"></div>
@@ -231,8 +233,19 @@ textarea.code{width:100%;height:90px;margin-top:8px;border-radius:10px;backgroun
 
     <div class="set">
       <div class="h">Focus module</div>
-      <div class="dim">Daily runs lean on this module for new material. Auto = your newest module.</div>
+      <div class="dim">Daily runs lean on this module until you hit 80% (proficient), then spread out to your other modules, weakest first. Auto = your newest module.</div>
       <select id="focusSel"></select>
+    </div>
+
+    <div class="set">
+      <div class="h">Save &amp; backup</div>
+      <div class="dim" id="saveInfo"></div>
+      <button class="smallbtn go" id="backupFile">Save backup file</button><button class="smallbtn" id="copySave">Copy save code</button><button class="smallbtn" id="restoreToggle">Restore</button>
+      <div id="restoreBox" class="hidden">
+        <textarea class="code" id="restoreText" placeholder="Paste a save code here"></textarea>
+        <button class="smallbtn go" id="restoreGo">Load save code</button>
+        <label class="smallbtn" style="cursor:pointer">Load backup file<input type="file" id="restoreFile" accept=".json,application/json" hidden></label>
+      </div>
     </div>
 
     <div class="set">
@@ -310,19 +323,38 @@ const BY_ID = Object.fromEntries(ITEMS.map(i => [i.id, i]));
 const modTag = m => `C${m.course}·M${m.module}`;
 
 /* ---------- state ---------- */
-const blank = () => ({ items: {}, streak: 0, best: 0, lastDaily: null, xp: 0, focus: 'auto', history: {}, wins: 0, notif: null });
+const blank = () => ({ items: {}, streak: 0, best: 0, lastDaily: null, xp: 0, focus: 'auto', history: {}, wins: 0, notif: null, run: null });
 let S;
 try { S = Object.assign(blank(), JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) { S = blank(); }
 function save() {
+  S.savedAt = Date.now();
   try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
-  // share a tiny bit of state with the service worker so reminders know if today's run is done
-  if ('caches' in window) caches.open('itq-state').then(c => c.put('state.json', new Response(JSON.stringify({ lastDaily: S.lastDaily, streak: liveStreak() })))).catch(() => {});
+  if ('caches' in window) caches.open('itq-state').then(c => Promise.all([
+    // tiny bit of state for the service worker so reminders know if today's boss is down
+    c.put('state.json', new Response(JSON.stringify({ lastDaily: S.lastDaily, streak: liveStreak() }))),
+    // full second copy of the save, in case iOS clears localStorage
+    c.put('save.json', new Response(JSON.stringify(S))),
+  ])).catch(() => {});
+}
+async function recoverBackup() {
+  if (Object.keys(S.items).length || !('caches' in window)) return false;
+  try {
+    const c = await caches.open('itq-state'); const r = await c.match('save.json'); if (!r) return false;
+    const b = await r.json();
+    if (b && b.items && Object.keys(b.items).length) { S = Object.assign(blank(), b); return true; }
+  } catch (e) {}
+  return false;
 }
 const rec = id => S.items[id] || (S.items[id] = { box: 0, due: null, seen: 0, right: 0, wrong: 0 });
 const liveStreak = () => (S.lastDaily === today() || S.lastDaily === addDays(today(), -1)) ? S.streak : 0;
 const focusMod = () => MODULES.find(m => m.id === S.focus) || MODULES[MODULES.length - 1];
-const modMastery = m => { const its = ITEMS.filter(i => i.mod === m); return its.reduce((s, i) => s + Math.min((S.items[i.id] || {}).box || 0, 4) / 4, 0) / its.length; };
-const totalMastery = () => ITEMS.reduce((s, i) => s + Math.min((S.items[i.id] || {}).box || 0, 4) / 4, 0) / ITEMS.length;
+// Proficiency per concept: unseen 0, missed last time .15, right once .6, right on 2+ reviews 1
+const itemProf = i => { const r = S.items[i.id]; if (!r || !r.seen) return 0; return r.box >= 2 ? 1 : r.box === 1 ? .6 : .15; };
+const modMastery = m => { const its = ITEMS.filter(i => i.mod === m); return its.reduce((s, i) => s + itemProf(i), 0) / its.length; };
+const totalMastery = () => ITEMS.reduce((s, i) => s + itemProf(i), 0) / ITEMS.length;
+const PROFICIENT = 0.8;
+// How hard daily runs lean on the focus module: 7x while you're learning it, easing to an even mix once you're proficient
+const focusWeight = () => { const p = modMastery(focusMod()); return p < .5 ? 7 : p >= PROFICIENT ? 1 : 7 - 6 * (p - .5) / (PROFICIENT - .5); };
 const RANKS = ['Help Desk Rookie', 'Ticket Slayer', 'Cable Wrangler', 'Packet Pusher', 'Root Cause Hunter', 'Subnet Sorcerer', 'Network Ninja', 'Threat Hunter', 'SOC Analyst'];
 const level = () => Math.floor(Math.sqrt(S.xp / 120)) + 1;
 const rank = () => RANKS[Math.min(RANKS.length - 1, Math.floor((level() - 1) / 2))];
@@ -348,39 +380,64 @@ function buildQ(item) {
     ? { item, kind: 'NAME IT', text: item.def, opts: shuffle([item.term, ...picks]), answer: item.term, explain }
     : { item, kind: 'DEFINE IT', text: `What is ${item.term}?`, opts: shuffle([item.def, ...picks]), answer: item.def, explain };
 }
-function pickPool(mode, modId) {
+function pickPool(mode, modId, size = 14) {
   const t = today();
-  if (mode === 'practice') {
-    const its = ITEMS.filter(i => !modId || i.mod.id === modId);
-    // weakest first, with some randomness
-    return shuffle(its.slice()).sort((a, b) => ((S.items[a.id] || {}).box || 0) - ((S.items[b.id] || {}).box || 0) + (Math.random() - .5) * 1.5);
+  if (modId) {
+    // single-module training: weakest concepts first
+    return shuffle(ITEMS.filter(i => i.mod.id === modId)).sort((a, b) => itemProf(a) - itemProf(b) + (Math.random() - .5) * .5);
   }
-  const fm = focusMod();
-  const seen = ITEMS.filter(i => S.items[i.id] && S.items[i.id].seen);
-  const due = shuffle(seen.filter(i => S.items[i.id].due <= t)).sort((a, b) => S.items[a.id].box - S.items[b.id].box);
-  const focusNew = shuffle(ITEMS.filter(i => i.mod === fm && !(S.items[i.id] && S.items[i.id].seen)));
-  const focusAny = shuffle(ITEMS.filter(i => i.mod === fm));
-  const otherNew = shuffle(ITEMS.filter(i => i.mod !== fm && !(S.items[i.id] && S.items[i.id].seen)));
-  const out = [];
-  const add = (arr, n) => { for (const i of arr) { if (n <= 0) break; if (!out.includes(i)) { out.push(i); n--; } } };
-  add(due, 7);
-  add(focusNew, 5);
-  add(otherNew, 14 - out.length);
-  add(focusAny, 14 - out.length);
-  add(shuffle(ITEMS.slice()), 30 - out.length);
-  return shuffle(out.slice(0, 14)).concat(out.slice(14));
+  const fm = focusMod(), fw = focusWeight(), out = [];
+  // 1) reviews that are due (spaced repetition), up to ~40% of the run
+  const due = shuffle(ITEMS.filter(i => S.items[i.id] && S.items[i.id].seen && S.items[i.id].due <= t)).sort((a, b) => S.items[a.id].box - S.items[b.id].box);
+  for (const i of due) { if (out.length >= Math.round(size * .4)) break; out.push(i); }
+  // 2) fill the rest by module weight: weaker modules get more, focus module gets a boost until you're proficient
+  const buckets = MODULES.map(m => ({
+    w: Math.pow(1.05 - modMastery(m), 1.5) * (m === fm ? fw : 1),
+    items: shuffle(ITEMS.filter(i => i.mod === m && !out.includes(i))).sort((a, b) => itemProf(a) - itemProf(b)),
+  }));
+  while (out.length < size) {
+    const live = buckets.filter(b => b.items.length);
+    if (!live.length) break;
+    let r = Math.random() * live.reduce((sum, b) => sum + b.w, 0);
+    const b = live.find(b => (r -= b.w) <= 0) || live[live.length - 1];
+    out.push(b.items.shift());
+  }
+  return shuffle(out);
 }
 
 /* ---------- battle ---------- */
 let R = null;
 function startRun(mode, modId) {
   const boss = mode === 'daily' ? dailyBoss() : (modId ? BONUS_BOSSES[rand(BONUS_BOSSES.length)] : BOSSES[rand(BOSSES.length)]);
-  R = { mode, modId, boss, hp: BOSS_HP, hearts: HEARTS, combo: 0, bestCombo: 0, correct: 0, total: 0, xp: 0, missed: [], queue: pickPool(mode, modId), requeued: new Set(), finisherUsed: false, qStart: 0, locked: false };
-  drawSprite($('bSprite'), boss);
-  $('bName').textContent = boss.name.toUpperCase();
+  R = { mode, modId, boss, hp: BOSS_HP, hearts: HEARTS, combo: 0, bestCombo: 0, correct: 0, total: 0, xp: 0, missed: [], queue: pickPool(mode, modId), requeued: new Set(), finisherUsed: false, revives: 0, cur: null, qStart: 0, locked: false };
+  enterBattle();
+}
+function enterBattle() {
+  drawSprite($('bSprite'), R.boss);
+  $('bName').textContent = R.boss.name.toUpperCase();
   show('battle');
   renderHud();
   nextQ();
+}
+const ALL_BOSSES = BOSSES.concat(BONUS_BOSSES);
+// Snapshot the fight after every answer so closing the app never loses progress
+function saveRun() {
+  S.run = R ? {
+    mode: R.mode, modId: R.modId, boss: R.boss.name, hp: R.hp, hearts: R.hearts, combo: R.combo, bestCombo: R.bestCombo,
+    correct: R.correct, total: R.total, xp: R.xp, missed: R.missed.map(i => i.id),
+    queue: (R.cur ? [R.cur] : []).concat(R.queue.map(i => i.id)), requeued: [...R.requeued],
+    finisherUsed: R.finisherUsed, revives: R.revives, date: today(),
+  } : null;
+  save();
+}
+function resumeRun() {
+  const r = S.run; if (!r) return;
+  R = Object.assign({}, r, {
+    boss: ALL_BOSSES.find(b => b.name === r.boss) || dailyBoss(),
+    missed: r.missed.map(id => BY_ID[id]).filter(Boolean), queue: r.queue.map(id => BY_ID[id]).filter(Boolean),
+    requeued: new Set(r.requeued), cur: null, qStart: 0, locked: false,
+  });
+  enterBattle();
 }
 function renderHud() {
   const HG = ['.xx.xx.', 'xwxxxxx', 'xxxxxxx', '.xxxxx.', '..xxx..', '...x...'];
@@ -394,11 +451,12 @@ function renderHud() {
 function nextQ() {
   R.locked = false;
   if (R.hp <= 0) return endRun(true);
-  if (R.hearts <= 0) return endRun(false);
+  if (R.hearts <= 0) return downed();
   if (!R.finisherUsed && R.hp <= BOSS_HP * FINISH_AT) return finisher();
-  if (!R.queue.length) R.queue = pickPool('practice', R.modId).slice(0, 10);
+  if (!R.queue.length) R.queue = pickPool(R.mode, R.modId, 10);
   const q = buildQ(R.queue.shift());
-  R.q = q; R.qStart = Date.now();
+  R.q = q; R.qStart = Date.now(); R.cur = q.item.id;
+  saveRun();
   const longOpts = q.opts.some(o => o.length > 60);
   $('qcard').className = 'qcard';
   $('qcard').innerHTML = `
@@ -428,6 +486,7 @@ function answer(i) {
   R.total++;
   const firstTry = !R.requeued.has(q.item.id);
   if (firstTry) grade(q.item, ok);
+  R.cur = null;
   if (ok) {
     R.correct++; R.combo++; R.bestCombo = Math.max(R.bestCombo, R.combo);
     const quick = secs < 6;
@@ -439,6 +498,7 @@ function answer(i) {
     const ex = document.createElement('div');
     ex.className = 'explain'; ex.innerHTML = q.explain;
     $('qcard').appendChild(ex);
+    saveRun();
     setTimeout(nextQ, q.item.type === 'pt' ? 1700 : 1300);
   } else {
     btns[i].classList.add('wrong');
@@ -448,12 +508,26 @@ function answer(i) {
     bump($('arena'), 'flash');
     floatText('OUCH', 'var(--red)');
     renderHud();
+    saveRun();
     $('qcard').insertAdjacentHTML('beforeend', `<div class="explain">${q.explain}</div><button class="cta alt next" id="nextBtn">GOT IT ▸</button>`);
     $('nextBtn').onclick = nextQ;
   }
 }
+function downed() {
+  R.cur = null; saveRun();
+  const heal = 30;
+  $('qcard').className = 'qcard finisher';
+  $('qcard').innerHTML = `<span class="badge" style="background:var(--red)">💀 YOU'RE DOWN</span>
+    <div class="qtext">Out of hearts, but the fight's not over. Revive with full hearts and keep learning. ${esc(R.boss.name)} heals ${heal} HP.</div>
+    <div class="row2"><button class="cta" id="reviveBtn">REVIVE ▸</button><button class="cta alt" id="retreatBtn">RETREAT</button></div>
+    <div class="dim" style="font-size:13px;margin-top:12px;line-height:1.45">${R.mode === 'daily' ? 'Your streak counts once the daily boss goes down. Revives are unlimited.' : 'Revives are unlimited.'}</div>`;
+  $('reviveBtn').onclick = () => {
+    R.hearts = HEARTS; R.revives = (R.revives || 0) + 1; R.hp = Math.min(BOSS_HP, R.hp + heal);
+    floatText(`+${heal} HEAL`, 'var(--green)'); renderHud(); nextQ();
+  };
+  $('retreatBtn').onclick = () => endRun(false);
+}
 function finisher() {
-  R.finisherUsed = true;
   const seenPts = ITEMS.filter(i => i.type === 'pt' && (R.modId ? i.mod.id === R.modId : true));
   const weighted = seenPts.filter(i => i.mod === focusMod() || (S.items[i.id] && S.items[i.id].seen));
   const item = (weighted.length ? weighted : seenPts)[rand((weighted.length ? weighted : seenPts).length)];
@@ -468,13 +542,13 @@ function finisher() {
     $('qcard').insertAdjacentHTML('beforeend', `<div class="explain"><b>${esc(item.a)}</b><br>${esc(item.ex)}</div>
       <div class="row2"><button class="cta" id="nailBtn">NAILED IT</button><button class="cta alt" id="missBtn">NOT QUITE</button></div>`);
     $('nailBtn').onclick = () => {
-      grade(item, true); R.xp += 25; R.correct++; R.total++;
+      R.finisherUsed = true; grade(item, true); R.xp += 25; R.correct++; R.total++;
       floatText('-' + Math.max(R.hp, 0) + ' FINISH!', 'var(--lime)');
       R.hp = 0; renderHud(); bump($('bSprite'), 'shake');
       setTimeout(() => endRun(true), 900);
     };
     $('missBtn').onclick = () => {
-      grade(item, false); R.total++;
+      R.finisherUsed = true; grade(item, false); R.total++;
       if (!R.missed.includes(item)) R.missed.push(item);
       R.hp = Math.min(BOSS_HP, R.hp + 20); floatText('+20 HEAL', 'var(--green)'); renderHud();
       setTimeout(nextQ, 700);
@@ -484,7 +558,7 @@ function finisher() {
 function endRun(won) {
   const t = today();
   let streakMsg = '';
-  if (R.mode === 'daily') {
+  if (R.mode === 'daily' && won) {
     if (S.lastDaily !== t) {
       S.streak = S.lastDaily === addDays(t, -1) ? S.streak + 1 : 1;
       S.lastDaily = t;
@@ -497,10 +571,15 @@ function endRun(won) {
   S.xp += R.xp;
   const h = S.history[t] || (S.history[t] = { c: 0, n: 0, won: false });
   h.c += R.correct; h.n += R.total; h.won = h.won || (won && R.mode === 'daily');
+  S.run = null;
   save();
   $('resTitle').className = 'result-title ' + (won ? 'win' : 'lose');
   $('resTitle').textContent = won ? 'BOSS DEFEATED' : 'BOSS ESCAPED';
-  $('resSub').textContent = [won ? `${R.boss.name} is down.` : `${R.boss.name} got away. Rematch?`, streakMsg].filter(Boolean).join(' · ');
+  $('resSub').textContent = won
+    ? [`${R.boss.name} is down.`, streakMsg].filter(Boolean).join(' · ')
+    : (R.mode === 'daily' ? `${R.boss.name} got away. Today's boss is still open, so run it back.` : `${R.boss.name} got away. Run it back.`);
+  $('resAgain').textContent = won ? 'NEXT BOSS ▸' : 'TRY AGAIN ▸';
+  R.won = won;
   $('resAcc').textContent = R.total ? Math.round(R.correct / R.total * 100) + '%' : '–';
   $('resCombo').textContent = '×' + R.bestCombo;
   $('resXp').textContent = '+' + R.xp;
@@ -514,7 +593,7 @@ function endRun(won) {
 
 /* ---------- home ---------- */
 function renderHome() {
-  const boss = dailyBoss(), done = S.lastDaily === today();
+  const boss = dailyBoss(), done = S.lastDaily === today(), run = S.run;
   drawSprite($('homeSprite'), boss);
   $('homeBossName').textContent = boss.name;
   $('homeBossSub').textContent = done ? 'Defeated. A new boss spawns tomorrow.' : boss.sub + ' ~5 min.';
@@ -522,6 +601,16 @@ function renderHome() {
   $('fightBtn').textContent = done ? 'BONUS ROUND ▸' : 'FIGHT ▸';
   $('fightBtn').className = done ? 'cta alt' : 'cta';
   $('bossLabel').textContent = done ? "Today's boss · cleared" : "Today's boss";
+  $('abandonBtn').classList.toggle('hidden', !run);
+  if (run) {
+    const rb = ALL_BOSSES.find(b => b.name === run.boss) || boss;
+    drawSprite($('homeSprite'), rb);
+    $('homeBossName').textContent = rb.name;
+    $('homeBossSub').textContent = `Fight in progress: ${Math.max(0, run.hp)}/${BOSS_HP} HP left, ${run.hearts} ❤ · ${run.correct} correct so far.`;
+    $('bossLabel').textContent = run.mode === 'daily' ? "Today's boss · paused" : 'Training · paused';
+    $('fightBtn').textContent = 'RESUME ▸';
+    $('fightBtn').className = 'cta';
+  }
   $('stStreak').textContent = liveStreak();
   $('stLevel').textContent = level();
   $('stRank').textContent = rank();
@@ -530,14 +619,19 @@ function renderHome() {
   let wk = '';
   for (let k = 6; k >= 0; k--) {
     const d = addDays(t, -k), [y, m, dd] = d.split('-').map(Number), dow = new Date(y, m - 1, dd).getDay();
-    const on = !!(S.history[d] && (S.lastDaily === d || S.history[d].n));
+    const on = !!(S.history[d] && S.history[d].won);
     wk += `<div class="day"><div class="dot ${on ? 'on' : ''} ${k === 0 ? 'today' : ''}">${on ? '✓' : ''}</div>${names[dow]}</div>`;
   }
   $('week').innerHTML = wk;
-  const fm = focusMod();
+  const fm = focusMod(), fp = modMastery(fm), fpct = Math.round(fp * 100);
+  $('mixHint').textContent = fp >= PROFICIENT
+    ? `${modTag(fm)} is proficient (${fpct}%) ✓ Daily runs now spread across every module, weakest first.`
+    : fp >= .5 ? `${modTag(fm)} is at ${fpct}%. Daily runs are starting to mix in your other modules.`
+    : `Focus: ${modTag(fm)} (${fpct}%). Daily runs lean on it until you hit 80%.`;
   $('mods').innerHTML = MODULES.slice().reverse().map(m => {
-    const p = Math.round(modMastery(m) * 100);
-    return `<button class="mod ${m === fm ? 'focus' : ''}" data-m="${m.id}"><div class="tag">${modTag(m)}</div><div class="mid"><div class="t">${esc(m.title)}${m === fm ? '<span class="new">FOCUS</span>' : ''}</div><div class="bar"><i style="width:${p}%"></i></div></div><div class="pct">${p}%</div></button>`;
+    const pr = modMastery(m), p = Math.round(pr * 100);
+    const tags = (m === fm ? '<span class="new">FOCUS</span>' : '') + (pr >= PROFICIENT ? '<span class="new" style="background:var(--lime)">✓ PRO</span>' : '');
+    return `<button class="mod ${m === fm ? 'focus' : ''}" data-m="${m.id}"><div class="tag">${modTag(m)}</div><div class="mid"><div class="t">${esc(m.title)}${tags}</div><div class="bar"><i style="width:${p}%"></i></div></div><div class="pct">${p}%</div></button>`;
   }).join('');
   $('mods').querySelectorAll('.mod').forEach(b => b.onclick = () => startRun('practice', b.dataset.m));
 }
@@ -556,7 +650,7 @@ function b64ToU8(s) { const p = '='.repeat((4 - s.length % 4) % 4), b = atob((s 
 async function currentSub() { try { const reg = await navigator.serviceWorker.ready; return await reg.pushManager.getSubscription(); } catch (e) { return null; } }
 async function renderNotif() {
   const el = $('notifBody');
-  const sched = `<div class="dim">7:20 AM Sun–Thu (before your shift) and ~noon every day. Turn them off anytime in your phone's Settings → Notifications → IT Quest.</div>`;
+  const sched = `<div class="dim">~8:35 AM Sun–Thu (before doors open) and ~noon every day. Turn them off anytime in your phone's Settings → Notifications → IT Quest.</div>`;
   if (isIOS && !standalone) {
     el.innerHTML = sched + `<div class="status warn">Add IT Quest to your Home Screen first.</div><ol><li>In Safari, tap the Share button.</li><li>Tap <b>Add to Home Screen</b>.</li><li>Open IT Quest from your Home Screen and come back here.</li></ol>`;
     return;
@@ -610,6 +704,8 @@ function openSettings() {
     MODULES.map(m => `<option value="${m.id}" ${S.focus === m.id ? 'selected' : ''}>${modTag(m)} · ${esc(m.title)}</option>`).join('');
   const seen = Object.values(S.items).filter(r => r.seen).length;
   $('progInfo').textContent = `${seen} of ${ITEMS.length} concepts seen · ${S.wins} boss${S.wins === 1 ? '' : 'es'} beaten · best streak ${S.best}`;
+  $('saveInfo').innerHTML = `Progress saves on this phone after every answer, even mid-fight. Last save: ${S.savedAt ? new Date(S.savedAt).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : 'never'}.<br>Back it up to Files now and then. Use a save code to move progress to a new phone, or between Safari and the Home Screen app (they keep separate saves).`;
+  $('restoreBox').classList.add('hidden');
   $('resetBtn').textContent = 'Reset all progress'; $('resetBtn').dataset.armed = '';
   $('settings').classList.remove('hidden');
   renderNotif();
@@ -623,19 +719,65 @@ $('resetBtn').onclick = e => {
   if (!b.dataset.armed) { b.dataset.armed = '1'; b.textContent = 'Tap again to wipe everything'; return; }
   const notif = S.notif; S = blank(); S.notif = notif; save(); toast('Progress reset.'); openSettings();
 };
+function loadSave(obj) {
+  if (!obj || typeof obj !== 'object' || !obj.items) throw new Error('not a save');
+  const notif = S.notif; S = Object.assign(blank(), obj); S.notif = notif; save();
+}
+const encodeSave = () => btoa(unescape(encodeURIComponent(JSON.stringify(S))));
+$('backupFile').onclick = async () => {
+  const name = `it-quest-save-${today()}.json`;
+  const blob = new Blob([JSON.stringify(S)], { type: 'application/json' });
+  try {
+    const file = new File([blob], name, { type: 'application/json' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: 'IT Quest save' }); return; }
+  } catch (e) { if (e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+};
+$('copySave').onclick = async () => {
+  const code = encodeSave();
+  try { await navigator.clipboard.writeText(code); toast('Save code copied. Paste it somewhere safe.'); }
+  catch (e) { $('restoreBox').classList.remove('hidden'); $('restoreText').value = code; $('restoreText').select(); toast('Copy the code from the box.'); }
+};
+$('restoreToggle').onclick = () => $('restoreBox').classList.toggle('hidden');
+$('restoreGo').onclick = () => {
+  try {
+    const txt = $('restoreText').value.trim();
+    loadSave(txt.startsWith('{') ? JSON.parse(txt) : JSON.parse(decodeURIComponent(escape(atob(txt)))));
+    toast('Save loaded.'); openSettings();
+  } catch (e) { toast("That code didn't work."); }
+};
+$('restoreFile').onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try { loadSave(JSON.parse(await f.text())); toast('Backup restored.'); openSettings(); }
+  catch (err) { toast("That file didn't work."); }
+  e.target.value = '';
+};
 
 /* ---------- wiring ---------- */
-$('fightBtn').onclick = () => startRun(S.lastDaily === today() ? 'practice' : 'daily', null);
+$('fightBtn').onclick = () => S.run ? resumeRun() : startRun(S.lastDaily === today() ? 'practice' : 'daily', null);
+$('abandonBtn').onclick = e => {
+  const b = e.currentTarget;
+  if (!b.dataset.armed) { b.dataset.armed = '1'; b.textContent = 'Tap again to abandon (progress on concepts is kept)'; return; }
+  b.dataset.armed = ''; b.textContent = 'Abandon this run'; S.run = null; save(); renderHome();
+};
 $('mixBtn').onclick = () => startRun('practice', null);
-$('quitBtn').onclick = () => { R = null; show('home'); };
+$('quitBtn').onclick = () => { saveRun(); R = null; show('home'); };
 $('resHome').onclick = () => show('home');
-$('resAgain').onclick = () => startRun(R.mode === 'daily' ? 'practice' : R.mode, R.modId);
+$('resAgain').onclick = () => startRun(!R.won && R.mode === 'daily' && S.lastDaily !== today() ? 'daily' : 'practice', R.modId);
 document.addEventListener('visibilitychange', () => { if (!document.hidden && !$('home').classList.contains('hidden')) renderHome(); });
 
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
-save();
+if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+if (S.run && S.run.date !== today()) S.run = null; // yesterday's paused fight expires with its boss
 show('home');
-if (new URLSearchParams(location.search).get('go') === 'daily' && S.lastDaily !== today()) startRun('daily', null);
+recoverBackup().then(restored => {
+  save();
+  if (restored) { toast('Progress restored from backup.'); if (!$('home').classList.contains('hidden')) renderHome(); }
+  if (new URLSearchParams(location.search).get('go') === 'daily' && S.lastDaily !== today() && $('home').classList.contains('hidden') === false) {
+    S.run && S.run.mode === 'daily' ? resumeRun() : startRun('daily', null);
+  }
+});
 window.__itq = { S: () => S, ITEMS, buildQ, pickPool, startRun };
 })();
 </script>

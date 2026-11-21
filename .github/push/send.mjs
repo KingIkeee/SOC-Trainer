@@ -10,8 +10,8 @@ const BOSSES = ['Collision Ogre', 'Kernel Panic', 'The 404 Phantom', 'WannaCry H
 
 // Each slot has an EST and an EDT cron line; only the one matching New York's current offset sends.
 const CRONS = {
-  '20 12 * * 0-4': { slot: 'morning', offset: -5 },
-  '20 11 * * 0-4': { slot: 'morning', offset: -4 },
+  '35 13 * * 0-4': { slot: 'morning', offset: -5 },
+  '35 12 * * 0-4': { slot: 'morning', offset: -4 },
   '55 16 * * *': { slot: 'noon', offset: -5 },
   '55 15 * * *': { slot: 'noon', offset: -4 },
 };
@@ -43,9 +43,9 @@ const pick = a => a[Math.floor(Math.random() * a.length)];
 
 const MESSAGES = {
   morning: [
-    `☕ Pre-shift run: ${boss} spawned. 5 minutes before you clock in.`,
-    `🌅 ${boss} is up early too. Knock it out before 8.`,
-    `⚔️ Morning boss: ${boss}. Quick run, then go get that bread.`,
+    `☕ Before the doors open: ${boss} spawned. 5 minutes.`,
+    `🔑 Setup's almost done. ${boss} is waiting.`,
+    `⚔️ Morning boss: ${boss}. Quick run before 9.`,
   ],
   noon: dayOff ? [
     `🎮 Day off. Beat ${boss}, then crack open a module.`,

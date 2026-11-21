@@ -1,5 +1,5 @@
 // IT Quest service worker: offline cache + daily reminder pushes.
-const VERSION = 'itq-v1.0.0';
+const VERSION = 'itq-v1.1.0';
 const SHELL = ['./', 'index.html', 'cards.js', 'manifest.webmanifest', 'icons/icon-180.png', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/badge-96.png'];
 
 self.addEventListener('install', e => {

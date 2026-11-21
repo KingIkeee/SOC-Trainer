@@ -4,8 +4,8 @@ on:
   schedule:
     # Times are UTC. Each reminder has a winter (EST) and summer (EDT) line;
     # send.mjs only fires the one that matches New York time.
-    - cron: '20 12 * * 0-4'  # 7:20 AM EST, Sun–Thu (before shift)
-    - cron: '20 11 * * 0-4'  # 7:20 AM EDT, Sun–Thu
+    - cron: '35 13 * * 0-4'  # 8:35 AM EST, Sun–Thu (before doors open at 9)
+    - cron: '35 12 * * 0-4'  # 8:35 AM EDT, Sun–Thu
     - cron: '55 16 * * *'    # 11:55 AM EST, daily (lunch)
     - cron: '55 15 * * *'    # 11:55 AM EDT, daily
   workflow_dispatch:

@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>IT Quest</title>
+<meta name="theme-color" content="#0b0e17">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="IT Quest">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0e17; --panel:#141a29; --panel2:#1b2337; --line:#2a3550;
+  --text:#e9eefb; --dim:#8b97b5; --lime:#b8ff3d; --cyan:#3de0ff; --pink:#ff3d8b;
+  --gold:#ffc83d; --red:#ff5a5a; --green:#3dff9a;
+  --pix:'Press Start 2P', ui-monospace, monospace;
+  --sans:-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100%;overscroll-behavior:none}
+body{padding:calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 20px);
+  background:radial-gradient(1200px 500px at 50% -200px,#1a2445 0%,transparent 70%),var(--bg);min-height:100vh}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+.app{max-width:520px;margin:0 auto}
+.hidden{display:none!important}
+.pix{font-family:var(--pix);letter-spacing:.02em}
+.dim{color:var(--dim)}
+
+/* top bar */
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.logo{font-family:var(--pix);font-size:15px;color:var(--lime);text-shadow:0 0 12px rgba(184,255,61,.35)}
+.logo span{color:var(--cyan)}
+.iconbtn{width:40px;height:40px;border-radius:12px;background:var(--panel);border:1px solid var(--line);display:grid;place-items:center}
+.iconbtn svg{width:20px;height:20px}
+
+/* stat chips */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.chip{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 10px 9px}
+.chip .v{font-family:var(--pix);font-size:15px;margin-top:6px}
+.chip .k{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em}
+.chip.fire .v{color:var(--gold)}
+.chip.lvl .v{color:var(--cyan)}
+.chip.mas .v{color:var(--lime)}
+
+/* boss card */
+.bosscard{position:relative;background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:20px;padding:16px;overflow:hidden}
+.bosscard::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px);pointer-events:none}
+.bosscard .label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--pink)}
+.bossrow{display:flex;gap:14px;align-items:center;margin:10px 0 14px}
+.sprite{width:96px;height:96px;flex:none;image-rendering:pixelated;filter:drop-shadow(0 6px 14px rgba(0,0,0,.5))}
+.sprite.bob{animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-5px)}}
+.bossname{font-family:var(--pix);font-size:13px;line-height:1.6}
+.bosssub{font-size:13px;color:var(--dim);margin-top:4px;line-height:1.4}
+.cta{width:100%;padding:16px;border-radius:14px;background:var(--lime);color:#0b0e17;font-family:var(--pix);font-size:13px;box-shadow:0 4px 0 #6f9e1b,0 0 24px rgba(184,255,61,.25);transition:transform .08s}
+.cta:active{transform:translateY(3px);box-shadow:0 1px 0 #6f9e1b}
+.cta.alt{background:var(--panel2);color:var(--text);border:1px solid var(--line);box-shadow:0 4px 0 #0a0d16}
+.done-badge{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--green);margin-bottom:10px}
+
+/* week */
+.week{display:flex;justify-content:space-between;margin:14px 2px 6px}
+.day{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11px;color:var(--dim)}
+.dot{width:26px;height:26px;border-radius:8px;background:var(--panel);border:1px solid var(--line);display:grid;place-items:center;font-size:12px}
+.dot.on{background:var(--lime);border-color:var(--lime);color:#0b0e17}
+.dot.today{outline:2px solid var(--cyan);outline-offset:2px}
+
+h2{font-size:12px;font-family:var(--pix);color:var(--dim);margin:24px 0 10px;font-weight:400}
+.mods{display:flex;flex-direction:column;gap:8px}
+.mod{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;text-align:left;width:100%}
+.mod .tag{font-family:var(--pix);font-size:9px;color:var(--cyan);width:52px;flex:none;line-height:1.6}
+.mod .mid{flex:1;min-width:0}
+.mod .t{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar{height:6px;border-radius:3px;background:#0b0e17;margin-top:7px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--lime);border-radius:3px}
+.mod .pct{font-family:var(--pix);font-size:10px;color:var(--dim);width:38px;text-align:right}
+.mod.focus{border-color:rgba(61,224,255,.5)}
+.mod .new{font-size:10px;color:#0b0e17;background:var(--cyan);border-radius:5px;padding:2px 5px;margin-left:6px;font-weight:700;vertical-align:2px}
+
+/* battle */
+.hud{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.hearts{display:flex;gap:4px}
+.heart{width:22px;height:20px}
+.heart.lost{opacity:.18}
+.combo{font-family:var(--pix);font-size:11px;color:var(--gold);min-height:14px}
+.arena{position:relative;background:linear-gradient(180deg,#121a30,#0f1424);border:1px solid var(--line);border-radius:20px;padding:12px 14px 14px;margin-bottom:12px;overflow:hidden}
+.arena .sprite{width:112px;height:112px;margin:2px auto 8px;display:block}
+.hpwrap{display:flex;align-items:center;gap:8px}
+.hpname{font-family:var(--pix);font-size:10px;color:var(--pink);margin-bottom:8px;text-align:center}
+.hp{flex:1;height:12px;border-radius:4px;background:#070a12;border:1px solid #2b1830;overflow:hidden}
+.hp i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#ff3d8b,#ff7a3d);transition:width .35s ease}
+.hpnum{font-family:var(--pix);font-size:9px;color:var(--dim);width:58px;text-align:right}
+.shake{animation:shake .35s}
+@keyframes shake{20%{transform:translateX(-7px) rotate(-3deg)}40%{transform:translateX(6px) rotate(2deg)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+.flash{animation:flash .45s}
+@keyframes flash{30%{box-shadow:inset 0 0 0 999px rgba(255,90,90,.25)}}
+.dmg{position:absolute;left:50%;top:40px;font-family:var(--pix);font-size:16px;color:var(--gold);text-shadow:0 2px 0 #000;pointer-events:none;animation:float 0.9s ease-out forwards}
+@keyframes float{from{transform:translate(-50%,0);opacity:1}to{transform:translate(-50%,-46px);opacity:0}}
+.qcard{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px}
+.qmeta{display:flex;justify-content:space-between;font-size:10px;font-family:var(--pix);color:var(--cyan);margin-bottom:12px}
+.qmeta .kind{color:var(--dim)}
+.qtext{font-size:18px;line-height:1.45;font-weight:600;margin-bottom:14px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{text-align:left;padding:13px 14px;border-radius:12px;background:var(--panel2);border:1px solid var(--line);font-size:15px;line-height:1.35;transition:background .15s,border-color .15s}
+.opt.long{font-size:14px}
+.opt:active{background:#24304a}
+.opt.right{background:rgba(61,255,154,.14);border-color:var(--green)}
+.opt.wrong{background:rgba(255,90,90,.14);border-color:var(--red)}
+.opt[disabled]{cursor:default}
+.explain{margin-top:12px;padding:12px 14px;border-radius:12px;background:#0f1424;border-left:3px solid var(--cyan);font-size:14px;line-height:1.5}
+.explain b{color:var(--cyan)}
+.next{margin-top:12px}
+.finisher .qtext{font-size:20px}
+.finisher .badge{display:inline-block;font-family:var(--pix);font-size:10px;background:var(--pink);color:#fff;padding:6px 8px;border-radius:6px;margin-bottom:12px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.quit{font-size:13px;color:var(--dim);padding:8px 4px}
+
+/* results */
+.result-title{font-family:var(--pix);font-size:20px;text-align:center;margin:18px 0 6px;line-height:1.5}
+.result-title.win{color:var(--lime);text-shadow:0 0 16px rgba(184,255,61,.4)}
+.result-title.lose{color:var(--pink)}
+.resgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0}
+.review{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.review .r{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:14px;line-height:1.45}
+.review .r b{color:var(--gold)}
+
+/* sheet */
+.sheet{position:fixed;inset:0;background:rgba(5,7,12,.7);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:flex-end;z-index:20}
+.sheet .in{width:100%;max-width:560px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-bottom:0;border-radius:22px 22px 0 0;padding:18px 16px calc(env(safe-area-inset-bottom) + 20px);max-height:88vh;overflow:auto}
+.sheet h3{font-family:var(--pix);font-size:13px;margin:4px 0 16px}
+.set{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px;font-size:14px;line-height:1.5}
+.set .h{font-weight:700;margin-bottom:6px}
+.set select{width:100%;margin-top:6px;padding:10px;border-radius:10px;background:var(--bg);color:var(--text);border:1px solid var(--line);font:inherit}
+.set ol{margin:8px 0 0;padding-left:20px}
+.set li{margin-bottom:6px}
+.set a{color:var(--cyan)}
+.smallbtn{display:inline-block;margin-top:10px;margin-right:6px;padding:10px 12px;border-radius:10px;background:var(--bg);border:1px solid var(--line);font-size:13px;font-weight:600}
+.smallbtn.go{background:var(--lime);color:#0b0e17;border-color:var(--lime)}
+.smallbtn.danger{color:var(--red)}
+.status{font-size:13px;margin-top:6px}
+.status.ok{color:var(--green)} .status.warn{color:var(--gold)}
+textarea.code{width:100%;height:90px;margin-top:8px;border-radius:10px;background:var(--bg);color:var(--dim);border:1px solid var(--line);font:11px ui-monospace,monospace;padding:8px}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 24px);transform:translateX(-50%);background:var(--panel2);border:1px solid var(--line);padding:10px 14px;border-radius:12px;font-size:14px;z-index:30;animation:fade 2.4s forwards}
+@keyframes fade{0%,80%{opacity:1}100%{opacity:0}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- HOME -->
+<section id="home">
+  <div class="top">
+    <div><div class="logo">IT<span>·</span>QUEST</div><div class="dim" id="stRank" style="font-size:12px;margin-top:6px"></div></div>
+    <button class="iconbtn" id="openSettings" aria-label="Settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#8b97b5" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+    </button>
+  </div>
+
+  <div class="stats">
+    <div class="chip fire"><div class="k">Streak</div><div class="v" id="stStreak">0</div></div>
+    <div class="chip lvl"><div class="k">Level</div><div class="v" id="stLevel">1</div></div>
+    <div class="chip mas"><div class="k">Mastery</div><div class="v" id="stMastery">0%</div></div>
+  </div>
+
+  <div class="bosscard">
+    <div class="label" id="bossLabel">Today's boss</div>
+    <div class="bossrow">
+      <svg class="sprite bob" id="homeSprite"></svg>
+      <div>
+        <div class="bossname" id="homeBossName"></div>
+        <div class="bosssub" id="homeBossSub"></div>
+      </div>
+    </div>
+    <div class="done-badge hidden" id="doneBadge">✓ Beaten today. Streak safe.</div>
+    <button class="cta" id="fightBtn">FIGHT ▸</button>
+  </div>
+
+  <div class="week" id="week"></div>
+
+  <h2>MODULES · TAP TO TRAIN</h2>
+  <div class="mods" id="mods"></div>
+  <button class="mod" id="mixBtn" style="margin-top:8px;justify-content:center"><span class="pix" style="font-size:10px;color:var(--gold)">⚔ BOSS RUSH · ALL MODULES</span></button>
+</section>
+
+<!-- BATTLE -->
+<section id="battle" class="hidden">
+  <div class="hud">
+    <div class="hearts" id="hearts"></div>
+    <div class="combo" id="combo"></div>
+    <button class="quit" id="quitBtn">✕ Run</button>
+  </div>
+  <div class="arena" id="arena">
+    <div class="hpname" id="bName"></div>
+    <svg class="sprite" id="bSprite"></svg>
+    <div class="hpwrap"><div class="hp"><i id="hpFill"></i></div><div class="hpnum" id="hpNum"></div></div>
+  </div>
+  <div class="qcard" id="qcard"></div>
+</section>
+
+<!-- RESULTS -->
+<section id="results" class="hidden">
+  <div class="result-title" id="resTitle"></div>
+  <p class="dim" style="text-align:center;margin:0;font-size:14px" id="resSub"></p>
+  <div class="resgrid">
+    <div class="chip"><div class="k">Accuracy</div><div class="v" id="resAcc"></div></div>
+    <div class="chip"><div class="k">Best combo</div><div class="v" id="resCombo"></div></div>
+    <div class="chip lvl"><div class="k">XP</div><div class="v" id="resXp"></div></div>
+  </div>
+  <h2 id="reviewHead">REVIEW WHAT YOU MISSED</h2>
+  <div class="review" id="review"></div>
+  <button class="cta" id="resHome">BACK TO BASE</button>
+  <button class="cta alt" id="resAgain" style="margin-top:12px">REMATCH</button>
+</section>
+</div>
+
+<!-- SETTINGS -->
+<div class="sheet hidden" id="settings">
+  <div class="in">
+    <h3>SETTINGS</h3>
+
+    <div class="set">
+      <div class="h">Daily reminders</div>
+      <div id="notifBody"></div>
+    </div>
+
+    <div class="set">
+      <div class="h">Focus module</div>
+      <div class="dim">Daily runs lean on this module for new material. Auto = your newest module.</div>
+      <select id="focusSel"></select>
+    </div>
+
+    <div class="set">
+      <div class="h">Progress</div>
+      <div class="dim" id="progInfo"></div>
+      <button class="smallbtn danger" id="resetBtn">Reset all progress</button>
+    </div>
+
+    <button class="cta alt" id="closeSettings">CLOSE</button>
+  </div>
+</div>
+
+<script src="cards.js"></script>
+<script>
+(() => {
+'use strict';
+const VAPID_PUBLIC = 'BDEySMJf5hxV_a3aAXkKVlkJtSeF4up9tZoSVtb7-pxhUbWXxzfljBWnmAMOe3CIuSme1E9wA4KvRGhUNrm2QR8';
+const SECRETS_URL = 'https://github.com/KingIkeee/SOC-Trainer/settings/secrets/actions/new';
+const KEY = 'itq-v1';
+const INTERVALS = [0, 1, 2, 4, 7, 14, 30];
+const BOSS_HP = 260, FINISH_AT = 0.3, HEARTS = 3;
+const $ = id => document.getElementById(id);
+const rand = n => Math.floor(Math.random() * n);
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = rand(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- dates ---------- */
+const dstr = d => d.toLocaleDateString('en-CA');
+const today = () => dstr(new Date());
+const addDays = (s, n) => { const [y, m, d] = s.split('-').map(Number); return dstr(new Date(y, m - 1, d + n)); };
+const dayNum = s => { const [y, m, d] = s.split('-').map(Number); return Math.floor(Date.UTC(y, m - 1, d) / 86400000); };
+
+/* ---------- bosses ---------- */
+const SHAPES = {
+  ogre: ['....xxxxxx....','..xxxxxxxxxx..','.xxxxxxxxxxxx.','.xxwwxxxxwwxx.','xxxwkxxxxwkxxx','xxxxxxxxxxxxxx','xxxxxxxxxxxxxx','xxxrrrrrrrrxxx','xxxrwrwwrwrxxx','.xxxxxxxxxxxx.','.xxxxxxxxxxxx.','..xx..xx..xx..','..xx..xx..xx..'],
+  ghost: ['....xxxxxx....','...xxxxxxxx...','..xxxxxxxxxx..','..xkkxxxxkkx..','.xxkkxxxxkkxx.','.xxxxxxxxxxxx.','.xxxxxkkxxxxx.','.xxxxkkkkxxxx.','.xxxxxxxxxxxx.','.xxxxxxxxxxxx.','.xxxxxxxxxxxx.','.xx.xxx.xxx.x.','.x...x...x....'],
+  hydra: ['.x..........x.','.xx........xx.','..xxxxxxxxxx..','.xxxxxxxxxxxx.','xxwwkxxxxkwwxx','xxxxxxxxxxxxxx','.xxxxxxxxxxxx.','..xrxrxxrxrx..','..xxxxxxxxxx..','...xxxxxxxx...','..xx.xxxx.xx..','.xx...xx...xx.'],
+  golem: ['.....xxxx.....','.....x..x.....','..xxxxxxxxxx..','..xyyyxxyyyx..','..xykyxxykyx..','..xxxxxxxxxx..','..xrrrrrrrrx..','..xxxxxxxxxx..','xxxxxxxxxxxxxx','xx.xxxxxxxx.xx','xx.xxxxxxxx.xx','...xxx..xxx...','...xxx..xxx...'],
+};
+// Keep this list in sync with .github/push/send.mjs
+const BOSSES = [
+  { name: 'Collision Ogre', shape: 'ogre', body: '#7bd34a', sub: 'One big collision domain. Smash it with clean frames.' },
+  { name: 'Kernel Panic', shape: 'golem', body: '#9aa7c7', sub: 'Crashed the whole system. Show it who manages memory.' },
+  { name: 'The 404 Phantom', shape: 'ghost', body: '#b48cff', sub: 'Page not found. Neither is its weak spot, yet.' },
+  { name: 'WannaCry Hydra', shape: 'hydra', body: '#ff5a5a', sub: 'Feeds on unpatched machines. Starve it.' },
+  { name: 'Packet Wraith', shape: 'ghost', body: '#3de0ff', sub: 'Drops frames, fails the CRC. Catch it.' },
+  { name: 'Overclock Golem', shape: 'golem', body: '#ff9b3d', sub: 'Running hot with no heat sink.' },
+  { name: 'BIOS Basilisk', shape: 'hydra', body: '#3dff9a', sub: 'Lurks before POST. Boot it out.' },
+];
+const BONUS_BOSSES = [
+  { name: 'Crosstalk Twins', shape: 'ogre', body: '#ff3d8b', sub: 'Bonus round.' },
+  { name: 'Swap-Space Slime', shape: 'ogre', body: '#3dffd8', sub: 'Bonus round.' },
+  { name: 'Rogue DHCP Ghost', shape: 'ghost', body: '#ffc83d', sub: 'Bonus round.' },
+];
+const dailyBoss = () => BOSSES[dayNum(today()) % BOSSES.length];
+function drawSprite(svg, boss) {
+  const rows = SHAPES[boss.shape];
+  const pal = { x: boss.body, w: '#ffffff', k: '#0b0e17', r: '#c4224f', y: '#ffe14d' };
+  const w = rows[0].length, h = rows.length;
+  let out = '';
+  rows.forEach((row, y) => [...row].forEach((c, x) => { if (pal[c]) out += `<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${pal[c]}"/>`; }));
+  const sh = `<ellipse cx="${w / 2}" cy="${h + .6}" rx="${w / 2.6}" ry=".6" fill="rgba(0,0,0,.45)"/>`;
+  svg.setAttribute('viewBox', `-1 -1 ${w + 2} ${h + 2.5}`);
+  svg.setAttribute('shape-rendering', 'crispEdges');
+  svg.innerHTML = sh + out;
+}
+
+/* ---------- items ---------- */
+const ITEMS = [];
+MODULES.forEach(m => {
+  m.cards.forEach((c, i) => ITEMS.push({ id: `${m.id}:c${i}`, mod: m, type: 'card', term: c[0], def: c[1] }));
+  m.pts.forEach((p, i) => ITEMS.push({ id: `${m.id}:p${i}`, mod: m, type: 'pt', q: p[0], a: p[1], wrong: p[2], ex: p[3] }));
+});
+const BY_ID = Object.fromEntries(ITEMS.map(i => [i.id, i]));
+const modTag = m => `C${m.course}·M${m.module}`;
+
+/* ---------- state ---------- */
+const blank = () => ({ items: {}, streak: 0, best: 0, lastDaily: null, xp: 0, focus: 'auto', history: {}, wins: 0, notif: null });
+let S;
+try { S = Object.assign(blank(), JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) { S = blank(); }
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
+  // share a tiny bit of state with the service worker so reminders know if today's run is done
+  if ('caches' in window) caches.open('itq-state').then(c => c.put('state.json', new Response(JSON.stringify({ lastDaily: S.lastDaily, streak: liveStreak() })))).catch(() => {});
+}
+const rec = id => S.items[id] || (S.items[id] = { box: 0, due: null, seen: 0, right: 0, wrong: 0 });
+const liveStreak = () => (S.lastDaily === today() || S.lastDaily === addDays(today(), -1)) ? S.streak : 0;
+const focusMod = () => MODULES.find(m => m.id === S.focus) || MODULES[MODULES.length - 1];
+const modMastery = m => { const its = ITEMS.filter(i => i.mod === m); return its.reduce((s, i) => s + Math.min((S.items[i.id] || {}).box || 0, 4) / 4, 0) / its.length; };
+const totalMastery = () => ITEMS.reduce((s, i) => s + Math.min((S.items[i.id] || {}).box || 0, 4) / 4, 0) / ITEMS.length;
+const RANKS = ['Help Desk Rookie', 'Ticket Slayer', 'Cable Wrangler', 'Packet Pusher', 'Root Cause Hunter', 'Subnet Sorcerer', 'Network Ninja', 'Threat Hunter', 'SOC Analyst'];
+const level = () => Math.floor(Math.sqrt(S.xp / 120)) + 1;
+const rank = () => RANKS[Math.min(RANKS.length - 1, Math.floor((level() - 1) / 2))];
+
+/* ---------- question building ---------- */
+const wordsIn = (term, def) => term.toLowerCase().replace(/\(.*?\)/g, '').split(/[^a-z0-9]+/).filter(w => w.length > 3).some(w => def.toLowerCase().includes(w));
+function buildQ(item) {
+  if (item.type === 'pt') {
+    return { item, kind: 'POINT-OUT', text: item.q, opts: shuffle([item.a, ...item.wrong]), answer: item.a, explain: `<b>${esc(item.a)}</b><br>${esc(item.ex)}` };
+  }
+  const canReverse = !wordsIn(item.term, item.def);
+  const reverse = canReverse && Math.random() < 0.55;
+  const pool = shuffle(ITEMS.filter(i => i.type === 'card' && i.mod === item.mod && i !== item));
+  const others = shuffle(ITEMS.filter(i => i.type === 'card' && i.mod !== item.mod));
+  const key = reverse ? 'term' : 'def';
+  const picks = [];
+  for (const c of [...pool, ...others]) {
+    if (picks.length === 3) break;
+    if (c[key] !== item[key] && c.term.toLowerCase() !== item.term.toLowerCase() && !picks.includes(c[key])) picks.push(c[key]);
+  }
+  const explain = `<b>${esc(item.term)}</b>: ${esc(item.def)}`;
+  return reverse
+    ? { item, kind: 'NAME IT', text: item.def, opts: shuffle([item.term, ...picks]), answer: item.term, explain }
+    : { item, kind: 'DEFINE IT', text: `What is ${item.term}?`, opts: shuffle([item.def, ...picks]), answer: item.def, explain };
+}
+function pickPool(mode, modId) {
+  const t = today();
+  if (mode === 'practice') {
+    const its = ITEMS.filter(i => !modId || i.mod.id === modId);
+    // weakest first, with some randomness
+    return shuffle(its.slice()).sort((a, b) => ((S.items[a.id] || {}).box || 0) - ((S.items[b.id] || {}).box || 0) + (Math.random() - .5) * 1.5);
+  }
+  const fm = focusMod();
+  const seen = ITEMS.filter(i => S.items[i.id] && S.items[i.id].seen);
+  const due = shuffle(seen.filter(i => S.items[i.id].due <= t)).sort((a, b) => S.items[a.id].box - S.items[b.id].box);
+  const focusNew = shuffle(ITEMS.filter(i => i.mod === fm && !(S.items[i.id] && S.items[i.id].seen)));
+  const focusAny = shuffle(ITEMS.filter(i => i.mod === fm));
+  const otherNew = shuffle(ITEMS.filter(i => i.mod !== fm && !(S.items[i.id] && S.items[i.id].seen)));
+  const out = [];
+  const add = (arr, n) => { for (const i of arr) { if (n <= 0) break; if (!out.includes(i)) { out.push(i); n--; } } };
+  add(due, 7);
+  add(focusNew, 5);
+  add(otherNew, 14 - out.length);
+  add(focusAny, 14 - out.length);
+  add(shuffle(ITEMS.slice()), 30 - out.length);
+  return shuffle(out.slice(0, 14)).concat(out.slice(14));
+}
+
+/* ---------- battle ---------- */
+let R = null;
+function startRun(mode, modId) {
+  const boss = mode === 'daily' ? dailyBoss() : (modId ? BONUS_BOSSES[rand(BONUS_BOSSES.length)] : BOSSES[rand(BOSSES.length)]);
+  R = { mode, modId, boss, hp: BOSS_HP, hearts: HEARTS, combo: 0, bestCombo: 0, correct: 0, total: 0, xp: 0, missed: [], queue: pickPool(mode, modId), requeued: new Set(), finisherUsed: false, qStart: 0, locked: false };
+  drawSprite($('bSprite'), boss);
+  $('bName').textContent = boss.name.toUpperCase();
+  show('battle');
+  renderHud();
+  nextQ();
+}
+function renderHud() {
+  const HG = ['.xx.xx.', 'xwxxxxx', 'xxxxxxx', '.xxxxx.', '..xxx..', '...x...'];
+  const hrects = HG.map((r, y) => [...r].map((c, x) => c === '.' ? '' : `<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${c === 'w' ? '#ffb3d1' : '#ff3d8b'}"/>`).join('')).join('');
+  const heart = on => `<svg class="heart ${on ? '' : 'lost'}" viewBox="0 0 7 6" shape-rendering="crispEdges">${hrects}</svg>`;
+  $('hearts').innerHTML = Array.from({ length: HEARTS }, (_, i) => heart(i < R.hearts)).join('');
+  $('combo').textContent = R.combo >= 2 ? `COMBO ×${R.combo}` : '';
+  $('hpFill').style.width = `${Math.max(0, R.hp / BOSS_HP * 100)}%`;
+  $('hpNum').textContent = `${Math.max(0, R.hp)}/${BOSS_HP}`;
+}
+function nextQ() {
+  R.locked = false;
+  if (R.hp <= 0) return endRun(true);
+  if (R.hearts <= 0) return endRun(false);
+  if (!R.finisherUsed && R.hp <= BOSS_HP * FINISH_AT) return finisher();
+  if (!R.queue.length) R.queue = pickPool('practice', R.modId).slice(0, 10);
+  const q = buildQ(R.queue.shift());
+  R.q = q; R.qStart = Date.now();
+  const longOpts = q.opts.some(o => o.length > 60);
+  $('qcard').className = 'qcard';
+  $('qcard').innerHTML = `
+    <div class="qmeta"><span>${modTag(q.item.mod)} · ${esc(q.item.mod.title.toUpperCase())}</span><span class="kind">${q.kind}</span></div>
+    <div class="qtext">${esc(q.text)}</div>
+    <div class="opts">${q.opts.map((o, i) => `<button class="opt ${longOpts ? 'long' : ''}" data-i="${i}">${esc(o)}</button>`).join('')}</div>`;
+  $('qcard').querySelectorAll('.opt').forEach(b => b.onclick = () => answer(+b.dataset.i));
+}
+function floatText(txt, color) {
+  const d = document.createElement('div');
+  d.className = 'dmg'; d.textContent = txt; if (color) d.style.color = color;
+  $('arena').appendChild(d); setTimeout(() => d.remove(), 950);
+}
+function bump(el, cls) { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
+function grade(item, ok) {
+  const r = rec(item.id);
+  r.seen++;
+  if (ok) { r.right++; r.box = Math.min(r.box + 1, INTERVALS.length - 1); r.due = addDays(today(), INTERVALS[r.box]); }
+  else { r.wrong++; r.box = 0; r.due = today(); }
+}
+function answer(i) {
+  if (R.locked) return; R.locked = true;
+  const q = R.q, pick = q.opts[i], ok = pick === q.answer;
+  const secs = (Date.now() - R.qStart) / 1000;
+  const btns = [...$('qcard').querySelectorAll('.opt')];
+  btns.forEach((b, j) => { b.disabled = true; if (q.opts[j] === q.answer) b.classList.add('right'); });
+  R.total++;
+  const firstTry = !R.requeued.has(q.item.id);
+  if (firstTry) grade(q.item, ok);
+  if (ok) {
+    R.correct++; R.combo++; R.bestCombo = Math.max(R.bestCombo, R.combo);
+    const quick = secs < 6;
+    const dmg = 10 + Math.min(R.combo - 1, 5) * 2 + (quick ? 3 : 0);
+    R.hp -= dmg; R.xp += 10;
+    floatText(`-${dmg}${quick ? ' QUICK' : ''}`);
+    bump($('bSprite'), 'shake');
+    renderHud();
+    const ex = document.createElement('div');
+    ex.className = 'explain'; ex.innerHTML = q.explain;
+    $('qcard').appendChild(ex);
+    setTimeout(nextQ, q.item.type === 'pt' ? 1700 : 1300);
+  } else {
+    btns[i].classList.add('wrong');
+    R.combo = 0; R.hearts--;
+    if (!R.missed.includes(q.item)) R.missed.push(q.item);
+    if (!R.requeued.has(q.item.id)) { R.requeued.add(q.item.id); R.queue.splice(Math.min(3, R.queue.length), 0, q.item); }
+    bump($('arena'), 'flash');
+    floatText('OUCH', 'var(--red)');
+    renderHud();
+    $('qcard').insertAdjacentHTML('beforeend', `<div class="explain">${q.explain}</div><button class="cta alt next" id="nextBtn">GOT IT ▸</button>`);
+    $('nextBtn').onclick = nextQ;
+  }
+}
+function finisher() {
+  R.finisherUsed = true;
+  const seenPts = ITEMS.filter(i => i.type === 'pt' && (R.modId ? i.mod.id === R.modId : true));
+  const weighted = seenPts.filter(i => i.mod === focusMod() || (S.items[i.id] && S.items[i.id].seen));
+  const item = (weighted.length ? weighted : seenPts)[rand((weighted.length ? weighted : seenPts).length)];
+  $('qcard').className = 'qcard finisher';
+  $('qcard').innerHTML = `
+    <span class="badge">⚡ FINISHER</span>
+    <div class="qmeta"><span>${modTag(item.mod)}</span><span class="kind">EXPLAIN IT</span></div>
+    <div class="qtext">Explain out loud, like you're telling a coworker:<br><span style="color:var(--lime)">${esc(item.q)}</span></div>
+    <button class="cta" id="revealBtn">REVEAL ANSWER</button>`;
+  $('revealBtn').onclick = () => {
+    $('revealBtn').remove();
+    $('qcard').insertAdjacentHTML('beforeend', `<div class="explain"><b>${esc(item.a)}</b><br>${esc(item.ex)}</div>
+      <div class="row2"><button class="cta" id="nailBtn">NAILED IT</button><button class="cta alt" id="missBtn">NOT QUITE</button></div>`);
+    $('nailBtn').onclick = () => {
+      grade(item, true); R.xp += 25; R.correct++; R.total++;
+      floatText('-' + Math.max(R.hp, 0) + ' FINISH!', 'var(--lime)');
+      R.hp = 0; renderHud(); bump($('bSprite'), 'shake');
+      setTimeout(() => endRun(true), 900);
+    };
+    $('missBtn').onclick = () => {
+      grade(item, false); R.total++;
+      if (!R.missed.includes(item)) R.missed.push(item);
+      R.hp = Math.min(BOSS_HP, R.hp + 20); floatText('+20 HEAL', 'var(--green)'); renderHud();
+      setTimeout(nextQ, 700);
+    };
+  };
+}
+function endRun(won) {
+  const t = today();
+  let streakMsg = '';
+  if (R.mode === 'daily') {
+    if (S.lastDaily !== t) {
+      S.streak = S.lastDaily === addDays(t, -1) ? S.streak + 1 : 1;
+      S.lastDaily = t;
+      S.best = Math.max(S.best, S.streak);
+    }
+    streakMsg = `🔥 ${S.streak}-day streak`;
+    if (navigator.clearAppBadge) navigator.clearAppBadge().catch(() => {});
+  }
+  if (won) { R.xp += 50; S.wins++; }
+  S.xp += R.xp;
+  const h = S.history[t] || (S.history[t] = { c: 0, n: 0, won: false });
+  h.c += R.correct; h.n += R.total; h.won = h.won || (won && R.mode === 'daily');
+  save();
+  $('resTitle').className = 'result-title ' + (won ? 'win' : 'lose');
+  $('resTitle').textContent = won ? 'BOSS DEFEATED' : 'BOSS ESCAPED';
+  $('resSub').textContent = [won ? `${R.boss.name} is down.` : `${R.boss.name} got away. Rematch?`, streakMsg].filter(Boolean).join(' · ');
+  $('resAcc').textContent = R.total ? Math.round(R.correct / R.total * 100) + '%' : '–';
+  $('resCombo').textContent = '×' + R.bestCombo;
+  $('resXp').textContent = '+' + R.xp;
+  $('reviewHead').classList.toggle('hidden', !R.missed.length);
+  $('review').innerHTML = R.missed.length
+    ? R.missed.map(i => `<div class="r">${i.type === 'pt' ? `<b>${esc(i.q)}</b><br>${esc(i.a)}. ${esc(i.ex)}` : `<b>${esc(i.term)}</b><br>${esc(i.def)}`}</div>`).join('')
+    : '';
+  if (!R.missed.length) $('review').innerHTML = `<div class="r" style="text-align:center">Flawless. Nothing to review. 🧠</div>`;
+  show('results');
+}
+
+/* ---------- home ---------- */
+function renderHome() {
+  const boss = dailyBoss(), done = S.lastDaily === today();
+  drawSprite($('homeSprite'), boss);
+  $('homeBossName').textContent = boss.name;
+  $('homeBossSub').textContent = done ? 'Defeated. A new boss spawns tomorrow.' : boss.sub + ' ~5 min.';
+  $('doneBadge').classList.toggle('hidden', !done);
+  $('fightBtn').textContent = done ? 'BONUS ROUND ▸' : 'FIGHT ▸';
+  $('fightBtn').className = done ? 'cta alt' : 'cta';
+  $('bossLabel').textContent = done ? "Today's boss · cleared" : "Today's boss";
+  $('stStreak').textContent = liveStreak();
+  $('stLevel').textContent = level();
+  $('stRank').textContent = rank();
+  $('stMastery').textContent = Math.round(totalMastery() * 100) + '%';
+  const t = today(), names = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+  let wk = '';
+  for (let k = 6; k >= 0; k--) {
+    const d = addDays(t, -k), [y, m, dd] = d.split('-').map(Number), dow = new Date(y, m - 1, dd).getDay();
+    const on = !!(S.history[d] && (S.lastDaily === d || S.history[d].n));
+    wk += `<div class="day"><div class="dot ${on ? 'on' : ''} ${k === 0 ? 'today' : ''}">${on ? '✓' : ''}</div>${names[dow]}</div>`;
+  }
+  $('week').innerHTML = wk;
+  const fm = focusMod();
+  $('mods').innerHTML = MODULES.slice().reverse().map(m => {
+    const p = Math.round(modMastery(m) * 100);
+    return `<button class="mod ${m === fm ? 'focus' : ''}" data-m="${m.id}"><div class="tag">${modTag(m)}</div><div class="mid"><div class="t">${esc(m.title)}${m === fm ? '<span class="new">FOCUS</span>' : ''}</div><div class="bar"><i style="width:${p}%"></i></div></div><div class="pct">${p}%</div></button>`;
+  }).join('');
+  $('mods').querySelectorAll('.mod').forEach(b => b.onclick = () => startRun('practice', b.dataset.m));
+}
+function show(id) {
+  ['home', 'battle', 'results'].forEach(s => $(s).classList.toggle('hidden', s !== id));
+  if (id === 'home') renderHome();
+  window.scrollTo(0, 0);
+}
+function toast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2500); }
+
+/* ---------- notifications ---------- */
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const pushOK = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+function b64ToU8(s) { const p = '='.repeat((4 - s.length % 4) % 4), b = atob((s + p).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from([...b].map(c => c.charCodeAt(0))); }
+async function currentSub() { try { const reg = await navigator.serviceWorker.ready; return await reg.pushManager.getSubscription(); } catch (e) { return null; } }
+async function renderNotif() {
+  const el = $('notifBody');
+  const sched = `<div class="dim">7:20 AM Sun–Thu (before your shift) and ~noon every day. Turn them off anytime in your phone's Settings → Notifications → IT Quest.</div>`;
+  if (isIOS && !standalone) {
+    el.innerHTML = sched + `<div class="status warn">Add IT Quest to your Home Screen first.</div><ol><li>In Safari, tap the Share button.</li><li>Tap <b>Add to Home Screen</b>.</li><li>Open IT Quest from your Home Screen and come back here.</li></ol>`;
+    return;
+  }
+  if (!pushOK) { el.innerHTML = sched + `<div class="status warn">This browser doesn't support push notifications.</div>`; return; }
+  const sub = await currentSub();
+  if (!sub || Notification.permission !== 'granted') {
+    el.innerHTML = sched + (Notification.permission === 'denied'
+      ? `<div class="status warn">Notifications are blocked. Turn them on in Settings → Notifications → IT Quest, then reopen the app.</div>`
+      : `<button class="smallbtn go" id="enableNotif">Turn on notifications</button>`);
+    const b = $('enableNotif'); if (b) b.onclick = enableNotif;
+    return;
+  }
+  const code = JSON.stringify(sub.toJSON());
+  const synced = S.notif === code;
+  el.innerHTML = sched + `<div class="status ok">✓ Notifications allowed on this phone.</div>
+    <div style="margin-top:10px"><b>${synced ? 'Reminder server: linked' : 'One-time step: link the reminder server'}</b></div>
+    ${synced ? '<div class="dim">If reminders ever stop, copy the code again and update the secret.</div>' : ''}
+    <ol>
+      <li>Tap <b>Copy code</b>.</li>
+      <li>Open <a href="${SECRETS_URL}" target="_blank" rel="noopener">GitHub → New secret</a>.</li>
+      <li>Name it <code>PUSH_SUBSCRIPTION</code>, paste the code, tap <b>Add secret</b>.</li>
+    </ol>
+    <button class="smallbtn go" id="copyCode">Copy code</button><button class="smallbtn" id="testNotif">Test notification</button>
+    <textarea class="code" readonly>${esc(code)}</textarea>`;
+  $('copyCode').onclick = async () => {
+    try { await navigator.clipboard.writeText(code); toast('Copied. Paste it into GitHub.'); }
+    catch (e) { const ta = el.querySelector('textarea'); ta.focus(); ta.select(); toast('Select all + copy from the box.'); }
+    S.notif = code; save();
+  };
+  $('testNotif').onclick = async () => {
+    const reg = await navigator.serviceWorker.ready;
+    reg.showNotification('IT Quest', { body: `Test ping. ${dailyBoss().name} is waiting.`, icon: 'icons/icon-192.png', tag: 'itq-test' });
+  };
+}
+async function enableNotif() {
+  try {
+    const perm = await Notification.requestPermission();
+    if (perm !== 'granted') { toast('Notifications not allowed.'); return renderNotif(); }
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToU8(VAPID_PUBLIC) });
+    toast('Notifications on.');
+  } catch (e) { toast('Could not turn on: ' + e.message); }
+  renderNotif();
+}
+
+/* ---------- settings ---------- */
+function openSettings() {
+  $('focusSel').innerHTML = `<option value="auto">Auto (${modTag(MODULES[MODULES.length - 1])})</option>` +
+    MODULES.map(m => `<option value="${m.id}" ${S.focus === m.id ? 'selected' : ''}>${modTag(m)} · ${esc(m.title)}</option>`).join('');
+  const seen = Object.values(S.items).filter(r => r.seen).length;
+  $('progInfo').textContent = `${seen} of ${ITEMS.length} concepts seen · ${S.wins} boss${S.wins === 1 ? '' : 'es'} beaten · best streak ${S.best}`;
+  $('resetBtn').textContent = 'Reset all progress'; $('resetBtn').dataset.armed = '';
+  $('settings').classList.remove('hidden');
+  renderNotif();
+}
+$('openSettings').onclick = openSettings;
+$('closeSettings').onclick = () => { $('settings').classList.add('hidden'); renderHome(); };
+$('settings').onclick = e => { if (e.target === $('settings')) $('closeSettings').onclick(); };
+$('focusSel').onchange = e => { S.focus = e.target.value; save(); };
+$('resetBtn').onclick = e => {
+  const b = e.currentTarget;
+  if (!b.dataset.armed) { b.dataset.armed = '1'; b.textContent = 'Tap again to wipe everything'; return; }
+  const notif = S.notif; S = blank(); S.notif = notif; save(); toast('Progress reset.'); openSettings();
+};
+
+/* ---------- wiring ---------- */
+$('fightBtn').onclick = () => startRun(S.lastDaily === today() ? 'practice' : 'daily', null);
+$('mixBtn').onclick = () => startRun('practice', null);
+$('quitBtn').onclick = () => { R = null; show('home'); };
+$('resHome').onclick = () => show('home');
+$('resAgain').onclick = () => startRun(R.mode === 'daily' ? 'practice' : R.mode, R.modId);
+document.addEventListener('visibilitychange', () => { if (!document.hidden && !$('home').classList.contains('hidden')) renderHome(); });
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+save();
+show('home');
+if (new URLSearchParams(location.search).get('go') === 'daily' && S.lastDaily !== today()) startRun('daily', null);
+window.__itq = { S: () => S, ITEMS, buildQ, pickPool, startRun };
+})();
+</script>
+</body>
+</html>

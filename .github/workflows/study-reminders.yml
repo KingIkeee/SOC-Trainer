@@ -1,0 +1,52 @@
+name: IT Quest reminders
+
+on:
+  schedule:
+    # Times are UTC. Each reminder has a winter (EST) and summer (EDT) line;
+    # send.mjs only fires the one that matches New York time.
+    - cron: '20 12 * * 0-4'  # 7:20 AM EST, Sun–Thu (before shift)
+    - cron: '20 11 * * 0-4'  # 7:20 AM EDT, Sun–Thu
+    - cron: '55 16 * * *'    # 11:55 AM EST, daily (lunch)
+    - cron: '55 15 * * *'    # 11:55 AM EDT, daily
+  workflow_dispatch:
+    inputs:
+      slot:
+        description: 'Which message to send'
+        type: choice
+        options: [test, morning, noon]
+        default: test
+
+permissions:
+  contents: write
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Send push
+        working-directory: .github/push
+        env:
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+          PUSH_SUBSCRIPTION: ${{ secrets.PUSH_SUBSCRIPTION }}
+          CRON: ${{ github.event.schedule }}
+          SLOT_OVERRIDE: ${{ github.event.inputs.slot }}
+        run: |
+          npm install --no-audit --no-fund web-push@3.6.7
+          node send.mjs
+      # GitHub pauses scheduled workflows after 60 days without commits. Leave a small heartbeat commit when it gets close.
+      - name: Keep schedule alive
+        run: |
+          last=$(git log -1 --format=%ct)
+          if [ $(( $(date +%s) - last )) -gt $(( 45 * 86400 )) ]; then
+            date -u +%FT%TZ > .github/push/heartbeat.txt
+            git config user.name "it-quest-bot"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add .github/push/heartbeat.txt
+            git commit -m "IT Quest reminder heartbeat"
+            git push
+          fi

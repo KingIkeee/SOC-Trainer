@@ -29,6 +29,12 @@ if (!slot) {
   if (!c) { console.log(`Unknown schedule "${CRON}", nothing to do.`); process.exit(0); }
   if (c.offset !== nyOffset) { console.log(`Skipping ${c.slot}: this cron is for UTC${c.offset}, New York is UTC${nyOffset}.`); process.exit(0); }
   slot = c.slot;
+  // GitHub's scheduler can run hours late. A reminder that shows up at 5pm is useless, so skip anything over an hour late.
+  const nyMin = Number(now.toLocaleString('en-US', { timeZone: 'America/New_York', hour: 'numeric', hour12: false })) % 24 * 60
+    + Number(now.toLocaleString('en-US', { timeZone: 'America/New_York', minute: 'numeric' }));
+  const target = { morning: 8 * 60 + 35, noon: 11 * 60 + 55 }[slot];
+  const late = nyMin - target;
+  if (late > 60 || late < -30) { console.log(`Skipping ${slot}: GitHub started this run ${late} minutes off schedule.`); process.exit(0); }
 }
 
 if (!VAPID_PRIVATE_KEY || !PUSH_SUBSCRIPTION) {
